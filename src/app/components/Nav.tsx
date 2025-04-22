@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 const Nav = () => {
-  const logoSource = 'https://images.squarespace-cdn.com/content/v1/653425a1ca72742f1e24e16c/67e9d296-699d-4166-99ea-26f53bf5386a/Fred-Porter-Logo.png?format=500w'
+  const logoSource = '@/public/logo-small.jpg'
 
   return (
     <div className='w-full h-32 flex-row justify-between items-center p-4 fixed top-0 left-0'>
