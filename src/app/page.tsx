@@ -91,7 +91,7 @@ export default function Home() {
               With deep local roots and a passion for the communities we serve, we offer expert guidance on market trends, lifestyle options, and the best neighborhoods for your next move.
               <br></br>
               <br></br>
-              Whether you're downsizing, relocating, or investing, Porter Real Estate is committed to making your real estate journey smooth and successful.
+              Whether you&#39;re downsizing, relocating, or investing, Porter Real Estate is committed to making your real estate journey smooth and successful.
               <br></br>
               <br></br>
               <span className='font-semibold'>Your home, your future—our family is here to help.</span>
