@@ -13,7 +13,7 @@ const Footer = () => (
       <div className='flex-col gap-2 self-end max-w-[600px]'>
         <p className='text-background font-semibold tracking-tight'>Privacy policy</p>
         <p className='text-background text-xs'>
-          IDX information is provided exclusively for consumers’ personal, non-commercial use, that it may not be used for any purpose other than to identify prospective properties consumers may be interested in purchasing, and that the data is deemed reliable but is not guaranteed accurate by the MLS.
+          IDX information is provided exclusively for consumers&#39; personal, non-commercial use, that it may not be used for any purpose other than to identify prospective properties consumers may be interested in purchasing, and that the data is deemed reliable but is not guaranteed accurate by the MLS.
           <br></br>
           The MLS may, at its discretion, require use of other disclaimers as necessary to protect participants and/or the MLS from liability. Information deemed reliable but not guaranteed by the MLS. Information source: Information and Real Estate Services, LLC.
           <br></br>
