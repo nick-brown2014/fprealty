@@ -9,7 +9,10 @@ interface ListingsResponse extends Response {
   bundle: Listing[]
 }
 
-type Listing = any
+type Listing = {
+  id: number
+  // TODO: decide on all needed fields, add
+}
 
 type Filters = {
   limit: number
