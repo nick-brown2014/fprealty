@@ -39,12 +39,14 @@ export const AuthProvider = ({ children }: Props) => {
       if (existingUser) {
         try {
           setUser(JSON.parse(existingUser))
+          // TODO: Set User Info to useful object
+          setUserInfo(null)
         } catch (e) {
           console.log(e)
         }
       }
     }
-  }, [])
+  }, [getCookie, user])
 
   return (
     <AuthContext.Provider value={{ user, setUser, modalOpen, setModalOpen, userInfo }}>

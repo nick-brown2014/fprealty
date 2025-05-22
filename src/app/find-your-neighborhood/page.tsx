@@ -1,4 +1,3 @@
-import MapDisplay from "../components/MapDisplay";
 import Nav from "../components/Nav";
 
 const Home = () => {

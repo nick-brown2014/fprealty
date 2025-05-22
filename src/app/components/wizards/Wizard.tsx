@@ -17,7 +17,7 @@ type WizardProps = {
 }
 
 const Wizard = ({ frames }: WizardProps) => {
-
+  console.log('frames', frames)
 
   return (
     <div className='w-full rounded-xl shadow-xl p-8 flex flex-col items-center'>

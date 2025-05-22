@@ -6,7 +6,7 @@ const defaultHeaders = {
 }
 
 const buildQueryString = (params?: Record<string, string | number | boolean>) => {
-  let queryString = `?access_token=${API_KEY}`
+  const queryString = `?access_token=${API_KEY}`
   if (!params) return queryString
   const query = new URLSearchParams()
   for (const key in params) {

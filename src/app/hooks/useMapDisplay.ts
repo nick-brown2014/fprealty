@@ -38,6 +38,7 @@ const useMapDisplay = () => {
     setLoading(true)
     const listingsRes: ListingsResponse = await apiGet('/listings', filters)
     console.log('listingsRes', listingsRes)
+    setListings(listingsRes.bundle)
 
     setLoading(false)
   }
