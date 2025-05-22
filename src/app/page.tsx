@@ -9,14 +9,13 @@ export default function Home() {
         <div className='items-center w-full flex-col relative overflow-hidden lg:min-h-[600px] lg:justify-center flex'>
           <img src='/home-header.jpg' className='w-full h-auto absolute -z-10 brightness-50' />
           <h1 className='font-bold tracking-tight mt-8 sm:mt-24 lg:mt-0 text-3xl sm:text-5xl lg:text-8xl text-white'>Porter Real Estate</h1>
-          {/* <h1 className='font-bold tracking-tight text-6xl mt-2 text-white'>Your NoCo Realtor</h1> */}
           <h2 className='mt-6 font-bold tracking-tight text-lg lg:text-2xl text-white text-center'>
             Your ultimate resource to living in Northern Colorado
           </h2>
 
           <div className='justify-center my-12 gap-8 flex'>
-            <a href='/buying' className='py-[4px] px-8 lg:px-12 text-2xl lg:text-3xl font-bold bg-linear-to-r from-primary to-5% to-primary from-5% to-white text-black hover:text-white hover:to-primary transition duration-500'>Buy</a>
-            <a href='/selling' className='py-[4px] px-8 lg:px-12 text-2xl lg:text-3xl font-bold bg-linear-to-r from-primary to-5% to-primary from-5% to-white text-black hover:text-white hover:to-primary transition duration-500'>Sell</a>
+            <a href='/buying' className='py-[4px] px-8 lg:px-12 text-2xl lg:text-3xl font-bold bg-linear-to-r from-primary to-5% to-primary from-5% to-white text-black shadow-xl hover:text-white hover:to-primary transition duration-500'>Buy</a>
+            <a href='/selling' className='py-[4px] px-8 lg:px-12 text-2xl lg:text-3xl font-bold bg-linear-to-r from-primary to-5% to-primary from-5% to-white text-black shadow-xl hover:text-white hover:to-primary transition duration-500'>Sell</a>
           </div>
         </div>
 
@@ -80,7 +79,7 @@ export default function Home() {
 
         <div className='w-full lg:w-[1000px] py-16 bg-background flex flex-col lg:flex-row'>
           <div className='w-full lg:w-1/2 lg:pr-8 flex justify-center'>
-            <img className='w-[75%] lg:w-full h-auto' src='/ingrid.png' />
+            <img className='w-[75%] lg:w-full h-auto' src='/footer-fred-isabella.jpg' />
           </div>
           <div className='w-full lg:w-1/2 pl-8 flex'>
             <p className='text-lg tracking-tight mt-8'>

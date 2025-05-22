@@ -3,7 +3,7 @@
 const Footer = () => (
   <div className='w-full bg-foreground px-8 pt-4 pb-12 justify-center flex'>
     <div className='justify-between lg:items-center gap-8 max-w-[1200px] w-full flex flex-col lg:flex-row'>
-      <img src='/ingrid.png' className='w-42 h-42' />
+      <img src='/logo-white.png' className='w-42 h-42' />
       <div className='flex-col gap-2 ml-6 lg:ml-0'>
         <p className='text-background font-semibold tracking-tight'>215 Circle Dr</p>
         <p className='text-background font-semibold tracking-tight'>Fort Collins, CO, 80524</p>
