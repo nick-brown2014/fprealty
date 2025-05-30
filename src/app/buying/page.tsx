@@ -1,13 +1,26 @@
 import Nav from "../components/Nav";
+import BuyingWizard from "../components/wizards/BuyingWizard";
 
 const Home = () => {
   return (
     <div className='w-full h-full flex-col'>
       <Nav />
-      <div className='px-6 pb-10 pt-40 flex flex-col'>
-        <h1>
-          Buying
-        </h1>
+      <div className='pb-10 items-center flex-col flex'>
+        <div className='items-center w-full flex-col relative overflow-hidden min-h-74 lg:min-h-[600px] justify-center flex'>
+          <img src='/buying-header.jpeg' className='w-full h-auto absolute -z-10 brightness-50' />
+          <h1 className='font-bold text-center tracking-tight text-3xl sm:text-5xl lg:text-7xl text-white'>Why buy with Porter Real Estate?</h1>
+          <h2 className='mt-6 font-bold tracking-tight hidden lg:block text-4xl text-white text-center'>
+            Your local NoCo realtor
+          </h2>
+        </div>
+        <p className='max-w-[1000px] font-semibold tracking-tight w-full text-md lg:text-lg mt-16 px-4 lg:px-0'>
+          Whether you&#39;re a first-time homebuyer or relocating to Northern Colorado (NoCO), Porter Real Estate is here to make the process smooth and stress-free.
+          As local experts, we know the neighborhoods, the market, and how to navigate every step—from your first search to final closing.
+          In person or virtually, we&#39;ll be by your side with the guidance, tools, and support you need to make confident decisions.
+        </p>
+        <div className='w-full flex justify-center py-8 lg:py-16'>
+          <BuyingWizard />
+        </div>
       </div>
     </div>
   );
