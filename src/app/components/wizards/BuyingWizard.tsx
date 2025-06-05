@@ -122,7 +122,7 @@ const BuyingWizard = () => {
   const renderPreapprovals = () => (
     <div className='w-full flex flex-col gap-12 items-center'>
       <h1 className='font-semibold text-center tracking-tight text-2xl lg:text-4xl'>Do you have a pre-approval letter?</h1>
-      <div className='w-full flex flex-col lg:flex-row gap-12 items-center flex-wrap justify-center relative px-12'>
+      <div className='w-full flex flex-col lg:flex-row gap-12 items-center flex-wrap justify-center relative md:px-12'>
         <PrevArrow handleClick={() => setFrameNum(1)} />
         {preApprovals.map(option => {
           const isSelected = option.value === buyingWizardForm.preApproval
@@ -161,20 +161,50 @@ const BuyingWizard = () => {
     </div>
   )
 
+  const handlePrev = () => {
+    if (frameNum > 0) setFrameNum(frameNum - 1)
+  }
+
+  const handleNext = () => {
+    if (frameNum < 2) setFrameNum(frameNum + 1)
+  }
+
   if (frameNum === 3) return renderContact()
   return (
     <div className='w-full shadow-2xl p-4 lg:p-8 flex flex-col items-center min-h-96 w-[90vw] lg:w-[1000px] bg-white'>
       <div className='flex items-center justify-center w-full mb-8'>
+        <img src='/chevron-left.png' onClick={handlePrev} className={`${frameNum === 0 ? 'opacity-50' : 'cursor-pointer'} mr-4 h-8 w-8 hidden md:block`} />
         <p onClick={() => handleChangeFrame(0)} className={`mr-1 font-semibold tracking-tight ${frameNum === 0 ? 'text-primary cursor-default' : 'cursor-pointer'}`}>TIMEFRAME</p>
         {buyingWizardForm.timeframe && <img src='/check-primary.png' height={12} width={12} />}
         <p onClick={() => handleChangeFrame(1)} className={`ml-2 mr-1 lg:ml-6 font-semibold tracking-tight ${frameNum === 1 ? 'text-primary cursor-default' : 'cursor-pointer'}`}>BUDGET</p>
         {buyingWizardForm.budget && <img src='/check-primary.png' height={12} width={12} />}
         <p onClick={() => handleChangeFrame(2)} className={`ml-2 mr-1 lg:ml-6 font-semibold tracking-tight ${frameNum === 2 ? 'text-primary cursor-default' : 'cursor-pointer'}`}>PRE-APPROVAL</p>
         {buyingWizardForm.preApproval && <img src='/check-primary.png' height={12} width={12} />}
+        <img src='/chevron-right.png' onClick={handleNext} className={`${frameNum === 2 ? 'opacity-50' : 'cursor-pointer'} ml-4 h-8 w-8 hidden md:block`} />
+      </div>
+      <div className='md:hidden flex items-center justify-between w-full mb-8'>
+        <div onClick={handlePrev} className={`${frameNum === 0 ? 'opacity-50' : 'cursor-pointer'} flex items-center`}>
+          <img src='/chevron-left.png' className='mr-2 h-6 w-6' />
+          <p>Previous</p>
+        </div>
+        <div onClick={handleNext} className={`${frameNum === 2 ? 'opacity-50' : 'cursor-pointer'} flex items-center`}>
+          <p>Next</p>
+          <img src='/chevron-right.png' className='ml-2 h-6 w-6' />
+        </div>
       </div>
       { frameNum === 0 && renderTimeframes() }
       { frameNum === 1 && renderBudgets() }
       { frameNum === 2 && renderPreapprovals() }
+      <div className='md:hidden flex items-center justify-between w-full my-8'>
+        <div onClick={handlePrev} className={`${frameNum === 0 ? 'opacity-50' : 'cursor-pointer'} flex items-center`}>
+          <img src='/chevron-left.png' className='mr-2 h-6 w-6' />
+          <p>Previous</p>
+        </div>
+        <div onClick={handleNext} className={`${frameNum === 2 ? 'opacity-50' : 'cursor-pointer'} flex items-center`}>
+          <p>Next</p>
+          <img src='/chevron-right.png' className='ml-2 h-6 w-6' />
+        </div>
+      </div>
     </div>
   )
 }

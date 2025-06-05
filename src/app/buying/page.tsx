@@ -1,7 +1,7 @@
 import Nav from "../components/Nav";
 import BuyingWizard from "../components/wizards/BuyingWizard";
 
-const Home = () => {
+const BuyingPage = () => {
   return (
     <div className='w-full h-full flex-col'>
       <Nav />
@@ -26,4 +26,4 @@ const Home = () => {
   );
 }
 
-export default Home
+export default BuyingPage

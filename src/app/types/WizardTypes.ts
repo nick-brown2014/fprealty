@@ -8,3 +8,10 @@ export type BuyingWizardOptions = {
   budget: string
   preApproval: string
 }
+
+export type SellingWizardOptions = {
+  address: string
+  timeframe: string
+  worth: string
+  propertyInfo: string
+}
