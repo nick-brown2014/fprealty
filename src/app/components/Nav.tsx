@@ -8,7 +8,7 @@ const Nav = () => {
   const isActive = (param: string) => pathName.includes(param)
 
   return (
-    <div className='w-full h:16 lg:h-32 flex flex-row justify-between items-center p-4 sticky top-0 z-10 bg-background border-b border-foreground'>
+    <div className='w-full h:16 lg:h-32 flex flex-row justify-between items-center p-4 sticky top-0 z-[1000] bg-background border-b border-foreground'>
       <Link href='/'>
         <img src='/logo-small.jpg' className='w-auto h-16 lg:h-24 hover:opacity-70' />
       </Link>
