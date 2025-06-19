@@ -47,9 +47,9 @@ const Home = () => {
               I&#39;ve lived in Fort Collins for more than 30 years and watched it grow and evolve.
               <br></br>
               <br></br>
-              Like many people here, I love to ski and ride my bike. Fort Collins is within a day's drive of Summit County and also close to Cameron Pass, which is an amazing playground for skiing in the winter and hiking in the summer.
-              Fort Collins also has some of the best mountain biking on the front range and there are an infinite number of gravel and road rides right out your back door. My favorite mountain bike ride is the Blue Sky trail down to the Devil&#39;s Backbone in Loveland.  It's a great rolling single track that you can rip along with some technical sections and a little climbing too.
-              On days when I&#39;m not able to ski or mountain bike, I volunteer as a skating official for the Fort Collins Women's Roller Derby league and do CrossFit at Crossfit DNR Voted the best Crossfit gym in FoCO several years running!
+              Like many people here, I love to ski and ride my bike. Fort Collins is within a day&#39;s drive of Summit County and also close to Cameron Pass, which is an amazing playground for skiing in the winter and hiking in the summer.
+              Fort Collins also has some of the best mountain biking on the front range and there are an infinite number of gravel and road rides right out your back door. My favorite mountain bike ride is the Blue Sky trail down to the Devil&#39;s Backbone in Loveland.  It&#39;s a great rolling single track that you can rip along with some technical sections and a little climbing too.
+              On days when I&#39;m not able to ski or mountain bike, I volunteer as a skating official for the Fort Collins Women&#39;s Roller Derby league and do CrossFit at Crossfit DNR Voted the best Crossfit gym in FoCO several years running!
               <br></br>
               <br></br>
               I love living in Fort Collins, I raised my two daughters here and enjoyed all of the amazing recreation right outside my back door.  Looking back, I&#39;m so grateful I took the “leap of faith”.  Since then,  I&#39;ve helped hundreds of people just like you buy and sell homes in Northern Colorado. I especially love introducing new people to Colorado and the Fort Collins area.
@@ -74,16 +74,16 @@ const Home = () => {
             Isabella is a Colorado native. Born and raised in Fort Collins, CO and has lived in Livermore, CO. She attended the University of Northern Colorado (UNC) in Greeley, where she got her bachelor&#39;s degree in journalism.
             <br></br>
             <br></br>
-            At UNC She&#39;s worked hard on stories, her school&#39;s podcast, and recorded and edited videos for her school's news. Recently, she is the newest addition to Porter Real Estate where she will take over marketing.
+            At UNC She&#39;s worked hard on stories, her school&#39;s podcast, and recorded and edited videos for her school&#39;s news. Recently, she is the newest addition to Porter Real Estate where she will take over marketing.
             <br></br>
             <br></br>
             Porter Real Estate is now a true family-run small business in Northern Colorado. Isabella will handle the marketing while her father, Fred focuses on Real Estate sales.
             <br></br>
             <br></br>
-            Isabella&#39;s love for photography and videography makes her social media savvy, which will be a great complement and provide a more consistent marketing presence for Porter Real Estate. This will certainly be a great benefit to all Porter Real Estate Clients ensuring even more market exposure for clients' properties.
+            Isabella&#39;s love for photography and videography makes her social media savvy, which will be a great complement and provide a more consistent marketing presence for Porter Real Estate. This will certainly be a great benefit to all Porter Real Estate Clients ensuring even more market exposure for clients&#39; properties.
             <br></br>
             <br></br>
-            Her day-to-day activities will include photography, videography, content development, social media posts, and marketing documentation. Prior to her schooling and marketing experience, she has worked at other locally owned businesses Rollerland and Fort Fun, where she got to interact with locals and learn more about the culture that is Fort Collins! When she&#39;s not working she’s playing roller derby with FoCo women's 
+            Her day-to-day activities will include photography, videography, content development, social media posts, and marketing documentation. Prior to her schooling and marketing experience, she has worked at other locally owned businesses Rollerland and Fort Fun, where she got to interact with locals and learn more about the culture that is Fort Collins! When she&#39;s not working she&#39;s playing roller derby with FoCo women&#39;s 
             </p>
           </div>
         </div>
