@@ -1,7 +1,7 @@
 'use client'
 
-import Nav from "../components/Nav";
-import { useEffect, useState } from "react";
+import Nav from "../components/Nav"
+import { useEffect } from "react"
 
 const Home = () => {
 
@@ -25,7 +25,7 @@ const Home = () => {
           <div id='find-map-widget' />
       </div>
     </div>
-  );
+  )
 }
 
 export default Home
