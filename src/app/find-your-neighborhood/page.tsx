@@ -4,7 +4,6 @@ import Nav from "../components/Nav";
 import { useEffect, useState } from "react";
 
 const Home = () => {
-  const [hasWidget, setHasWidget] = useState<boolean>(false)
 
   useEffect(() => {
     const script = document.createElement('script')
@@ -14,13 +13,8 @@ const Home = () => {
     script.async = true
     document.getElementById('find-map-widget')?.appendChild(script)
 
-    const removeScript = () => {
-      document.getElementById('wid77302')?.remove()
-      setHasWidget(false)
-    }
-
     return () => {
-      removeScript()
+      document.getElementById('wid77302')?.remove()
     }
   }, [])
 
