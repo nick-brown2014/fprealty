@@ -13,7 +13,7 @@ const Nav = () => {
         <img src='/logo-small.jpg' className='w-auto h-16 lg:h-24 hover:opacity-70' />
       </Link>
       <div className='w-full h-full flex-row justify-end items-center hidden lg:flex'>
-        <Link aria-disabled={isActive('neighborhood')} href='/find-your-neighborhood' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('neighborhood') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Find your neighborhood</Link>
+        <Link aria-disabled={isActive('search')} href='/search' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('search') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Search</Link>
         <Link aria-disabled={isActive('buying')} href='/buying' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('buying') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Buying</Link>
         <Link aria-disabled={isActive('selling')} href='/selling' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('selling') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Selling</Link>
         <Link aria-disabled={isActive('about')} href='/about' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('about') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>About Us</Link>
