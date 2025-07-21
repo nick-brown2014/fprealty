@@ -1,5 +1,5 @@
-import Nav from "../components/Nav";
-import SellingWizard from "../components/wizards/SellingWizard";
+import Nav from "@/app/components/Nav";
+import SellingWizard from "@/app/components/wizards/SellingWizard";
 
 const SellingPage = () => {
   return (

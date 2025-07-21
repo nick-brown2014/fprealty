@@ -1,12 +1,12 @@
 'use client'
 
-import Footer from './components/Footer'
-import Nav from './components/Nav'
+import Footer from '@/app/components/Footer'
+import Nav from '@/app/components/Nav'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 import { useCallback } from 'react'
-import NextArrow from './components/wizards/NextArrow'
-import PrevArrow from './components/wizards/PrevArrow'
+import NextArrow from '@/app/components/wizards/NextArrow'
+import PrevArrow from '@/app/components/wizards/PrevArrow'
 
 type ReviewProps = {
   review: string,
