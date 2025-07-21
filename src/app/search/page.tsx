@@ -30,10 +30,10 @@ const Home = () => {
   return (
     <div className='w-full h-full flex-col'>
       <Nav />
-      <div className='pb-10 pt-4 flex flex-col w-[100vw] justify-center'>
+      <div className='pb-10 pt-4 flex flex-col w-[100vw] items-center'>
           {/* <div id='search-widget' />
           <div id='find-map-widget' /> */}
-          <iframe src='https://nocorealtor.idxbroker.com/idx/map/mapsearch' width='95%' height={1000} />
+          <iframe src='https://nocorealtor.idxbroker.com/idx/results/listings' width='98%' height={1000} />
           <div className='mt-8' />
           <Footer />
       </div>
