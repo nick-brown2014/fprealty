@@ -138,24 +138,8 @@ const BuyingWizard = () => {
   )
 
   const renderContact = () => (
-    <div className='w-full flex flex-col justify-center items-center'>
-      <iframe src='https://link.myagenthq.com/widget/booking/68MGrKpb0Yy6XFlSTr5K' width={1000} height={1000} />
-      {/* <h1 className='font-semibold tracking-tight text-3xl lg:text-5xl'>Thank you!</h1>
-      <h2 className='font-semibold tracking-tight text-2xl lg:text-3xl mt-8'>Next step: Book a meeting with us</h2>
-      <div className='justify-center my-12 gap-8 flex'>
-        <p
-          className='cursor-pointer py-[4px] px-8 lg:px-12 text-2xl lg:text-3xl font-bold bg-linear-to-r from-primary to-5% to-primary from-5% to-white text-black shadow-xl hover:text-white hover:to-primary transition duration-500'
-          onClick={handleSubmit}
-        >
-          Book a meeting
-        </p>
-        <p
-          className='cursor-pointer py-[4px] px-8 lg:px-12 text-2xl lg:text-3xl font-bold bg-linear-to-r from-primary to-5% to-primary from-5% to-white text-black shadow-xl hover:text-white hover:to-primary transition duration-500'
-          onClick={handleResetForm}
-        >
-          Start over
-        </p>
-      </div> */}
+    <div className='w-[100vw] max-w-[1200px] flex flex-col justify-center items-center'>
+      <iframe src='https://link.myagenthq.com/widget/booking/68MGrKpb0Yy6XFlSTr5K' width='98%' height={1000} />
     </div>
   )
 
