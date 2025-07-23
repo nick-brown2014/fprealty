@@ -187,7 +187,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className='max-w-[100vw] w-full lg:w-[1000px] pb-16 pt-4 bg-background flex flex-col items-center'>
+        <div className='max-w-[100vw] w-full lg:w-[1000px] py-16 bg-background flex flex-col items-center'>
           <img src='/five-stars.png' className='w-[200px] h-[200px] mt-[-100px] mb-[-120px]' />
           <div className='embla'>
             <NextArrow handleClick={scrollNext} />
