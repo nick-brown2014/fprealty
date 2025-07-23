@@ -50,23 +50,20 @@ const BuyingWizard = () => {
     setFrameNum(newFrame)
   }
 
-  const handleResetForm = () => {
-    setBuyingWizardForm(defaultBuyingWizard)
-    setFrameNum(0)
-  }
-
-  const handleSubmit = () => {
-    window.open('https://m.nocorealtor.com/book-with-me-page-4826')
-  }
-
   const updateTimeframe = (newTimeframe: string) => {
     const newWizardForm: BuyingWizardOptions = {...buyingWizardForm, timeframe: newTimeframe}
     setBuyingWizardForm(newWizardForm)
+    setTimeout(() => {
+      setFrameNum(1)
+    }, 250)
   }
 
   const updateBudget = (newBudget: string) => {
     const newWizardForm: BuyingWizardOptions = {...buyingWizardForm, budget: newBudget}
     setBuyingWizardForm(newWizardForm)
+    setTimeout(() => {
+      setFrameNum(2)
+    }, 250)
   }
 
   const updateApproval = (newApproval: string) => {
