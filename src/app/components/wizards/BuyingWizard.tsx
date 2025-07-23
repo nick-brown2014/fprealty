@@ -142,7 +142,8 @@ const BuyingWizard = () => {
 
   const renderContact = () => (
     <div className='w-full flex flex-col justify-center items-center'>
-      <h1 className='font-semibold tracking-tight text-3xl lg:text-5xl'>Thank you!</h1>
+      <iframe src='https://link.myagenthq.com/widget/booking/68MGrKpb0Yy6XFlSTr5K' width={1000} height={1000} />
+      {/* <h1 className='font-semibold tracking-tight text-3xl lg:text-5xl'>Thank you!</h1>
       <h2 className='font-semibold tracking-tight text-2xl lg:text-3xl mt-8'>Next step: Book a meeting with us</h2>
       <div className='justify-center my-12 gap-8 flex'>
         <p
@@ -157,7 +158,7 @@ const BuyingWizard = () => {
         >
           Start over
         </p>
-      </div>
+      </div> */}
     </div>
   )
 
