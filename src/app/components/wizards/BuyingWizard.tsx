@@ -12,35 +12,38 @@ const defaultBuyingWizard: BuyingWizardOptions = {
 }
 
 const timeframes: WizardOption[] = [
-  { label: '1 - 3 months', value: '1-3' },
-  { label: '3 - 6 months', value: '3-6' },
-  { label: '6 - 12 months', value: '6-12' },
-  { label: '12+ months', value: '12+' },
+  { label: '1 - 3 months', value: '1 - 3 months' },
+  { label: '3 - 6 months', value: '3 - 6 months' },
+  { label: '6 - 12 months', value: '6 - 12 months' },
+  { label: '12+ months', value: 'Over 12 months' },
 ]
 
 const budgets: WizardOption[] = [
-  { label: '350k to 500k', value: '350-500' },
-  { label: '500k to 750k', value: '500-750' },
-  { label: '750k to 1mil', value: '750-1mil' },
-  { label: '1mil to 1.5mil', value: '1mil-1.5mil' },
-  { label: '1.5mil to 2mil', value: '1.5mil-2mil' },
-  { label: 'Over 2mil', value: '2mil+' },
+  { label: '350k to 500k', value: '350,000 - 500,000' },
+  { label: '500k to 750k', value: '500,000 - 750,000' },
+  { label: '750k to 1mil', value: '750,000 - 1mil' },
+  { label: '1mil to 1.5mil', value: '1,000,000 - 1,500,000' },
+  { label: '1.5mil to 2mil', value: '1,500,000 - 2,000,000' },
+  { label: 'Over 2mil', value: 'Over 2,000,000' },
 ]
 
 const preApprovals: WizardOption[] = [
-  { label: 'Yes!', value: 'yes' },
-  { label: 'No, but I’m working with a lender licensed in Colorado', value: 'no with lender' },
-  { label: 'No, please refer me to a lender we trust', value: 'no without lender' },
-  { label: 'Cash buyer', value: 'cash' },
+  { label: 'Yes!', value: 'Yes' },
+  { label: 'No, but I’m working with a lender licensed in Colorado', value: 'No, with lender' },
+  { label: 'No, please refer me to a lender we trust', value: 'No, without lender' },
+  { label: 'Cash buyer', value: 'Cash' },
 ]
 
 
 const BuyingWizard = () => {
   const [buyingWizardForm, setBuyingWizardForm] = useState<BuyingWizardOptions>(defaultBuyingWizard)
+  const [widgetURL, setWidgetURL] = useState<string>('')
   const [frameNum, setFrameNum] = useState<number>(0)
   
   useEffect(() => {
     if (!!buyingWizardForm.budget && !!buyingWizardForm.preApproval && !!buyingWizardForm.timeframe) {
+      const newURL = `https://link.myagenthq.com/widget/booking/68MGrKpb0Yy6XFlSTr5K?time_frame1=${buyingWizardForm.timeframe}&budget=${buyingWizardForm.budget}&pre_qualification=${buyingWizardForm.preApproval}`
+      setWidgetURL(newURL)
       setFrameNum(3)
     }
   }, [buyingWizardForm])
@@ -137,11 +140,16 @@ const BuyingWizard = () => {
     </div>
   )
 
-  const renderContact = () => (
-    <div className='w-[100vw] max-w-[1200px] flex flex-col justify-center items-center'>
-      <iframe src='https://link.myagenthq.com/widget/booking/68MGrKpb0Yy6XFlSTr5K' width='98%' height={1000} />
-    </div>
-  )
+  const renderContact = () => {
+    if (!widgetURL) return <></>
+    return (
+      <div className='w-[100vw] max-w-[1200px] flex flex-col justify-center items-center'>
+        <h2 className='font-bold tracking-tight text-2xl lg:text-4xl text-center'>Thanks! Let's book a meeting</h2>
+
+        <iframe src={widgetURL} width='98%' height={1000} />
+      </div>
+    )
+  }
 
   const handlePrev = () => {
     if (frameNum > 0) setFrameNum(frameNum - 1)

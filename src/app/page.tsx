@@ -109,7 +109,7 @@ export default function Home() {
             </div>
             <div className='flex w-full lg:w-1/2 mt-12 lg:mt-0'>
               <div className='w-full lg:w-1/2 flex-col gap-2 pr-2 lg:items-end flex'>
-                <a href='/buying' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Fort Collins</a>
+                <a href='/search?location=Fort%Collins' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Fort Collins</a>
                 <a href='/buying' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Loveland</a>
                 <a href='/buying' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Wellington</a>
                 <a href='/buying' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Windsor</a>

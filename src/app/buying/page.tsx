@@ -6,7 +6,7 @@ const BuyingPage = () => {
     <div className='w-full h-full flex-col'>
       <Nav />
       <div className='pb-10 items-center flex-col flex'>
-        <div className='items-center w-full flex-col relative overflow-hidden min-h-74 lg:min-h-[600px] justify-center flex'>
+        <div className='items-center w-full flex-col relative overflow-hidden min-h-74 lg:min-h-[400px] justify-center flex'>
           <img src='/buying-header.jpeg' className='w-full h-auto absolute -z-10 brightness-50' />
           <h1 className='font-bold text-center tracking-tight text-3xl sm:text-5xl lg:text-7xl text-white'>Why buy with Porter Real Estate?</h1>
           <h2 className='mt-6 font-bold tracking-tight hidden lg:block text-4xl text-white text-center'>

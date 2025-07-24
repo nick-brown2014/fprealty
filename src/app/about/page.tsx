@@ -5,7 +5,7 @@ const Home = () => {
   return (
     <div className='w-full h-full flex flex-col items-center'>
       <Nav />
-      <div className='items-center w-full flex-col relative overflow-hidden min-h-74 lg:min-h-[600px] justify-center flex'>
+      <div className='items-center w-full flex-col relative overflow-hidden min-h-74 lg:min-h-[400px] justify-center flex'>
         <img src='/about-header.jpeg' className='w-full h-auto absolute -z-10 brightness-50' />
         <h1 className='font-bold text-center tracking-tight text-3xl sm:text-5xl lg:text-8xl text-white'>About us</h1>
         <h2 className='mt-6 font-bold tracking-tight text-2xl lg:text-4xl text-white text-center'>
