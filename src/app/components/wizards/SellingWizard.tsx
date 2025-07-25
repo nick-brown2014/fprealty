@@ -11,20 +11,20 @@ const defaultSellingWizard: SellingWizardOptions = {
 }
 
 const timeframes: WizardOption[] = [
-  { label: 'ASAP', value: 'asap'},
-  { label: '3 months', value: '3' },
-  { label: '3 - 6 months', value: '3-6' },
-  { label: '6 - 12 months', value: '6-12' },
-  { label: '12+ months', value: '12+' },
+  { label: 'ASAP', value: 'ASAP'},
+  { label: '3 months', value: '3 months' },
+  { label: '3 - 6 months', value: '3 - 6 months' },
+  { label: '6 - 12 months', value: '6 - 12 months' },
+  { label: '12+ months', value: '12+ months' },
 ]
 
 const worths: WizardOption[] = [
-  { label: '350k to 500k', value: '350-500' },
-  { label: '500k to 750k', value: '500-750' },
-  { label: '750k to 1mil', value: '750-1mil' },
-  { label: '1mil to 1.5mil', value: '1mil-1.5mil' },
-  { label: '1.5mil to 2mil', value: '1.5mil-2mil' },
-  { label: 'Over 2mil', value: '2mil+' },
+  { label: '350k to 500k', value: '350,000 - 500,000' },
+  { label: '500k to 750k', value: '500,000 - 750,000' },
+  { label: '750k to 1mil', value: '750,000 - 1,000,000' },
+  { label: '1mil to 1.5mil', value: '1,000,000 - 1,500,000' },
+  { label: '1.5mil to 2mil', value: '1,500,000 - 2,000,000' },
+  { label: 'Over 2mil', value: 'Over 2,000,000' },
 ]
 
 
@@ -36,7 +36,7 @@ const SellingWizard = () => {
   useEffect(() => {
     if (!!sellingWizardForm.timeframe && !!sellingWizardForm.worth) {
       setFrameNum(2)
-      setWidgetURL(`https://link.myagenthq.com/widget/booking/SRVJa4lJnOmGdFmsuoNn?time=${sellingWizardForm.timeframe}&property_value=${sellingWizardForm.worth}`)
+      setWidgetURL(`https://link.myagenthq.com/widget/booking/yZhQLON11p3fe4O6Bupb?time=${sellingWizardForm.timeframe}&property_value=${sellingWizardForm.worth}`)
     }
   }, [sellingWizardForm])
 
@@ -87,7 +87,6 @@ const SellingWizard = () => {
     <div className='w-full flex flex-col gap-12 items-center'>
       <h1 className='font-semibold tracking-tight text-2xl lg:text-4xl text-center'>What do you think your property is worth?</h1>
       <div className='w-full flex flex-col lg:flex-row gap-12 items-center flex-wrap justify-center relative'>
-        <NextArrow handleClick={() => setFrameNum(2)} />
         <PrevArrow handleClick={() => setFrameNum(0)} />
         {worths.map(option => {
           const isSelected = option.value === sellingWizardForm.worth
