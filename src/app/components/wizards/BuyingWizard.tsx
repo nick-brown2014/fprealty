@@ -144,7 +144,7 @@ const BuyingWizard = () => {
     if (!widgetURL) return <></>
     return (
       <div className='w-[100vw] max-w-[1200px] flex flex-col justify-center items-center'>
-        <h2 className='font-bold tracking-tight text-2xl lg:text-4xl text-center'>Thanks! Let's book a meeting</h2>
+        <h2 className='font-bold tracking-tight text-2xl lg:text-4xl text-center'>Thanks! Let&#39;s book a meeting</h2>
 
         <iframe src={widgetURL} width='98%' height={1000} />
       </div>
