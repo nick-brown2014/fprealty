@@ -36,7 +36,7 @@ const SellingWizard = () => {
   useEffect(() => {
     if (!!sellingWizardForm.timeframe && !!sellingWizardForm.worth) {
       setFrameNum(2)
-      setWidgetURL(`https://link.myagenthq.com/widget/booking/SRVJa4lJnOmGdFmsuoNn?time_frame=${sellingWizardForm.timeframe}&home_value=${sellingWizardForm.worth}`)
+      setWidgetURL(`https://link.myagenthq.com/widget/booking/SRVJa4lJnOmGdFmsuoNn?time=${sellingWizardForm.timeframe}&property_value=${sellingWizardForm.worth}`)
     }
   }, [sellingWizardForm])
 
