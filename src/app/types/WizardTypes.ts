@@ -10,8 +10,6 @@ export type BuyingWizardOptions = {
 }
 
 export type SellingWizardOptions = {
-  address: string
   timeframe: string
   worth: string
-  propertyInfo: string
 }
