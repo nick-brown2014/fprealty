@@ -1,5 +1,5 @@
 'use client'
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useState } from 'react'
 
 const Footer = () => {
   const [email, setEmail] = useState<string>('')
@@ -35,7 +35,7 @@ const Footer = () => {
           </button>
         </div>
       </div>
-      <div className='justify-center flex w-full'>
+      <div className='justify-center flex w-full mt-6'>
         <div className='justify-between lg:items-center gap-8 max-w-[1200px] w-full flex flex-col lg:flex-row'>
           <img src='/logo-white.png' className='w-42 h-42' />
           <div className='flex-col gap-2 ml-6 lg:ml-0'>
@@ -52,6 +52,14 @@ const Footer = () => {
               <br></br>
               Provided for limited non-commercial use only under IRES Rules © Copyright 2018 IRES DMCA Notice
             </p>
+            <a
+              href='https://www.flaticon.com/'
+              target='_blank'
+              title='flaticon icons'
+              className='mt-4 text-background text-xs w-full flex'
+            >
+                Icons created by Pixel perfect - Flaticon
+            </a>
           </div>
         </div>
       </div>
