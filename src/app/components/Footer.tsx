@@ -44,7 +44,7 @@ const Footer = () => {
             <p className='text-background font-semibold tracking-tight'>info@nocorealtor.com</p>
           </div>
           <div className='flex-col gap-2 ml-6 lg:ml-0 lg:self-end max-w-[600px]'>
-            <p className='text-background font-semibold tracking-tight'>Privacy policy</p>
+            <a href='/privacy-policy' target='_blank' className='text-background font-semibold tracking-tight'>Privacy policy</a>
             <p className='text-background text-xs'>
               IDX information is provided exclusively for consumers&#39; personal, non-commercial use, that it may not be used for any purpose other than to identify prospective properties consumers may be interested in purchasing, and that the data is deemed reliable but is not guaranteed accurate by the MLS.
               <br></br>
@@ -59,6 +59,13 @@ const Footer = () => {
               className='mt-4 text-background text-xs w-full flex'
             >
                 Icons created by Pixel perfect - Flaticon
+            </a>
+            <a
+              href='/terms-and-conditions'
+              target='_blank'
+              className='text-background text-xs w-full flex'
+            >
+              Terms and Conditions
             </a>
           </div>
         </div>

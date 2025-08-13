@@ -1,7 +1,7 @@
 import Nav from '@/app/components/Nav'
 import Footer from '@/app/components/Footer';
 
-const Home = () => {
+const About = () => {
   return (
     <div className='w-full h-full flex flex-col items-center'>
       <Nav />
@@ -93,4 +93,4 @@ const Home = () => {
   );
 }
 
-export default Home
+export default About

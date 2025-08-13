@@ -136,7 +136,7 @@ export default function Home() {
         </div>
 
         <div className='w-full pt-16 bg-foreground justify-center flex lg:h-[400px]'>
-          <div className='flex-col flex px-12 w-full'>
+          <div className='flex-col flex px-12 w-full lg:max-w-[1600px]'>
             <div className='w-full flex flex-col md:flex-row gap-8 lg:items-center'>
               <h1 className='text-4xl lg:text-5xl font-bold tracking-tight text-background'>
                 The latest on NoCo living
