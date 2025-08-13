@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fred Porter Realty",
+  title: "Porter Real Estate",
   description: "Your ultimate resource to living in Northern Colorado",
 };
 
