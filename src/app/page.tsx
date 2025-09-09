@@ -109,27 +109,27 @@ export default function Home() {
             </div>
             <div className='flex w-full lg:w-1/2 mt-12 lg:mt-0'>
               <div className='w-full lg:w-1/2 flex-col gap-2 pr-2 lg:items-end flex'>
-                <a href='/search?location=Fort%Collins' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Fort Collins</a>
-                <a href='/search?location=Loveland' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Loveland</a>
-                <a href='/search?location=Wellington' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Wellington</a>
-                <a href='/search?location=Windsor' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Windsor</a>
-                <a href='/search?location=Red%Feather%Lakes' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Red Feather Lakes</a>
-                <a href='/search?location=Greeley' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Greeley</a>
-                <a href='/search?location=Berthoud' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Berthoud</a>
-                <a href='/search?location=Estes%Park' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Estes Park</a>
-                <a href='/search?location=Longmont' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Longmont</a>
-                <a href='/search?location=Lyons' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Lyons</a>
+                <a href='/search?location=fort-collins' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Fort Collins</a>
+                <a href='/search?location=loveland' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Loveland</a>
+                <a href='/search?location=wellington' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Wellington</a>
+                <a href='/search?location=windsor' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Windsor</a>
+                <a href='/search?location=red-feather-lakes' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Red Feather Lakes</a>
+                <a href='/search?location=greeley' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Greeley</a>
+                <a href='/search?location=berthoud' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Berthoud</a>
+                <a href='/search?location=estes-park' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Estes Park</a>
+                <a href='/search?location=longmont' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Longmont</a>
+                <a href='/search?location=lyons' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Lyons</a>
               </div>
               <div className='w-full lg:w-1/2 flex-col gap-2 pr-2 lg:items-end flex'>
-                <a href='/search?location=Boulder' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Boulder</a>
-                <a href='/search?location=Arvada' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Arvada</a>
-                <a href='/search?location=Aurora' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Aurora</a>
-                <a href='/search?location=Denver' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Denver</a>
-                <a href='/search?location=Livermore' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Livermore</a>
-                <a href='/search?location=Bellevue' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Bellevue</a>
-                <a href='/search?location=Frederick' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Frederick</a>
-                <a href='/search?location=Firestone' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Firestone</a>
-                <a href='/search?location=Johnstown' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Johnstown</a>
+                <a href='/search?location=boulder' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Boulder</a>
+                <a href='/search?location=arvada' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Arvada</a>
+                <a href='/search?location=aurora' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Aurora</a>
+                <a href='/search?location=aenver' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Denver</a>
+                <a href='/search?location=livermore' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Livermore</a>
+                <a href='/search?location=bellevue' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Bellevue</a>
+                <a href='/search?location=frederick' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Frederick</a>
+                <a href='/search?location=firestone' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Firestone</a>
+                <a href='/search?location=johnstown' className='font-semibold tracking-tight uppercase hover:text-secondary transition duration-200'>Johnstown</a>
               </div>
             </div>
           </div>

@@ -7,7 +7,7 @@ import Nav from "../components/Nav"
 const Home = () => {
   const searchParams = useSearchParams()
   const location = searchParams.get('location')
-  const mapUrl = `https://nocorealtor.idxbroker.com/idx/map/mapsearch?city=${!!location ? location : 'Fort%Collins'}`
+  const mapUrl = location? `https://nocorealtor.idxbroker.com/i/${location}` : 'https://nocorealtor.idxbroker.com/idx/map/mapsearch'
 
   return (
     <div className='w-full h-full flex-col'>
