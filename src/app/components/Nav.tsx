@@ -13,7 +13,6 @@ const Nav = () => {
 
   const handleMenuClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => event.stopPropagation()
   const closeMenu = () => setHamburgerOpen(false)
-  const closeSearch = () => setSearchOpen(false)
 
   return (
     <>
