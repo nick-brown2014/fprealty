@@ -4,7 +4,6 @@ import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from '@vis.gl/react-
 import { useState } from 'react'
 import { Listing } from '@/app/hooks/useMapDisplay'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 
 type ListingMarkerProps = {
   listing: Listing
@@ -13,7 +12,6 @@ type ListingMarkerProps = {
 const ListingMarker = ({ listing }: ListingMarkerProps) => {
   const [markerRef, marker] = useAdvancedMarkerRef()
   const [infoWindowShown, setInfoWindowShown] = useState(false)
-  const router = useRouter()
 
   if (!listing.Latitude || !listing.Longitude) return null
 

@@ -1,10 +1,7 @@
 import { Listing } from "@/app/hooks/useMapDisplay"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 
 const ListingTile = ({ listing }: { listing: Listing }) => {
-  const router = useRouter()
-
   const getPhotoUrl = () => {
     if (listing.Media && listing.Media.length > 0) {
       return listing.Media[0].MediaURL
