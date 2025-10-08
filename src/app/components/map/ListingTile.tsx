@@ -32,7 +32,7 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
   }
 
   const handleClick = () => {
-    router.push(`/listing/${listing.ListingKey}`)
+    window.open(`/listing/${listing.ListingKey}`, '_blank')
   }
 
   return (

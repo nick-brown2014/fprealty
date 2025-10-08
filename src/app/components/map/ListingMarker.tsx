@@ -18,7 +18,7 @@ const ListingMarker = ({ listing }: ListingMarkerProps) => {
   if (!listing.Latitude || !listing.Longitude) return null
 
   const handleMarkerClick = () => {
-    router.push(`/listing/${listing.ListingKey}`)
+    window.open(`/listing/${listing.ListingKey}`, '_blank')
   }
 
   const formatPrice = (price: number) => {

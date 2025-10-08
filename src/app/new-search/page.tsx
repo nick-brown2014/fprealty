@@ -32,6 +32,8 @@ const Search = () => {
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [pendingMapBounds, setPendingMapBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [showSearchAreaButton, setShowSearchAreaButton] = useState(false)
+  const [mapCenter, setMapCenter] = useState({ lat: 40.5853, lng: -105.0844 })
+  const [mapInitialized, setMapInitialized] = useState(false)
   const [priceDropdownOpen, setPriceDropdownOpen] = useState(false)
   const [minPrice, setMinPrice] = useState(0)
   const [maxPrice, setMaxPrice] = useState<number | null>(null)
@@ -70,9 +72,6 @@ const Search = () => {
   const bedsDropdownRef = useRef<HTMLDivElement>(null)
   const bathsDropdownRef = useRef<HTMLDivElement>(null)
   const propertyTypesDropdownRef = useRef<HTMLDivElement>(null)
-
-  // Fort Collins, CO coordinates
-  const center = { lat: 40.5853, lng: -105.0844 }
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -149,10 +148,16 @@ const Search = () => {
   const handleMapIdle = useCallback((map: google.maps.Map) => {
     const bounds = map.getBounds()
     if (bounds) {
-      setPendingMapBounds(bounds)
-      setShowSearchAreaButton(true)
+      if (!mapInitialized) {
+        // First idle event - just mark as initialized, don't show button
+        setMapInitialized(true)
+      } else {
+        // Subsequent idle events - user has interacted with map
+        setPendingMapBounds(bounds)
+        setShowSearchAreaButton(true)
+      }
     }
-  }, [])
+  }, [mapInitialized])
 
   const handleSearchThisArea = useCallback(() => {
     if (pendingMapBounds) {
@@ -171,7 +176,14 @@ const Search = () => {
           <div className='w-[90vw] max-w-[1200px] mt-8 flex flex-col md:flex-row gap-3 items-stretch md:items-center'>
             <PlacesAutocomplete
               value={searchQuery}
-              onPlaceSelect={setSearchQuery}
+              onPlaceSelect={(place, location) => {
+                setSearchQuery(place)
+                setMapBounds(null)
+                setShowSearchAreaButton(false)
+                if (location) {
+                  setMapCenter(location)
+                }
+              }}
             />
             <div className='flex gap-2 flex-wrap md:flex-nowrap'>
               {/* Price Filter Dropdown */}
@@ -394,9 +406,10 @@ const Search = () => {
           </div>
 
           <div className={`flex flex-col md:flex-row w-[90vw] max-w-[1200px] mt-4 transition-opacity ${loading ? 'opacity-70' : 'opacity-100'}`}>
-            <div className='w-full md:w-[65%] h-[600px] relative'>
+            <div className='w-full lg:w-[65%] h-[600px] relative'>
               <Map
-                defaultCenter={center}
+                key={`${mapCenter.lat}-${mapCenter.lng}`}
+                defaultCenter={mapCenter}
                 defaultZoom={10}
                 gestureHandling={'greedy'}
                 disableDefaultUI={false}
@@ -418,7 +431,7 @@ const Search = () => {
               )}
             </div>
             
-            <div className='w-full md:w-[35%] md:pl-4 flex flex-col gap-2 mt-6 md:mt-0 max-h-[600px] overflow-y-scroll'>
+            <div className='w-full lg:w-[35%] md:pl-4 flex flex-col gap-2 mt-6 md:mt-0 max-h-[600px] overflow-y-scroll'>
             {listings.length === 0 ? (
               <p>No results found</p>
             ) : (<>

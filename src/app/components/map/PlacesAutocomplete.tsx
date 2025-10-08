@@ -4,7 +4,7 @@ import { useMapsLibrary } from '@vis.gl/react-google-maps'
 
 type PlacesAutocompleteProps = {
   value: string
-  onPlaceSelect: (place: string) => void
+  onPlaceSelect: (place: string, location?: { lat: number; lng: number }) => void
 }
 
 const PlacesAutocomplete = ({ onPlaceSelect }: PlacesAutocompleteProps) => {
@@ -16,7 +16,8 @@ const PlacesAutocomplete = ({ onPlaceSelect }: PlacesAutocompleteProps) => {
     })
 
     const address = place.formattedAddress || place.displayName
-    onPlaceSelect(address ?? '')
+    const location = place.location ? { lat: place.location.lat(), lng: place.location.lng() } : undefined
+    onPlaceSelect(address ?? '', location)
   }
 
   return (
@@ -33,13 +34,31 @@ const PlacesAutocomplete = ({ onPlaceSelect }: PlacesAutocompleteProps) => {
       `}</style>
       <gmp-place-autocomplete
         placeholder='Search by city, address, or ZIP...'
-        ongmp-select={(ev: any) =>
-          void handlePlaceSelect(ev.placePrediction?.toPlace?.() || ev.place)
-        }
-        ongmp-placeselect={(ev: any) => void handlePlaceSelect(ev.place)}
+        ongmp-select={(ev) => {
+          const place = ev.placePrediction?.toPlace?.() || ev.place
+          if (place) void handlePlaceSelect(place)
+        }}
+        ongmp-placeselect={(ev) => {
+          void handlePlaceSelect(ev.place)
+        }}
       />
     </div>
   )
+}
+
+// Type for place prediction with toPlace method
+type PlacePrediction = {
+  toPlace?: () => google.maps.places.Place
+}
+
+// Type for Google Maps autocomplete events (properties directly on event, not in detail)
+type GmpSelectEvent = {
+  placePrediction?: PlacePrediction
+  place?: google.maps.places.Place
+}
+
+type GmpPlaceSelectEvent = {
+  place: google.maps.places.Place
 }
 
 // Declare the custom element for TypeScript
@@ -49,6 +68,8 @@ declare module 'react' {
       'gmp-place-autocomplete': React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement> & {
           placeholder?: string
+          'ongmp-select'?: (event: GmpSelectEvent) => void
+          'ongmp-placeselect'?: (event: GmpPlaceSelectEvent) => void
         },
         HTMLElement
       >
