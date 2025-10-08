@@ -33,11 +33,9 @@ const PlacesAutocomplete = ({ onPlaceSelect }: PlacesAutocompleteProps) => {
       `}</style>
       <gmp-place-autocomplete
         placeholder='Search by city, address, or ZIP...'
-        // @ts-ignore
         ongmp-select={(ev: any) =>
           void handlePlaceSelect(ev.placePrediction?.toPlace?.() || ev.place)
         }
-        // @ts-ignore
         ongmp-placeselect={(ev: any) => void handlePlaceSelect(ev.place)}
       />
     </div>
