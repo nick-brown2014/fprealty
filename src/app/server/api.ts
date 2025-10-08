@@ -1,4 +1,4 @@
-const BASE_URL = "https://api.bridgedataoutput.com/api/v2/test"
+const BASE_URL = "https://api.bridgedataoutput.com/api/v2/iresds"
 const API_KEY = process.env.NEXT_PUBLIC_BROWSER_TOKEN // Server-only secret
 
 const defaultHeaders = {
