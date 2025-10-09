@@ -80,7 +80,7 @@ type Filters = {
 }
 
 const defaultFilters = {
-  limit: 16,
+  limit: 100,
   offset: 0,
   fields: listingsListFields,
   near: 'Fort Collins',
