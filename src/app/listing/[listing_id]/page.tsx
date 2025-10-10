@@ -3,6 +3,8 @@
 import { use, useState } from 'react'
 import Image from 'next/image'
 import useListing from '@/app/hooks/useListing'
+import Nav from '@/app/components/Nav'
+import Footer from '@/app/components/Footer'
 
 type ListingPageProps = {
   params: Promise<{
@@ -65,6 +67,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
+      <Nav />
       <div className='max-w-7xl mx-auto px-4 py-8'>
         {/* Hero Image Gallery */}
         <div className='w-[100%] mx-auto mb-8 relative'>
@@ -392,6 +395,13 @@ const ListingPage = ({ params }: ListingPageProps) => {
                 </div>
               </div>
             )}
+
+            {/* Agent Information */}
+            {listing.ListAgentFullName && (
+              <div className='bg-white rounded-lg shadow-md py-4 px-6 hidden md:flex'>
+                <p className='font-semibold text-gray-900'>Listing Agent: {listing.ListAgentFullName}</p>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -477,19 +487,14 @@ const ListingPage = ({ params }: ListingPageProps) => {
 
             {/* Agent Information */}
             {listing.ListAgentFullName && (
-              <div className='bg-white rounded-lg shadow-md p-6'>
-                <h2 className='text-xl font-bold text-gray-900 mb-4'>Listing Agent</h2>
-                <div className='space-y-2'>
-                  <p className='font-semibold text-lg text-gray-900'>{listing.ListAgentFullName}</p>
-                  {listing.ListOfficeMlsId && (
-                    <p className='text-sm text-gray-600'>{listing.ListOfficeMlsId}</p>
-                  )}
-                </div>
+              <div className='bg-white rounded-lg shadow-md py-4 px-6 flex md:hidden'>
+                <p className='font-semibold text-gray-900'>Listing Agent: {listing.ListAgentFullName}</p>
               </div>
             )}
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }
