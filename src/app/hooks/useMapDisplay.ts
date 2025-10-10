@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { apiGet } from "../server/api"
 
-const listingsListFields = 'ListingKey,ListPrice,OriginalListPrice,ClosePrice,CloseDate,City,StateOrProvince,PostalCode,CountyOrParish,UnparsedAddress,StreetNumber,StreetName,UnitNumber,PropertyType,PropertySubType,BedroomsTotal,BathroomsFull,BathroomsTotalInteger,LivingArea,LivingAreaUnits,PhotosCount,Media,MlsStatus,StandardStatus,DaysOnMarket,Latitude,Longitude,ListAgentFullName,LotSizeSquareFeet'
+const listingsListFields = 'ListingKey,ListPrice,OriginalListPrice,ClosePrice,CloseDate,City,StateOrProvince,PostalCode,CountyOrParish,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,PropertyType,PropertySubType,BedroomsTotal,BathroomsFull,BathroomsTotalInteger,LivingArea,LivingAreaUnits,PhotosCount,Media,MlsStatus,StandardStatus,DaysOnMarket,Latitude,Longitude,ListAgentFullName,LotSizeAcres'
 
 interface ListingsResponse extends Response {
   total: number
@@ -30,6 +30,7 @@ export type Listing = {
   UnparsedAddress?: string
   StreetNumber?: string
   StreetName?: string
+  StreetSuffix?: string
   UnitNumber?: string
   PropertyType?: string
   PropertySubType: string
@@ -46,7 +47,8 @@ export type Listing = {
   Latitude?: number
   Longitude?: number
   ListAgentFullName?: string
-  LotSizeSquareFeet?: number
+  LotSizeAcres?: number
+  streetAddress?: string
 }
 
 export type SearchFilters = {
@@ -163,10 +165,32 @@ const useMapDisplay = (searchFilters?: SearchFilters) => {
     fetchListings()
   }, [filters])
 
+  const getStreetAddress = (listing: Listing): string => {
+    const parts = []
+    if (listing.StreetNumber) parts.push(listing.StreetNumber)
+    if (listing.StreetName) parts.push(listing.StreetName)
+    if (listing.StreetSuffix) parts.push(listing.StreetSuffix)
+    if (listing.UnitNumber) parts.push(`#${listing.UnitNumber}`)
+
+    if (parts.length > 0) {
+      return parts.join(' ')
+    }
+
+    // Fallback to unparsed address or city
+    return listing.UnparsedAddress || `${listing.City}, ${listing.StateOrProvince || 'CO'}`
+  }
+
   const fetchListings = async () => {
     setLoading(true)
     const listingsRes: ListingsResponse = await apiGet('/listings', filters)
-    setListings(listingsRes.bundle)
+
+    // Add streetAddress field to each listing
+    const listingsWithStreetAddress = listingsRes.bundle.map(listing => ({
+      ...listing,
+      streetAddress: getStreetAddress(listing)
+    }))
+
+    setListings(listingsWithStreetAddress)
 
     setLoading(false)
   }

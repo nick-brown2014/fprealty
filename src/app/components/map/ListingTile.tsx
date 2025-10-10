@@ -9,16 +9,6 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
     return null
   }
 
-  const getAddress = () => {
-    if (listing.UnparsedAddress) {
-      return listing.UnparsedAddress
-    }
-    const parts = []
-    if (listing.StreetNumber) parts.push(listing.StreetNumber)
-    if (listing.StreetName) parts.push(listing.StreetName)
-    if (listing.UnitNumber) parts.push(`#${listing.UnitNumber}`)
-    return parts.length > 0 ? parts.join(' ') : `${listing.City}, ${listing.StateOrProvince || 'CO'}`
-  }
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -28,13 +18,26 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
     }).format(price)
   }
 
+  const getSubStatus = () => {
+    if (listing.StandardStatus === 'Active Under Contract') {
+      return 'Under Contract'
+    }
+    if (listing.MlsStatus === 'Active/Backup') {
+      return 'Backup'
+    }
+    if (listing.MlsStatus === 'Active/First Right') {
+      return 'First Right'
+    }
+    return null
+  }
+
   const handleClick = () => {
     window.open(`/listing/${listing.ListingKey}`, '_blank')
   }
 
   return (
     <div
-      className='flex w-full min-h-36 border border-gray-300 rounded-md cursor-pointer hover:shadow-lg transition-shadow px-2 py-2'
+      className='flex w-full min-h-36 border border-gray-300 rounded-md cursor-pointer hover:shadow-lg transition-shadow px-1.5 py-2 sm:px-2'
       onClick={handleClick}
     >
       {/* Image on the left - full height */}
@@ -42,7 +45,7 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
         {getPhotoUrl() ? (
           <Image
             src={getPhotoUrl()!}
-            alt={`${getAddress()} property`}
+            alt={`${listing.streetAddress} property`}
             fill
             className='object-cover'
           />
@@ -54,31 +57,40 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
       </div>
 
       {/* Content on the right */}
-      <div className='flex flex-col justify-between p-3 flex-1'>
+      <div className='flex flex-col justify-between pl-2 py-3 flex-1 min-w-0'>
         <div>
-          <p className='text-base font-semibold text-gray-900 line-clamp-1 mb-1'>
-            {formatPrice(listing.ListPrice)}
-          </p>
-          <p className='text-sm text-gray-800 line-clamp-1 mb-2'>
-            {getAddress()}
-          </p>
-          <p className='text-xs text-gray-600 mb-1'>
-            {listing.PropertyType === 'Land' ? (
-              listing.LotSizeSquareFeet && `${listing.LotSizeSquareFeet} sqft`
-            ) : (
-              <>
-                {listing.BedroomsTotal} bd | {listing.BathroomsTotalInteger ?? listing.BathroomsFull} ba
-                {listing.LivingArea && ` | ${listing.LivingArea.toLocaleString()} sqft`}
-              </>
-            )}
+          <div className='flex flex-col xl:flex-row xl:items-baseline gap-0 xl:gap-2 mb-1'>
+            <p className='text-base font-semibold text-gray-900'>
+              {formatPrice(listing.ListPrice)}
+            </p>
+            <p className='text-xs text-gray-600'>
+              {listing.PropertyType === 'Land' ? (
+                listing.LotSizeAcres && `${listing.LotSizeAcres} acres`
+              ) : (
+                <>
+                  {listing.BedroomsTotal} bd | {listing.BathroomsTotalInteger ?? listing.BathroomsFull} ba
+                  {listing.LivingArea && ` | ${listing.LivingArea.toLocaleString()} sqft`}
+                </>
+              )}
+            </p>
+          </div>
+          <p className='text-sm text-gray-800 break-words leading-tight sm:leading-normal'>
+            {listing.streetAddress}
           </p>
           <p className='text-xs text-gray-500'>
             {listing.City}, {listing.StateOrProvince || 'CO'} {listing.PostalCode}
           </p>
         </div>
-        <p className='text-xs text-gray-500 mt-2'>
-          {listing.StandardStatus || listing.MlsStatus} • {listing.DaysOnMarket} days on market
-        </p>
+        <div className='mt-2'>
+          <p className='text-xs text-gray-500'>
+            {listing.StandardStatus || listing.MlsStatus} • {listing.DaysOnMarket} days on market
+          </p>
+          {getSubStatus() && (
+            <p className='text-xs font-semibold text-gray-700 mt-0.5'>
+              {getSubStatus()}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )

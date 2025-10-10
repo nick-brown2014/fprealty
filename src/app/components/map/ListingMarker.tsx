@@ -35,17 +35,6 @@ const ListingMarker = ({ listing }: ListingMarkerProps) => {
     return null
   }
 
-  const getAddress = () => {
-    if (listing.UnparsedAddress) {
-      return listing.UnparsedAddress
-    }
-    const parts = []
-    if (listing.StreetNumber) parts.push(listing.StreetNumber)
-    if (listing.StreetName) parts.push(listing.StreetName)
-    if (listing.UnitNumber) parts.push(`#${listing.UnitNumber}`)
-    return parts.length > 0 ? parts.join(' ') : `${listing.City}, ${listing.StateOrProvince || 'CO'}`
-  }
-
   return (
     <>
       <AdvancedMarker
@@ -68,31 +57,31 @@ const ListingMarker = ({ listing }: ListingMarkerProps) => {
           headerDisabled
           disableAutoPan={true}
         >
-          <div className="w-72 cursor-pointer" onClick={handleMarkerClick}>
-            <div className="relative w-full h-40 bg-gray-200">
+          <div className="w-56 cursor-pointer" onClick={handleMarkerClick}>
+            <div className="relative w-full h-32 bg-gray-200">
               {getPhotoUrl() ? (
                 <Image
                   src={getPhotoUrl()!}
-                  alt={`${getAddress()} property`}
+                  alt={`${listing.streetAddress} property`}
                   fill
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  No photo available
+                <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                  No photo
                 </div>
               )}
             </div>
-            <div className="p-3">
-              <p className="font-bold text-lg text-primary mb-1">
+            <div className="p-2">
+              <p className="font-bold text-base text-primary mb-1">
                 {formatPrice(listing.ListPrice)}
               </p>
-              <p className="text-sm font-semibold text-gray-800 mb-2">
-                {getAddress()}
+              <p className="text-xs text-gray-800 mb-1">
+                {listing.UnparsedAddress}
               </p>
-              <p className="text-sm text-gray-700 mb-2">
+              <p className="text-xs text-gray-600 mb-1">
                 {listing.PropertyType === 'Land' ? (
-                  listing.LotSizeSquareFeet && `${listing.LotSizeSquareFeet} acres`
+                  listing.LotSizeAcres && `${listing.LotSizeAcres} acres`
                 ) : (
                   <>
                     {listing.BedroomsTotal} bd | {listing.BathroomsTotalInteger ?? listing.BathroomsFull} ba
@@ -100,17 +89,9 @@ const ListingMarker = ({ listing }: ListingMarkerProps) => {
                   </>
                 )}
               </p>
-              <p className="text-sm text-gray-600 mb-1">
-                {listing.City}, {listing.StateOrProvince || 'CO'} {listing.PostalCode}
-              </p>
               <p className="text-xs text-gray-500">
-                {listing.StandardStatus || listing.MlsStatus} • {listing.DaysOnMarket} days on market
+                {listing.StandardStatus || listing.MlsStatus} • {listing.DaysOnMarket} days
               </p>
-              {listing.ListAgentFullName && (
-                <p className="text-xs text-gray-600 mt-2 pt-2 border-t border-gray-200">
-                  Agent: {listing.ListAgentFullName}
-                </p>
-              )}
             </div>
           </div>
         </InfoWindow>

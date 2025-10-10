@@ -15,9 +15,7 @@ const MapEventHandler = ({ onIdle }: { onIdle: (map: google.maps.Map) => void })
   useEffect(() => {
     if (!map) return
 
-    const listener = map.addListener('idle', () => {
-      onIdle(map)
-    })
+    const listener = map.addListener('idle', () => onIdle(map))
 
     return () => {
       google.maps.event.removeListener(listener)
@@ -125,7 +123,6 @@ const Search = () => {
   const statuses = [
     { label: 'Active', value: 'Active' },
     { label: 'Pending', value: 'Pending' },
-    { label: 'Active Under Contract', value: 'Active Under Contract' },
     { label: 'Closed', value: 'Closed' }
   ]
 
@@ -327,10 +324,11 @@ const Search = () => {
                   onClick={() => setPropertyTypesDropdownOpen(!propertyTypesDropdownOpen)}
                   className='cursor-pointer px-4 py-2 border border-gray-300 rounded-md hover:opacity-70 bg-primary text-slate-50 transition font-semibold whitespace-nowrap'
                 >
-                  Property Types
+                  <span className='hidden sm:inline'>Property Types</span>
+                  <span className='sm:hidden'>Types</span>
                 </button>
                 {propertyTypesDropdownOpen && (
-                  <div className='absolute top-full mt-2 left-0 bg-white border border-gray-300 rounded-md shadow-lg p-4 z-50 w-64'>
+                  <div className='absolute top-full mt-2 right-0 bg-white border border-gray-300 rounded-md shadow-lg p-4 z-50 w-64'>
                     <div className='mb-4'>
                       <p className='text-xs font-bold text-gray-500 uppercase mb-2'>Property Types</p>
                       <div className='flex flex-col gap-2'>
@@ -424,7 +422,7 @@ const Search = () => {
               {showSearchAreaButton && (
                 <button
                   onClick={handleSearchThisArea}
-                  className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white text-primary px-4 py-2 cursor-pointer rounded-full shadow-lg hover:shadow-xl transition-shadow font-semibold border border-primary z-10'
+                  className='absolute top-4 left-1/2 transform -translate-x-1/2 bg-white text-primary md:px-4 md:py-2 px-2 py-1 cursor-pointer rounded-full shadow-lg hover:shadow-xl transition-shadow font-semibold border border-primary z-10 text-sm md:text-base'
                 >
                   Search this area
                 </button>
