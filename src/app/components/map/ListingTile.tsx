@@ -57,7 +57,7 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
       </div>
 
       {/* Content on the right */}
-      <div className='flex flex-col justify-between pl-2 py-3 flex-1 min-w-0'>
+      <div className='flex flex-col justify-between pl-2 lg:pl-6 py-3 flex-1 min-w-0'>
         <div>
           <div className='flex flex-col xl:flex-row xl:items-baseline gap-0 xl:gap-2 mb-1'>
             <p className='text-base font-semibold text-gray-900'>
