@@ -14,9 +14,20 @@ type ListingPageProps = {
 
 const ListingPage = ({ params }: ListingPageProps) => {
   const { listing_id } = use(params)
-  const { listing, loading } = useListing(listing_id)
+  const { listing, brokerage, loading } = useListing(listing_id)
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  if (!!loading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        <p className='text-xl text-gray-600'>Loading...</p>
+      </div>
+    )
+  }
+  if (!listing || !brokerage) return <></>
+  const calenderLink = `https://link.myagenthq.com/widget/booking/47IzUUa70aauUUFLHFuU?address=${listing.UnparsedAddress}`
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -47,22 +58,6 @@ const ListingPage = ({ params }: ListingPageProps) => {
     if (listing?.Media) {
       setCurrentImageIndex((prev) => (prev - 1 + (listing?.Media?.length ?? 1)) % (listing?.Media?.length ?? 1))
     }
-  }
-
-  if (loading) {
-    return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <p className='text-xl text-gray-600'>Loading...</p>
-      </div>
-    )
-  }
-
-  if (!listing) {
-    return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <p className='text-xl text-gray-600'>Listing not found</p>
-      </div>
-    )
   }
 
   return (
@@ -124,6 +119,31 @@ const ListingPage = ({ params }: ListingPageProps) => {
             </div>
           )}
         </div>
+
+        {/* Schedule a meeting modal */}
+        { scheduleModalOpen && (
+          <div
+            className='fixed inset-0 z-50 flex items-center justify-center'
+            onClick={() => setScheduleModalOpen(false)}
+          >
+            <div
+              className='w-[90vw] h-[90vh] rounded-2xl bg-white shadow-xl flex flex-col justify-center items-center py-12 relative'
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setScheduleModalOpen(false)}
+                className='absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer'
+                aria-label='Close modal'
+              >
+                <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                </svg>
+              </button>
+              <h1 className='text-2xl mb-12 lg:mb-0 lg:text-3xl font-semibold tracking-tight'>Schedule a tour</h1>
+              <iframe src={calenderLink} width='98%' height='98%' />
+            </div>
+          </div>
+        ) }
 
         {/* Full-Screen Gallery Modal */}
         {isGalleryOpen && listing.Media && listing.Media.length > 0 && (
@@ -190,7 +210,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
             </p>
           </div>
           <button
-                onClick={() => openGallery(0)}
+                onClick={() => setScheduleModalOpen(true)}
                 className='w-full md:w-auto text-2xl cursor-pointer bg-white h-12 px-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow font-semibold text-primary border-2 border-primary'
               >
                 Schedule a tour
@@ -398,8 +418,9 @@ const ListingPage = ({ params }: ListingPageProps) => {
 
             {/* Agent Information */}
             {listing.ListAgentFullName && (
-              <div className='bg-white rounded-lg shadow-md py-4 px-6 hidden md:flex'>
-                <p className='font-semibold text-gray-900'>Listing Agent: {listing.ListAgentFullName}</p>
+              <div className='bg-white rounded-lg shadow-md py-4 px-6 hidden md:flex flex-col'>
+                <p className='font-semibold text-gray-900'>Listing Agent: <span className='font-normal'>{listing.ListAgentFullName}</span></p>
+                <p className='font-semibold text-gray-900'>Brokerage: <span className='font-normal'>{brokerage.OfficeName}</span></p>
               </div>
             )}
           </div>
@@ -487,8 +508,9 @@ const ListingPage = ({ params }: ListingPageProps) => {
 
             {/* Agent Information */}
             {listing.ListAgentFullName && (
-              <div className='bg-white rounded-lg shadow-md py-4 px-6 flex md:hidden'>
-                <p className='font-semibold text-gray-900'>Listing Agent: {listing.ListAgentFullName}</p>
+              <div className='bg-white rounded-lg shadow-md py-4 px-6 flex flex-col md:hidden'>
+                <p className='font-semibold text-gray-900'>Listing Agent: <span className='font-normal'>{listing.ListAgentFullName}</span></p>
+                <p className='font-semibold text-gray-900'>Brokerage: <span className='font-normal'>{brokerage.OfficeName}</span></p>
               </div>
             )}
           </div>

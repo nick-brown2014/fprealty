@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { apiGet } from "../server/api"
 import { DetailedListing } from "../types/DetailedListing"
+import { DetailedBrokerage } from "../types/DetailedBrokerage"
 
 interface ListingResponse {
   success: boolean
@@ -8,9 +9,16 @@ interface ListingResponse {
   bundle: DetailedListing
 }
 
+interface BrokerageResponse {
+  success: boolean
+  status: number
+  bundle: DetailedBrokerage
+}
+
 const useListing = (id: string) => {
   const [loading, setLoading] = useState<boolean>(false)
   const [listing, setListing] = useState<DetailedListing | null>(null)
+  const [brokerage, setBrokerage] = useState<DetailedBrokerage | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -43,12 +51,22 @@ const useListing = (id: string) => {
       streetAddress: getStreetAddress(listingRes.bundle)
     }
 
+    if (!!listingRes.bundle.ListOfficeKey) {
+      await fetchBrokerage(listingRes.bundle.ListOfficeKey)
+    }
+
     setListing(listingWithStreetAddress)
 
     setLoading(false)
   }
 
+  const fetchBrokerage = async (id: string) => {
+    const brokerageRes: BrokerageResponse = await apiGet(`/offices/${id}`)
+    setBrokerage(brokerageRes.bundle)
+  }
+
   return {
+    brokerage,
     listing,
     loading,
   }
