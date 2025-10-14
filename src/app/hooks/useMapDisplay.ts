@@ -61,6 +61,7 @@ export type SearchFilters = {
   propertyTypes?: string[]
   includeLand?: boolean
   statuses?: string[]
+  listingIds?: string[]
 }
 
 type Filters = {
@@ -79,6 +80,7 @@ type Filters = {
   'PropertyType.in'?: string
   'PropertySubType.in'?: string
   'StandardStatus.in'?: string
+  'ListingKey.in'?: string
 }
 
 const defaultFilters = {
@@ -90,15 +92,28 @@ const defaultFilters = {
   'StandardStatus.in': 'Active'
 }
 
-const useMapDisplay = (searchFilters?: SearchFilters) => {
+const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
   const [loading, setLoading] = useState<boolean>(false)
   const [listings, setListings] = useState<Listing[]>([])
   const [filters, setFilters] = useState<Filters>(defaultFilters)
+  const [saveSearchState, setSaveSearchState] = useState<'idle' | 'saving' | 'saved'>('idle')
 
   useEffect(() => {
     // Build filters from search filters
     const newFilters: Filters = {
       ...defaultFilters
+    }
+
+    // If listing IDs are provided, ignore all other filters and fetch only those listings
+    if (searchFilters?.listingIds && searchFilters.listingIds.length > 0) {
+      const favoritesFilters: Filters = {
+        limit: 100,
+        offset: 0,
+        fields: listingsListFields,
+        'ListingKey.in': searchFilters.listingIds.join(',')
+      }
+      setFilters(favoritesFilters as Filters)
+      return
     }
 
     // Use map bounds if available, otherwise use search query
@@ -195,11 +210,64 @@ const useMapDisplay = (searchFilters?: SearchFilters) => {
     setLoading(false)
   }
 
+  const saveSearch = async () => {
+    if (!userId || saveSearchState !== 'idle') return
+
+    setSaveSearchState('saving')
+
+    try {
+      // Generate a name for the search based on filters
+      const searchName = searchFilters?.searchQuery ||
+        `Search: ${searchFilters?.minPrice ? `$${searchFilters.minPrice.toLocaleString()}+` : 'Any'} | ${searchFilters?.minBeds ? `${searchFilters.minBeds}+ bd` : 'Any beds'} | ${searchFilters?.minBaths ? `${searchFilters.minBaths}+ ba` : 'Any baths'}`
+
+      const response = await fetch('/api/saved-searches', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId,
+          name: searchName,
+          searchQuery: searchFilters?.searchQuery || null,
+          minPrice: searchFilters?.minPrice || null,
+          maxPrice: searchFilters?.maxPrice || null,
+          minBeds: searchFilters?.minBeds || null,
+          minBaths: searchFilters?.minBaths || null,
+          propertyTypes: searchFilters?.propertyTypes || [],
+          includeLand: searchFilters?.includeLand || false,
+          statuses: searchFilters?.statuses || [],
+          bounds: searchFilters?.mapBounds ? {
+            north: searchFilters.mapBounds.getNorthEast().lat(),
+            south: searchFilters.mapBounds.getSouthWest().lat(),
+            east: searchFilters.mapBounds.getNorthEast().lng(),
+            west: searchFilters.mapBounds.getSouthWest().lng()
+          } : null
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save search')
+      }
+
+      setSaveSearchState('saved')
+
+      // Reset to idle after 2 seconds
+      setTimeout(() => {
+        setSaveSearchState('idle')
+      }, 2000)
+    } catch (error) {
+      console.error('Save search error:', error)
+      setSaveSearchState('idle')
+    }
+  }
+
   return {
     loading,
     listings,
     filters,
-    setFilters
+    setFilters,
+    saveSearch,
+    saveSearchState
   }
 }
 

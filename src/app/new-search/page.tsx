@@ -2,12 +2,16 @@
 
 import Footer from "../components/Footer"
 import Nav from "../components/Nav"
+import AuthModal from "../components/AuthModal"
+import SavedSearchesModal from "../components/SavedSearchesModal"
+import { useAuth } from '@/contexts/AuthContext'
 import { APIProvider, Map, useMap } from '@vis.gl/react-google-maps'
 import useMapDisplay from '../hooks/useMapDisplay'
 import ListingMarker from '../components/map/ListingMarker'
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import ListingTile from "../components/map/ListingTile"
 import PlacesAutocomplete from "../components/map/PlacesAutocomplete"
+import { useRouter } from "next/navigation"
 
 const MapEventHandler = ({ onIdle }: { onIdle: (map: google.maps.Map) => void }) => {
   const map = useMap()
@@ -25,7 +29,41 @@ const MapEventHandler = ({ onIdle }: { onIdle: (map: google.maps.Map) => void })
   return null
 }
 
+const MapBoundsHandler = ({ listings, shouldFit, onBoundsApplied }: { listings: any[], shouldFit: boolean, onBoundsApplied: () => void }) => {
+  const map = useMap()
+
+  useEffect(() => {
+    if (!map || !shouldFit || listings.length === 0) return
+
+    const bounds = new google.maps.LatLngBounds()
+    listings.forEach(listing => {
+      if (listing.Latitude && listing.Longitude) {
+        bounds.extend({ lat: listing.Latitude, lng: listing.Longitude })
+      }
+    })
+
+    map.fitBounds(bounds)
+    onBoundsApplied()
+  }, [map, listings, shouldFit, onBoundsApplied])
+
+  return null
+}
+
+const SavedSearchBoundsHandler = ({ bounds, onBoundsApplied }: { bounds: google.maps.LatLngBounds | null, onBoundsApplied: () => void }) => {
+  const map = useMap()
+
+  useEffect(() => {
+    if (!map || !bounds) return
+    map.fitBounds(bounds)
+    onBoundsApplied()
+  }, [map, bounds, onBoundsApplied])
+
+  return null
+}
+
 const Search = () => {
+  const router = useRouter()
+  const { user, signOut, saveSearch, saveSearchState, favorites, savedSearches } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [pendingMapBounds, setPendingMapBounds] = useState<google.maps.LatLngBounds | null>(null)
@@ -50,23 +88,38 @@ const Search = () => {
   ])
   const [includeLand, setIncludeLand] = useState(false)
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['Active'])
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [savedSearchesModalOpen, setSavedSearchesModalOpen] = useState(false)
+  const [viewingFavorites, setViewingFavorites] = useState(false)
+  const [shouldFitFavorites, setShouldFitFavorites] = useState(false)
+  const [savedSearchBounds, setSavedSearchBounds] = useState<google.maps.LatLngBounds | null>(null)
+  const [isApplyingSavedSearch, setIsApplyingSavedSearch] = useState(false)
+  const [isApplyingFavorites, setIsApplyingFavorites] = useState(false)
 
   // Memoize filters to prevent infinite loop
   const searchFilters = useMemo(() => ({
-    searchQuery,
-    mapBounds,
-    minPrice,
-    maxPrice,
-    minBeds,
-    minBaths,
-    propertyTypes: selectedPropertyTypes,
-    includeLand,
-    statuses: selectedStatuses
-  }), [searchQuery, mapBounds, minPrice, maxPrice, minBeds, minBaths, selectedPropertyTypes, includeLand, selectedStatuses])
+    searchQuery: viewingFavorites ? undefined : searchQuery,
+    mapBounds: viewingFavorites ? null : mapBounds,
+    minPrice: viewingFavorites ? undefined : minPrice,
+    maxPrice: viewingFavorites ? undefined : maxPrice,
+    minBeds: viewingFavorites ? undefined : minBeds,
+    minBaths: viewingFavorites ? undefined : minBaths,
+    propertyTypes: viewingFavorites ? undefined : selectedPropertyTypes,
+    includeLand: viewingFavorites ? undefined : includeLand,
+    statuses: viewingFavorites ? undefined : selectedStatuses,
+    listingIds: viewingFavorites ? Array.from(favorites) : undefined
+  }), [searchQuery, mapBounds, minPrice, maxPrice, minBeds, minBaths, selectedPropertyTypes, includeLand, selectedStatuses, viewingFavorites, favorites])
 
   // Pass filters to the hook
   const { listings, loading } = useMapDisplay(searchFilters)
   const priceDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Set shouldFitFavorites after viewingFavorites changes and listings update
+  useEffect(() => {
+    if (viewingFavorites && listings.length > 0) {
+      setShouldFitFavorites(true)
+    }
+  }, [viewingFavorites, listings.length])
   const bedsDropdownRef = useRef<HTMLDivElement>(null)
   const bathsDropdownRef = useRef<HTMLDivElement>(null)
   const propertyTypesDropdownRef = useRef<HTMLDivElement>(null)
@@ -109,6 +162,10 @@ const Search = () => {
     return `$${price.toLocaleString()}`
   }
 
+  const goToSettings = () => {
+    router.push('/settings')
+  }
+
   const bedBathOptions = [1, 2, 3, 4, 5]
 
   const propertyTypes = [
@@ -148,20 +205,64 @@ const Search = () => {
       if (!mapInitialized) {
         // First idle event - just mark as initialized, don't show button
         setMapInitialized(true)
-      } else {
+      } else if (!isApplyingSavedSearch && !isApplyingFavorites) {
         // Subsequent idle events - user has interacted with map
+        // Don't show button if we're applying a saved search or favorites
         setPendingMapBounds(bounds)
         setShowSearchAreaButton(true)
       }
     }
-  }, [mapInitialized])
+  }, [mapInitialized, isApplyingSavedSearch, isApplyingFavorites])
 
   const handleSearchThisArea = useCallback(() => {
+    // Clear viewing favorites mode
+    setViewingFavorites(false)
+
     if (pendingMapBounds) {
       setMapBounds(pendingMapBounds)
       setShowSearchAreaButton(false)
     }
   }, [pendingMapBounds])
+
+  const handleSelectSearch = useCallback((search: any) => {
+    // Clear viewing favorites mode
+    setViewingFavorites(false)
+
+    // Load search parameters into filter UI
+    setSearchQuery(search.searchQuery || '')
+    setMinPrice(search.minPrice || 0)
+    setMaxPrice(search.maxPrice || null)
+    setMinBeds(search.minBeds || null)
+    setMinBaths(search.minBaths || null)
+    setSelectedPropertyTypes(search.propertyTypes || [
+      'Residential-Detached',
+      'Residential-Attached',
+      'Residential-Townhome',
+      'Residential-Condo',
+      'Multi-Family',
+      'Manufactured'
+    ])
+    setIncludeLand(search.includeLand || false)
+    setSelectedStatuses(search.statuses || ['Active'])
+
+    // Hide search area button
+    setShowSearchAreaButton(false)
+    setPendingMapBounds(null)
+
+    // Handle map bounds if present
+    if (search.bounds) {
+      setIsApplyingSavedSearch(true)
+      const bounds = new google.maps.LatLngBounds(
+        { lat: search.bounds.south, lng: search.bounds.west },
+        { lat: search.bounds.north, lng: search.bounds.east }
+      )
+      setMapBounds(bounds)
+      setSavedSearchBounds(bounds)
+    } else {
+      setMapBounds(null)
+      setSavedSearchBounds(null)
+    }
+  }, [])
 
   return (
     <div className='w-full h-full flex-col'>
@@ -169,8 +270,36 @@ const Search = () => {
       <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
         <div className='pb-10 flex flex-col w-[100vw] items-center'>
 
+          {/* Auth section */}
+          <div className='w-[90vw] max-w-[1200px] mt-8 flex justify-end'>
+            {user ? (
+              <p className='text-sm text-gray-700'>
+                Welcome, {user.firstName} {user.lastName} |{' '}
+                <button
+                  onClick={goToSettings}
+                  className='text-primary hover:underline cursor-pointer font-semibold'
+                >
+                  Settings
+                </button>{' '}|{' '}
+                <button
+                  onClick={signOut}
+                  className='text-primary hover:underline cursor-pointer font-semibold'
+                >
+                  Sign Out
+                </button>
+              </p>
+            ) : (
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className='cursor-pointer px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:opacity-70 bg-white text-primary transition font-semibold whitespace-nowrap'
+              >
+                Sign in / Sign up
+              </button>
+            )}
+          </div>
+
           {/* Search Bar and Filters */}
-          <div className='w-[90vw] max-w-[1200px] mt-8 flex flex-col md:flex-row gap-3 items-stretch md:items-center'>
+          <div className='w-[90vw] max-w-[1200px] mt-4 flex flex-col md:flex-row gap-3 items-stretch md:items-center'>
             <PlacesAutocomplete
               value={searchQuery}
               onPlaceSelect={(place, location) => {
@@ -182,7 +311,7 @@ const Search = () => {
                 }
               }}
             />
-            <div className='flex gap-2 flex-wrap md:flex-nowrap'>
+            <div className='flex gap-2 flex-wrap md:flex-nowrap items-center'>
               {/* Price Filter Dropdown */}
               <div className='relative' ref={priceDropdownRef}>
                 <button
@@ -403,6 +532,62 @@ const Search = () => {
             </div>
           </div>
 
+          {/* Saved Searches and View Favorites Links */}
+          {user && (
+            <div className='flex justify-between pt-2 w-[90vw] max-w-[1200px]'>
+              <button
+                  onClick={() => saveSearch(searchFilters)}
+                  disabled={saveSearchState !== 'idle'}
+                  className='text-primary text-sm hover:underline cursor-pointer font-semibold disabled:opacity-50'
+                >
+                  {saveSearchState === 'idle' && 'Save Search'}
+                  {saveSearchState === 'saving' && 'Saving...'}
+                  {saveSearchState === 'saved' && 'Saved!'}
+                </button>
+              <div className='flex items-center justify-end gap-1 md:gap-4'>
+                {savedSearches.length > 0 && (
+                  <button
+                    onClick={() => setSavedSearchesModalOpen(true)}
+                    className='text-sm text-primary hover:underline cursor-pointer font-semibold whitespace-nowrap'
+                  >
+                    Saved Searches ({savedSearches.length})
+                  </button>
+                )}
+                {favorites.size > 0 && (
+                  <button
+                    onClick={() => {
+                      const newValue = !viewingFavorites
+                      if (newValue) {
+                        setIsApplyingFavorites(true)
+                        // Clear all filters when viewing favorites
+                        setSearchQuery('')
+                        setMinPrice(0)
+                        setMaxPrice(null)
+                        setMinBeds(null)
+                        setMinBaths(null)
+                        setSelectedPropertyTypes([
+                          'Residential-Detached',
+                          'Residential-Attached',
+                          'Residential-Townhome',
+                          'Residential-Condo',
+                          'Multi-Family',
+                          'Manufactured'
+                        ])
+                        setIncludeLand(false)
+                        setSelectedStatuses(['Active'])
+                        setMapBounds(null)
+                      }
+                      setViewingFavorites(newValue)
+                    }}
+                    className='text-sm text-primary hover:underline cursor-pointer font-semibold whitespace-nowrap'
+                  >
+                    {viewingFavorites ? 'View All Listings' : `View Favorites (${favorites.size})`}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className={`flex flex-col md:flex-row w-[90vw] max-w-[1200px] mt-4 transition-opacity ${loading ? 'opacity-70' : 'opacity-100'}`}>
             <div className='w-full lg:w-[65%] h-[600px] relative'>
               <Map
@@ -415,6 +600,21 @@ const Search = () => {
                 mapId='property-map'
               >
                 <MapEventHandler onIdle={handleMapIdle} />
+                <MapBoundsHandler
+                  listings={listings}
+                  shouldFit={shouldFitFavorites}
+                  onBoundsApplied={() => {
+                    setIsApplyingFavorites(false)
+                    setShouldFitFavorites(false)
+                  }}
+                />
+                <SavedSearchBoundsHandler
+                  bounds={savedSearchBounds}
+                  onBoundsApplied={() => {
+                    setIsApplyingSavedSearch(false)
+                    setSavedSearchBounds(null)
+                  }}
+                />
                 {listings.map((listing) => (
                   <ListingMarker key={listing.ListingKey} listing={listing} />
                 ))}
@@ -445,6 +645,13 @@ const Search = () => {
           <Footer />
         </div>
       </APIProvider>
+
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      <SavedSearchesModal
+        isOpen={savedSearchesModalOpen}
+        onClose={() => setSavedSearchesModalOpen(false)}
+        onSelectSearch={handleSelectSearch}
+      />
     </div>
   )
 }

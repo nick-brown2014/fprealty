@@ -1,5 +1,6 @@
 import { Listing } from "@/app/hooks/useMapDisplay"
 import Image from "next/image"
+import FavoriteButton from "../FavoriteButton"
 
 const ListingTile = ({ listing }: { listing: Listing }) => {
   const getPhotoUrl = () => {
@@ -42,6 +43,7 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
     >
       {/* Image on the left - full height */}
       <div className='relative w-32 h-32 flex-shrink-0 bg-gray-200'>
+        <FavoriteButton listingId={listing.ListingKey} />
         {getPhotoUrl() ? (
           <Image
             src={getPhotoUrl()!}
