@@ -63,9 +63,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       // Close modal after successful auth
       setTimeout(() => {
         onClose()
-      }, 1500)
-    } catch (err) {
-      setError('Failed to connect to server')
+      }, 500)
     } finally {
       setLoading(false)
     }

@@ -1,6 +1,8 @@
-export interface Search {
+export interface SavedSearch {
   id: string
   userId: string
+  createdAt: string
+  updatedAt: string
   name: string
   searchQuery?: string
   minPrice?: number
@@ -10,5 +12,10 @@ export interface Search {
   propertyTypes: string[]
   includeLand: boolean
   statuses: string[]
-  bound?: JSON
+  bounds?: {
+    north: number
+    south: number
+    east: number
+    west: number
+  }
 }

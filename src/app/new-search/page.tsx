@@ -6,12 +6,13 @@ import AuthModal from "../components/AuthModal"
 import SavedSearchesModal from "../components/SavedSearchesModal"
 import { useAuth } from '@/contexts/AuthContext'
 import { APIProvider, Map, useMap } from '@vis.gl/react-google-maps'
-import useMapDisplay from '../hooks/useMapDisplay'
+import useMapDisplay, { Listing } from '../hooks/useMapDisplay'
 import ListingMarker from '../components/map/ListingMarker'
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import ListingTile from "../components/map/ListingTile"
 import PlacesAutocomplete from "../components/map/PlacesAutocomplete"
 import { useRouter } from "next/navigation"
+import { SavedSearch } from "../types/SavedSearch"
 
 const MapEventHandler = ({ onIdle }: { onIdle: (map: google.maps.Map) => void }) => {
   const map = useMap()
@@ -29,7 +30,7 @@ const MapEventHandler = ({ onIdle }: { onIdle: (map: google.maps.Map) => void })
   return null
 }
 
-const MapBoundsHandler = ({ listings, shouldFit, onBoundsApplied }: { listings: any[], shouldFit: boolean, onBoundsApplied: () => void }) => {
+const MapBoundsHandler = ({ listings, shouldFit, onBoundsApplied }: { listings: Listing[], shouldFit: boolean, onBoundsApplied: () => void }) => {
   const map = useMap()
 
   useEffect(() => {
@@ -224,7 +225,7 @@ const Search = () => {
     }
   }, [pendingMapBounds])
 
-  const handleSelectSearch = useCallback((search: any) => {
+  const handleSelectSearch = useCallback((search: SavedSearch) => {
     // Clear viewing favorites mode
     setViewingFavorites(false)
 

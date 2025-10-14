@@ -1,7 +1,7 @@
 'use client'
 
 import { Favorite } from '@/app/types/Favorite'
-import { Search } from '@/app/types/Search'
+import { SavedSearch } from '@/app/types/SavedSearch'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 interface User {
@@ -34,7 +34,7 @@ interface AuthContextType {
   favorites: Set<string>
   toggleFavorite: (listingId: string) => Promise<void>
   loadFavorites: () => Promise<void>
-  savedSearches: Search[]
+  savedSearches: SavedSearch[]
   loadSavedSearches: () => Promise<void>
 }
 
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [saveSearchState, setSaveSearchState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
-  const [savedSearches, setSavedSearches] = useState<Search[]>([])
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([])
 
   useEffect(() => {
     // Load user from localStorage on mount

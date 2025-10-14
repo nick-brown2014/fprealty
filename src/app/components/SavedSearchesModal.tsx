@@ -1,11 +1,12 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
+import { SavedSearch } from '../types/SavedSearch'
 
 interface SavedSearchesModalProps {
   isOpen: boolean
   onClose: () => void
-  onSelectSearch: (search: any) => void
+  onSelectSearch: (search: SavedSearch) => void
 }
 
 const SavedSearchesModal = ({ isOpen, onClose, onSelectSearch }: SavedSearchesModalProps) => {
@@ -13,11 +14,11 @@ const SavedSearchesModal = ({ isOpen, onClose, onSelectSearch }: SavedSearchesMo
 
   if (!isOpen) return null
 
-  const formatSearchName = (search: any) => {
+  const formatSearchName = (search: SavedSearch) => {
     return search.name || 'Unnamed Search'
   }
 
-  const formatSearchDetails = (search: any) => {
+  const formatSearchDetails = (search: SavedSearch) => {
     const details = []
     if (search.searchQuery) details.push(search.searchQuery)
     if (search.minPrice) details.push(`Min: $${search.minPrice.toLocaleString()}`)
@@ -52,7 +53,7 @@ const SavedSearchesModal = ({ isOpen, onClose, onSelectSearch }: SavedSearchesMo
         <h2 className='text-2xl font-bold text-gray-900 mb-6'>Saved Searches</h2>
 
         {savedSearches.length === 0 ? (
-          <p className='text-gray-600'>You haven't saved any searches yet.</p>
+          <p className='text-gray-600'>You haven&apos;t saved any searches yet.</p>
         ) : (
           <div className='space-y-3'>
             {savedSearches.map((search) => (
