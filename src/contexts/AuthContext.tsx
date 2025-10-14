@@ -1,5 +1,7 @@
 'use client'
 
+import { Favorite } from '@/app/types/Favorite'
+import { Search } from '@/app/types/Search'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 interface User {
@@ -32,7 +34,7 @@ interface AuthContextType {
   favorites: Set<string>
   toggleFavorite: (listingId: string) => Promise<void>
   loadFavorites: () => Promise<void>
-  savedSearches: any[]
+  savedSearches: Search[]
   loadSavedSearches: () => Promise<void>
 }
 
@@ -43,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [saveSearchState, setSaveSearchState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
-  const [savedSearches, setSavedSearches] = useState<any[]>([])
+  const [savedSearches, setSavedSearches] = useState<Search[]>([])
 
   useEffect(() => {
     // Load user from localStorage on mount
@@ -86,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!response.ok) return
 
       const data = await response.json()
-      const favoriteIds = new Set(data.favorites.map((f: any) => f.listingId))
+      const favoriteIds: Set<string> = new Set(data.favorites.map((f: Favorite) => f.listingId))
       setFavorites(favoriteIds)
     } catch (error) {
       console.error('Load favorites error:', error)
