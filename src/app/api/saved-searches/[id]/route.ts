@@ -4,11 +4,12 @@ import { prisma } from '@/lib/prisma'
 // GET - Get a specific saved search
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const savedSearch = await prisma.savedSearch.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!savedSearch) {
@@ -31,9 +32,10 @@ export async function GET(
 // PUT - Update a saved search
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const {
       name,
       searchQuery,
@@ -48,7 +50,7 @@ export async function PUT(
     } = await request.json()
 
     const savedSearch = await prisma.savedSearch.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: name || undefined,
         searchQuery: searchQuery !== undefined ? searchQuery : undefined,
@@ -79,11 +81,12 @@ export async function PUT(
 // DELETE - Delete a saved search
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     await prisma.savedSearch.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json(
