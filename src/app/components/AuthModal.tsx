@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { signIn as nextAuthSignIn } from 'next-auth/react'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -9,7 +9,6 @@ interface AuthModalProps {
 }
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-  const { signIn } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,7 +18,6 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-
   if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,41 +27,68 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     setSuccess('')
 
     try {
-      const endpoint = isSignUp ? '/api/auth/signup' : '/api/auth/signin'
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(
-          isSignUp
-            ? { email, password, firstName, lastName, phoneNumber }
-            : { email, password }
-        )
-      })
+      if (isSignUp) {
+        // Sign up - create new user
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, firstName, lastName, phoneNumber })
+        })
 
-      const data = await response.json()
+        const data = await response.json()
 
-      if (!response.ok) {
-        setError(data.error || 'Something went wrong')
-        return
+        if (!response.ok) {
+          setError(data.error || 'Something went wrong')
+          return
+        }
+
+        setSuccess(data.message)
+
+        // Auto sign in after signup using NextAuth
+        const signInResult = await nextAuthSignIn('credentials', {
+          email,
+          password,
+          redirect: false
+        })
+
+        if (signInResult?.error) {
+          setError('Account created but sign in failed. Please try signing in.')
+          return
+        }
+
+        // Reload page after successful sign in
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
+      } else {
+        // Sign in using NextAuth
+        const result = await nextAuthSignIn('credentials', {
+          email,
+          password,
+          redirect: false,
+          callbackUrl: '/'
+        })
+
+        if (result?.error || !result?.ok) {
+          setError('Invalid email or password')
+          return
+        }
+
+        setSuccess('Signed in successfully')
+
+        setEmail('')
+        setPassword('')
+
+        // Reload page after successful sign in
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
       }
-
-      setSuccess(data.message)
-
-      // Save user data to context
-      signIn(data.user)
-
-      setEmail('')
-      setPassword('')
-      setFirstName('')
-      setLastName('')
-      setPhoneNumber('')
-
-      // Close modal after successful auth
-      setTimeout(() => {
-        onClose()
-      }, 500)
+    } catch (err) {
+      setError('An error occurred. Please try again.')
+      console.error('Auth error:', err)
     } finally {
       setLoading(false)
     }

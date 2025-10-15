@@ -3,6 +3,8 @@
 import { Favorite } from '@/app/types/Favorite'
 import { SavedSearch } from '@/app/types/SavedSearch'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useSession, signOut as nextAuthSignOut } from 'next-auth/react'
+import { Session } from 'next-auth'
 
 interface User {
   id: string
@@ -10,6 +12,20 @@ interface User {
   firstName: string
   lastName: string
   phoneNumber: string
+  name: string
+}
+
+interface ExtendedSessionUser {
+  id: string
+  email: string
+  name: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+}
+
+interface ExtendedSession extends Omit<Session, 'user'> {
+  user: ExtendedSessionUser
 }
 
 interface SaveSearchParams {
@@ -41,21 +57,33 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { data: session, status } = useSession()
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [saveSearchState, setSaveSearchState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([])
 
+  const isLoading = status === 'loading'
+
+  // Sync user state with NextAuth session
   useEffect(() => {
-    // Load user from localStorage on mount
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      const userData = JSON.parse(storedUser)
+    if (session?.user) {
+      const extendedSession = session as ExtendedSession
+      const userData: User = {
+        id: extendedSession.user.id,
+        email: extendedSession.user.email,
+        firstName: extendedSession.user.firstName,
+        lastName: extendedSession.user.lastName,
+        phoneNumber: extendedSession.user.phoneNumber,
+        name: extendedSession.user.name
+      }
       setUser(userData)
+    } else {
+      setUser(null)
+      setFavorites(new Set())
+      setSavedSearches([])
     }
-    setIsLoading(false)
-  }, [])
+  }, [session, status])
 
   // Load favorites and saved searches when user changes
   useEffect(() => {
@@ -66,17 +94,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user?.id])
 
   const signIn = (userData: User) => {
+    // This is now just for compatibility - actual sign in happens through NextAuth
     setUser(userData)
-    localStorage.setItem('user', JSON.stringify(userData))
-    loadFavorites(userData.id)
-    loadSavedSearches(userData.id)
   }
 
-  const signOut = () => {
+  const signOut = async () => {
     setUser(null)
     setFavorites(new Set())
     setSavedSearches([])
-    localStorage.removeItem('user')
+    await nextAuthSignOut()
   }
 
   const loadFavorites = async (userId?: string) => {

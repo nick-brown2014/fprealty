@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { CookiesProvider } from 'next-client-cookies/server';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { Providers } from './providers';
 import Script from "next/script";
 import "./globals.css";
 
@@ -41,9 +41,9 @@ export default function RootLayout({
           `}
         </Script>
         <CookiesProvider>
-          <AuthProvider>
+          <Providers>
             {children}
-          </AuthProvider>
+          </Providers>
         </CookiesProvider>
       </body>
     </html>
