@@ -304,12 +304,27 @@ const Search = () => {
             <PlacesAutocomplete
               value={searchQuery}
               onPlaceSelect={(place, location) => {
-                setSearchQuery(place)
-                setMapBounds(null)
-                setShowSearchAreaButton(false)
                 if (location) {
+                  // Create a 4-mile radius bounds around the selected location
+                  // Using Google Maps geometry library to calculate bounds
+                  const radiusInMeters = 4 * 1609.34 // 4 miles in meters
+                  const center = new google.maps.LatLng(location.lat, location.lng)
+
+                  // Calculate bounds using a circle
+                  const circle = new google.maps.Circle({
+                    center: center,
+                    radius: radiusInMeters
+                  })
+                  const bounds = circle.getBounds()
+
                   setMapCenter(location)
+                  setMapBounds(bounds)
+                  setSearchQuery('') // Clear search query since we're using bounds
+                } else {
+                  setSearchQuery(place)
+                  setMapBounds(null)
                 }
+                setShowSearchAreaButton(false)
               }}
             />
             <div className='flex gap-2 flex-wrap md:flex-nowrap items-center'>
@@ -594,7 +609,7 @@ const Search = () => {
               <Map
                 key={`${mapCenter.lat}-${mapCenter.lng}`}
                 defaultCenter={mapCenter}
-                defaultZoom={10}
+                defaultZoom={12}
                 gestureHandling={'greedy'}
                 disableDefaultUI={false}
                 zoomControl={true}

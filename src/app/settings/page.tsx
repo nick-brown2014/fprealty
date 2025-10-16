@@ -92,7 +92,7 @@ import Footer from "../components/Footer";
             <h2 className='text-xl font-semibold mb-4'>Password</h2>
             <button
               onClick={() => setShowPasswordModal(true)}
-              className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors'
+              className='cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors'
             >
               Change Password
             </button>

@@ -69,6 +69,7 @@ type Filters = {
   offset: number
   fields: string
   near?: string
+  radius?:number
   'Latitude.gte'?: number
   'Latitude.lte'?: number
   'Longitude.gte'?: number
@@ -88,6 +89,7 @@ const defaultFilters = {
   offset: 0,
   fields: listingsListFields,
   near: 'Fort Collins',
+  radius: 4,
   'PropertyType.in': 'Residential',
   'StandardStatus.in': 'Active'
 }
@@ -121,15 +123,25 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
       const ne = searchFilters.mapBounds.getNorthEast()
       const sw = searchFilters.mapBounds.getSouthWest()
 
-      newFilters['Latitude.gte'] = sw.lat()
-      newFilters['Latitude.lte'] = ne.lat()
-      newFilters['Longitude.gte'] = sw.lng()
-      newFilters['Longitude.lte'] = ne.lng()
+      // Calculate the bounds dimensions
+      const latDiff = ne.lat() - sw.lat()
+      const lngDiff = ne.lng() - sw.lng()
+
+      // Shrink bounds by 10% on each side (20% total reduction in each dimension)
+      const latPadding = latDiff * 0.1
+      const lngPadding = lngDiff * 0.1
+
+      newFilters['Latitude.gte'] = sw.lat() + latPadding
+      newFilters['Latitude.lte'] = ne.lat() - latPadding
+      newFilters['Longitude.gte'] = sw.lng() + lngPadding
+      newFilters['Longitude.lte'] = ne.lng() - lngPadding
 
       // Remove 'near' when using bounds
       delete newFilters.near
+      delete newFilters.radius
     } else if (searchFilters?.searchQuery) {
       newFilters.near = searchFilters.searchQuery
+      newFilters.radius = 4
     }
 
     // Add price filters
