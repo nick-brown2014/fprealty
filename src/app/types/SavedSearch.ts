@@ -1,8 +1,8 @@
 export interface SavedSearch {
   id: string
   userId: string
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
   name: string
   searchQuery?: string
   minPrice?: number
