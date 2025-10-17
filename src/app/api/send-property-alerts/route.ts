@@ -53,15 +53,26 @@ export async function POST(request: NextRequest) {
           // Fetch new listings matching this saved search
           // This is a simplified example - you'd want to track which listings
           // have already been sent to avoid duplicates
-          const newProperties = await fetchNewListingsForSearch({
-            ...savedSearch,
+
+          // Convert Prisma null values to undefined to match SavedSearch type
+          const searchParams: SavedSearch = {
+            id: savedSearch.id,
+            userId: savedSearch.userId,
+            createdAt: savedSearch.createdAt,
+            updatedAt: savedSearch.updatedAt,
+            name: savedSearch.name,
             searchQuery: savedSearch.searchQuery ?? undefined,
             minPrice: savedSearch.minPrice ?? undefined,
             maxPrice: savedSearch.maxPrice ?? undefined,
             minBeds: savedSearch.minBeds ?? undefined,
             minBaths: savedSearch.minBaths ?? undefined,
+            propertyTypes: savedSearch.propertyTypes as string[],
+            includeLand: savedSearch.includeLand,
+            statuses: savedSearch.statuses as string[],
             bounds: savedSearch.bounds ? savedSearch.bounds as SavedSearch['bounds'] : undefined
-          })
+          }
+
+          const newProperties = await fetchNewListingsForSearch(searchParams)
 
           if (newProperties.length === 0) continue
 
