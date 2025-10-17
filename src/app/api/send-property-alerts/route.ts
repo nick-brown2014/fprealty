@@ -53,7 +53,15 @@ export async function POST(request: NextRequest) {
           // Fetch new listings matching this saved search
           // This is a simplified example - you'd want to track which listings
           // have already been sent to avoid duplicates
-          const newProperties = await fetchNewListingsForSearch(savedSearch)
+          const newProperties = await fetchNewListingsForSearch({
+            ...savedSearch,
+            searchQuery: savedSearch.searchQuery ?? undefined,
+            minPrice: savedSearch.minPrice ?? undefined,
+            maxPrice: savedSearch.maxPrice ?? undefined,
+            minBeds: savedSearch.minBeds ?? undefined,
+            minBaths: savedSearch.minBaths ?? undefined,
+            bounds: savedSearch.bounds ? savedSearch.bounds as SavedSearch['bounds'] : undefined
+          })
 
           if (newProperties.length === 0) continue
 
