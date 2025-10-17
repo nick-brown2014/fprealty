@@ -5,8 +5,6 @@ import { SavedSearch } from '@/app/types/SavedSearch'
 import { Listing } from '@/app/hooks/useMapDisplay'
 import PropertyAlertEmail from '../../../../emails/PropertyAlertEmail'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 interface EmailProperty {
   id: string
   address: string
@@ -30,6 +28,15 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    // Initialize Resend with API key
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json(
+        { error: 'RESEND_API_KEY not configured' },
+        { status: 500 }
+      )
+    }
+    const resend = new Resend(process.env.RESEND_API_KEY)
 
     // Get all users who have opted in to emails
     const optedInUsers = await prisma.user.findMany({
