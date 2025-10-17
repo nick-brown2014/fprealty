@@ -16,8 +16,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Porter Real Estate",
-  description: "Your ultimate resource to living in Northern Colorado",
+  title: "Porter Real Estate | Northern Colorado Real Estate & Homes for Sale",
+  description: "Find your dream home in Northern Colorado with Porter Real Estate. Browse homes for sale, get expert advice on buying and selling, and explore the best neighborhoods in the area.",
+  keywords: "Northern Colorado real estate, homes for sale, Colorado real estate agent, buy home Colorado, sell home Colorado",
+  openGraph: {
+    title: "Porter Real Estate | Northern Colorado Real Estate",
+    description: "Your ultimate resource for living in Northern Colorado",
+    type: "website",
+    locale: "en_US",
+  },
+  verification: {
+    google: '8wmRJ6G23iy3Ljjj9c0xpuCLBstt54UZw1gmWLFFx7s',
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Porter Real Estate",
+    description: "Your ultimate resource for living in Northern Colorado",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -38,6 +61,22 @@ export default function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'AW-668025904');
+          `}
+        </Script>
+        <Script id="local-business-schema" type="application/ld+json" strategy="afterInteractive">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@type": "RealEstateAgent",
+              "name": "Porter Real Estate",
+              "description": "Your ultimate resource for living in Northern Colorado",
+              "areaServed": {
+                "@type": "State",
+                "name": "Colorado"
+              },
+              "knowsAbout": ["Real Estate", "Home Buying", "Home Selling", "Property Investment"],
+              "url": "${process.env.NEXTAUTH_URL || 'https://yoursite.com'}"
+            }
           `}
         </Script>
         <CookiesProvider>
