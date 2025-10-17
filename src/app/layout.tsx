@@ -75,7 +75,7 @@ export default function RootLayout({
                 "name": "Colorado"
               },
               "knowsAbout": ["Real Estate", "Home Buying", "Home Selling", "Property Investment"],
-              "url": "${process.env.NEXTAUTH_URL || 'https://yoursite.com'}"
+              "url": "${process.env.NEXTAUTH_URL || 'https://nocoreator.com'}"
             }
           `}
         </Script>
