@@ -4,6 +4,9 @@ import { useSearchParams } from 'next/navigation'
 import Footer from "../components/Footer"
 import Nav from "../components/Nav"
 
+// Note: This is a client component, so metadata needs to be set differently
+// For dynamic SEO, you'd need to use next/head or implement server-side metadata
+
 const Search = () => {
   const searchParams = useSearchParams()
   const location = searchParams.get('location')

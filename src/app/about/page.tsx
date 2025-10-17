@@ -1,5 +1,15 @@
+import { Metadata } from "next";
 import Nav from '@/app/components/Nav'
 import Footer from '@/app/components/Footer';
+
+export const metadata: Metadata = {
+  title: "About Porter Real Estate | Your Northern Colorado Realtors",
+  description: "Meet the team at Porter Real Estate. Local experts serving Northern Colorado with personalized real estate services, market expertise, and exceptional client care.",
+  openGraph: {
+    title: "About Porter Real Estate | Northern Colorado Realtors",
+    description: "Your trusted real estate partners in Northern Colorado.",
+  },
+};
 
 const About = () => {
   return (

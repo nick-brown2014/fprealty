@@ -1,5 +1,15 @@
+import { Metadata } from "next";
 import Nav from "../components/Nav";
 import BuyingWizard from "../components/wizards/BuyingWizard";
+
+export const metadata: Metadata = {
+  title: "Buy a Home in Northern Colorado | Expert Buyer's Agents | Porter Real Estate",
+  description: "Looking to buy a home in Northern Colorado? Work with experienced buyer's agents at Porter Real Estate. We'll guide you through every step of the home buying process.",
+  openGraph: {
+    title: "Buy a Home in Northern Colorado | Porter Real Estate",
+    description: "Expert guidance for home buyers in NoCo. Find your dream home with Porter Real Estate.",
+  },
+};
 
 const BuyingPage = () => {
   return (

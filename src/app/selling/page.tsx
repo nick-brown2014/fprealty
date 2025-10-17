@@ -1,5 +1,15 @@
+import { Metadata } from "next";
 import Nav from "@/app/components/Nav";
 import SellingWizard from "@/app/components/wizards/SellingWizard";
+
+export const metadata: Metadata = {
+  title: "Sell Your Home in Northern Colorado | Top Listing Agents | Porter Real Estate",
+  description: "Ready to sell your Northern Colorado home? Porter Real Estate offers expert listing services, strategic marketing, and local market knowledge to get you the best price.",
+  openGraph: {
+    title: "Sell Your Home in Northern Colorado | Porter Real Estate",
+    description: "Get the best price for your NoCo home with expert listing agents at Porter Real Estate.",
+  },
+};
 
 const SellingPage = () => {
   return (
