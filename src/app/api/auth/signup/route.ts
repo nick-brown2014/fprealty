@@ -14,14 +14,70 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Please provide a valid email address' },
+        { status: 400 }
+      )
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: 'Password must be at least 8 characters long' },
+        { status: 400 }
+      )
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return NextResponse.json(
+        { error: 'Password must contain at least one lowercase letter' },
+        { status: 400 }
+      )
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return NextResponse.json(
+        { error: 'Password must contain at least one uppercase letter' },
+        { status: 400 }
+      )
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return NextResponse.json(
+        { error: 'Password must contain at least one number' },
+        { status: 400 }
+      )
+    }
+
+    // Validate phone number
+    const phoneDigits = phoneNumber.replace(/\D/g, '')
+    if (phoneDigits.length < 10) {
+      return NextResponse.json(
+        { error: 'Please provide a valid 10-digit phone number' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user already exists by email
+    const existingUserByEmail = await prisma.user.findUnique({
       where: { email }
     })
 
-    if (existingUser) {
+    if (existingUserByEmail) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
+        { error: 'An account with this email already exists. Please sign in or use a different email.' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user already exists by phone number
+    const existingUserByPhone = await prisma.user.findFirst({
+      where: { phoneNumber }
+    })
+
+    if (existingUserByPhone) {
+      return NextResponse.json(
+        { error: 'An account with this phone number already exists. Please use a different phone number.' },
         { status: 400 }
       )
     }

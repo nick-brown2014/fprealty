@@ -21,6 +21,70 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
+  // Validation errors
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+    phone: false
+  })
+
+  // Validation functions
+  const validateEmail = (value: string) => {
+    if (!value) {
+      setEmailError('Email is required')
+      return false
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(value)) {
+      setEmailError('Please enter a valid email address')
+      return false
+    }
+    setEmailError('')
+    return true
+  }
+
+  const validatePassword = (value: string) => {
+    if (!value) {
+      setPasswordError('Password is required')
+      return false
+    }
+    if (isSignUp && value.length < 8) {
+      setPasswordError('Password must be at least 8 characters')
+      return false
+    }
+    if (isSignUp && !/(?=.*[a-z])/.test(value)) {
+      setPasswordError('Password must contain at least one lowercase letter')
+      return false
+    }
+    if (isSignUp && !/(?=.*[A-Z])/.test(value)) {
+      setPasswordError('Password must contain at least one uppercase letter')
+      return false
+    }
+    if (isSignUp && !/(?=.*\d)/.test(value)) {
+      setPasswordError('Password must contain at least one number')
+      return false
+    }
+    setPasswordError('')
+    return true
+  }
+
+  const validatePhone = (value: string) => {
+    if (!value) {
+      setPhoneError('Phone number is required')
+      return false
+    }
+    const phoneRegex = /^[\d\s\-\(\)]+$/
+    if (!phoneRegex.test(value) || value.replace(/\D/g, '').length < 10) {
+      setPhoneError('Please enter a valid 10-digit phone number')
+      return false
+    }
+    setPhoneError('')
+    return true
+  }
+
   // Clear form when changing between Sign In and Sign Up
   useEffect(() => {
     setEmail('')
@@ -32,16 +96,39 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     setShowPassword(false)
     setError('')
     setSuccess('')
-
+    setEmailError('')
+    setPasswordError('')
+    setPhoneError('')
+    setTouched({
+      email: false,
+      password: false,
+      phone: false
+    })
   }, [isSignUp])
 
   if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
     setSuccess('')
+
+    // Validate all fields before submitting
+    const isEmailValid = validateEmail(email)
+    const isPasswordValid = validatePassword(password)
+    const isPhoneValid = isSignUp ? validatePhone(phoneNumber) : true
+
+    setTouched({
+      email: true,
+      password: true,
+      phone: true
+    })
+
+    if (!isEmailValid || !isPasswordValid || !isPhoneValid) {
+      return
+    }
+
+    setLoading(true)
 
     try {
       if (isSignUp) {
@@ -187,11 +274,25 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   type='tel'
                   id='phoneNumber'
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
-                  placeholder='Enter your phone number'
+                  onChange={(e) => {
+                    setPhoneNumber(e.target.value)
+                    if (touched.phone) validatePhone(e.target.value)
+                  }}
+                  onBlur={() => {
+                    setTouched(prev => ({ ...prev, phone: true }))
+                    validatePhone(phoneNumber)
+                  }}
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                    phoneError && touched.phone
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-primary'
+                  }`}
+                  placeholder='(555) 123-4567'
                   required
                 />
+                {phoneError && touched.phone && (
+                  <p className='mt-1 text-sm text-red-600'>{phoneError}</p>
+                )}
               </div>
             </>
           )}
@@ -204,24 +305,49 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
               type='email'
               id='email'
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
-              placeholder='Enter your email'
+              onChange={(e) => {
+                setEmail(e.target.value)
+                if (touched.email) validateEmail(e.target.value)
+              }}
+              onBlur={() => {
+                setTouched(prev => ({ ...prev, email: true }))
+                validateEmail(email)
+              }}
+              className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                emailError && touched.email
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-primary'
+              }`}
+              placeholder='you@example.com'
               required
             />
+            {emailError && touched.email && (
+              <p className='mt-1 text-sm text-red-600'>{emailError}</p>
+            )}
           </div>
 
           <div>
             <label htmlFor='password' className='block text-sm font-semibold text-gray-700 mb-2'>
-              Password
+              Password {isSignUp && <span className='text-xs text-gray-500'>(min. 8 chars, 1 uppercase, 1 lowercase, 1 number)</span>}
             </label>
             <div className='relative'>
               <input
                 type={showPassword ? 'text' : 'password'}
                 id='password'
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className='w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  if (touched.password) validatePassword(e.target.value)
+                }}
+                onBlur={() => {
+                  setTouched(prev => ({ ...prev, password: true }))
+                  validatePassword(password)
+                }}
+                className={`w-full px-4 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 ${
+                  passwordError && touched.password
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-primary'
+                }`}
                 placeholder='Enter your password'
                 required
               />
@@ -243,6 +369,9 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 )}
               </button>
             </div>
+            {passwordError && touched.password && (
+              <p className='mt-1 text-sm text-red-600'>{passwordError}</p>
+            )}
           </div>
 
           {isSignUp && (
@@ -268,6 +397,18 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             {loading ? 'Loading...' : isSignUp ? 'Sign up' : 'Sign in'}
           </button>
         </form>
+
+        {!isSignUp && (
+          <div className='mt-4 text-center'>
+            <a
+              href='/forgot-password'
+              className='text-sm text-primary hover:underline cursor-pointer'
+              onClick={onClose}
+            >
+              Forgot your password?
+            </a>
+          </div>
+        )}
 
         <div className='mt-6 text-center'>
           <p className='text-sm text-gray-600'>
