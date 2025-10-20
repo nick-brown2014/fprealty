@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Nav from '../components/Nav'
+import Link from 'next/link'
 
 const ResetPasswordPage = () => {
   const searchParams = useSearchParams()
@@ -100,12 +101,12 @@ const ResetPasswordPage = () => {
             <p className='text-gray-600 mb-6'>
               This password reset link is invalid or has expired.
             </p>
-            <a
+            <Link
               href='/forgot-password'
               className='inline-block bg-primary text-white py-2 px-4 rounded-md hover:opacity-90 transition'
             >
               Request New Link
-            </a>
+            </Link>
           </div>
         </div>
       </div>

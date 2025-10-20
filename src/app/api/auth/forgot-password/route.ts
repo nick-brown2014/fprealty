@@ -55,10 +55,6 @@ export async function POST(request: NextRequest) {
     // Use verified subdomain alerts.nocorealtor.com (or onboarding@resend.dev for testing)
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
-    console.log('Sending email from:', fromEmail)
-    console.log('Sending email to:', email)
-    console.log('Reset URL:', resetUrl)
-
     const result = await resend.emails.send({
       from: fromEmail,
       to: [email],

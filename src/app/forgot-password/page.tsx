@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Nav from '../components/Nav'
-import { Metadata } from 'next'
+import Link from 'next/link'
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('')
@@ -47,20 +47,20 @@ const ForgotPasswordPage = () => {
         <div className='max-w-md w-full bg-white shadow-lg rounded-lg p-8'>
           <h1 className='text-2xl font-bold text-gray-900 mb-2'>Forgot Password?</h1>
           <p className='text-sm text-gray-600 mb-6'>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
 
           {success ? (
             <div className='bg-green-50 border border-green-200 rounded-md p-4'>
               <p className='text-sm text-green-800'>
-                Check your email! We've sent you a password reset link. It will expire in 1 hour.
+                Check your email! We&apos;ve sent you a password reset link. It will expire in 1 hour.
               </p>
-              <a
+              <Link
                 href='/'
                 className='mt-4 inline-block text-sm text-primary hover:underline'
               >
                 Return to home
-              </a>
+              </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className='space-y-4'>
@@ -94,12 +94,12 @@ const ForgotPasswordPage = () => {
               </button>
 
               <div className='text-center'>
-                <a
+                <Link
                   href='/'
                   className='text-sm text-gray-600 hover:text-primary'
                 >
                   Back to sign in
-                </a>
+                </Link>
               </div>
             </form>
           )}
