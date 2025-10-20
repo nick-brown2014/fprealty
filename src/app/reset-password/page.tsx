@@ -208,12 +208,12 @@ const ResetPasswordPage = () => {
               </button>
 
               <div className='text-center'>
-                <a
+                <Link
                   href='/'
                   className='text-sm text-gray-600 hover:text-primary'
                 >
                   Back to sign in
-                </a>
+                </Link>
               </div>
             </form>
           )}
