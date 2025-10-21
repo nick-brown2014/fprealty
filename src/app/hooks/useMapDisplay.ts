@@ -162,22 +162,15 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
       newFilters['BathroomsTotalInteger.gte'] = searchFilters.minBaths
     }
 
-    // Add property types filter (using PropertySubType)
-    // If includeLand is true, add 'Unimproved Land' to the property subtypes
-    const propertySubTypes = [...(searchFilters?.propertyTypes || [])]
+    // Add property types filter (using PropertyType)
+    // Build the property types array
+    const propertyTypes = [...(searchFilters?.propertyTypes || [])]
     if (searchFilters?.includeLand) {
-      propertySubTypes.push('Unimproved Land')
+      propertyTypes.push('Land')
     }
 
-    if (propertySubTypes.length > 0) {
-      newFilters['PropertySubType.in'] = propertySubTypes.join(',')
-    }
-
-    // Handle PropertyType - if includeLand is true, include both Residential and Land
-    if (searchFilters?.includeLand) {
-      newFilters['PropertyType.in'] = 'Residential,Land'
-    } else {
-      newFilters['PropertyType.in'] = 'Residential'
+    if (propertyTypes.length > 0) {
+      newFilters['PropertyType.in'] = propertyTypes.join(',')
     }
 
     // Add status filter
