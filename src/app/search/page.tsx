@@ -74,6 +74,8 @@ const Search = () => {
   const [priceDropdownOpen, setPriceDropdownOpen] = useState(false)
   const [minPrice, setMinPrice] = useState(0)
   const [maxPrice, setMaxPrice] = useState<number | null>(null)
+  const [minPriceInput, setMinPriceInput] = useState('')
+  const [maxPriceInput, setMaxPriceInput] = useState('')
   const [bedsDropdownOpen, setBedsDropdownOpen] = useState(false)
   const [minBeds, setMinBeds] = useState<number | null>(null)
   const [bathsDropdownOpen, setBathsDropdownOpen] = useState(false)
@@ -122,6 +124,50 @@ const Search = () => {
   const bathsDropdownRef = useRef<HTMLDivElement>(null)
   const propertyTypesDropdownRef = useRef<HTMLDivElement>(null)
 
+  // Sync input display with actual price values (for saved searches, etc.)
+  useEffect(() => {
+    if (minPrice.toString() !== minPriceInput.replace(/[^0-9]/g, ''))
+    setMinPriceInput(minPrice === 0 ? '' : minPrice.toString())
+  }, [minPrice])
+
+  useEffect(() => {
+    if (!!maxPrice && maxPrice.toString() !== maxPriceInput.replace(/[^0-9]/g, ''))
+    setMaxPriceInput(maxPrice === null ? '' : maxPrice.toString())
+  }, [maxPrice])
+
+  // Debounce price input changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const value = minPriceInput.replace(/[^0-9]/g, '')
+      if (value === '') {
+        setMinPrice(0)
+      } else {
+        const numValue = parseInt(value, 10)
+        if (numValue > 0) {
+          setMinPrice(numValue)
+        }
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [minPriceInput])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const value = maxPriceInput.replace(/[^0-9]/g, '')
+      if (value === '') {
+        setMaxPrice(null)
+      } else {
+        const numValue = parseInt(value, 10)
+        if (numValue > 0) {
+          setMaxPrice(numValue)
+        }
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [maxPriceInput])
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -142,24 +188,6 @@ const Search = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Generate min price options (0 to 2,000,000 in 250k increments)
-  const minPriceOptions = []
-  for (let i = 0; i <= 2000000; i += 250000) {
-    minPriceOptions.push(i)
-  }
-
-  // Generate max price options (500k to 2,000,000 in 250k increments, plus "No Max")
-  const maxPriceOptions: (number | null)[] = [null]
-  for (let i = 500000; i <= 2000000; i += 250000) {
-    maxPriceOptions.push(i)
-  }
-
-  const formatPrice = (price: number | null) => {
-    if (price === null) return 'No Max'
-    if (price === 0) return '$0'
-    return `$${price.toLocaleString()}`
-  }
-
   const goToSettings = () => {
     router.push('/settings')
   }
@@ -175,7 +203,7 @@ const Search = () => {
   const statuses = [
     { label: 'Active', value: 'Active' },
     { label: 'Pending', value: 'Pending' },
-    { label: 'Closed', value: 'Closed' }
+    { label: 'Sold', value: 'Sold' }
   ]
 
   const toggleStatus = (status: string) => {
@@ -333,33 +361,25 @@ const Search = () => {
                       <label className='block text-sm font-semibold mb-2 text-gray-700'>
                         Minimum Price
                       </label>
-                      <select
-                        value={minPrice}
-                        onChange={(e) => setMinPrice(Number(e.target.value))}
+                      <input
+                        type='text'
+                        value={minPriceInput}
+                        onChange={(e) => setMinPriceInput(e.target.value)}
+                        placeholder='No Min'
                         className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
-                      >
-                        {minPriceOptions.map((price) => (
-                          <option key={price} value={price}>
-                            {formatPrice(price)}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     </div>
                     <div>
                       <label className='block text-sm font-semibold mb-2 text-gray-700'>
                         Maximum Price
                       </label>
-                      <select
-                        value={maxPrice === null ? '' : maxPrice}
-                        onChange={(e) => setMaxPrice(e.target.value === '' ? null : Number(e.target.value))}
+                      <input
+                        type='text'
+                        value={maxPriceInput}
+                        onChange={(e) => setMaxPriceInput(e.target.value)}
+                        placeholder='No Max'
                         className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
-                      >
-                        {maxPriceOptions.map((price, idx) => (
-                          <option key={idx} value={price === null ? '' : price}>
-                            {formatPrice(price)}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     </div>
                   </div>
                 )}
@@ -569,7 +589,9 @@ const Search = () => {
                         // Clear all filters when viewing favorites
                         setSearchQuery('')
                         setMinPrice(0)
+                        setMinPriceInput('')
                         setMaxPrice(null)
+                        setMaxPriceInput('')
                         setMinBeds(null)
                         setMinBaths(null)
                         setSelectedPropertyTypes([

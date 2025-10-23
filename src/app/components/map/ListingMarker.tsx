@@ -90,7 +90,7 @@ const ListingMarker = ({ listing }: ListingMarkerProps) => {
                 )}
               </p>
               <p className="text-xs text-gray-500">
-                {listing.StandardStatus || listing.MlsStatus} • {listing.DaysOnMarket} days
+                {listing.MlsStatus} • {listing.DaysOnMarket} days
               </p>
             </div>
           </div>

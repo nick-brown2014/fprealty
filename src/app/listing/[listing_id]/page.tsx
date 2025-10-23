@@ -274,7 +274,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
                   <div className='flex justify-between py-2 border-b border-gray-200'>
                     <span className='text-gray-600'>Status</span>
                     <span className='font-medium text-gray-900'>
-                      {listing.StandardStatus || listing.MlsStatus}
+                      {listing.MlsStatus}
                     </span>
                   </div>
                   {listing.YearBuilt && (

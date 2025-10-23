@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { apiGet } from "../server/api"
 
-const listingsListFields = 'ListingKey,ListPrice,OriginalListPrice,ClosePrice,CloseDate,City,StateOrProvince,PostalCode,CountyOrParish,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,PropertyType,PropertySubType,BedroomsTotal,BathroomsFull,BathroomsTotalInteger,LivingArea,LivingAreaUnits,PhotosCount,Media,MlsStatus,StandardStatus,DaysOnMarket,Latitude,Longitude,ListAgentFullName,LotSizeAcres'
+const listingsListFields = 'ListingKey,ListPrice,OriginalListPrice,ClosePrice,CloseDate,City,StateOrProvince,PostalCode,CountyOrParish,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,PropertyType,PropertySubType,BedroomsTotal,BathroomsFull,BathroomsTotalInteger,LivingArea,LivingAreaUnits,PhotosCount,Media,MlsStatus,DaysOnMarket,Latitude,Longitude,ListAgentFullName,LotSizeAcres'
 
 interface ListingsResponse extends Response {
   total: number
@@ -42,7 +42,6 @@ export type Listing = {
   PhotosCount: number
   Media?: Media[]
   MlsStatus: string
-  StandardStatus?: string
   DaysOnMarket: number
   Latitude?: number
   Longitude?: number
@@ -80,7 +79,7 @@ type Filters = {
   'BathroomsTotalInteger.gte'?: number
   'PropertyType.in'?: string
   'PropertySubType.in'?: string
-  'StandardStatus.in'?: string
+  'MlsStatus.in'?: string
   'ListingKey.in'?: string
 }
 
@@ -91,7 +90,7 @@ const defaultFilters = {
   near: 'Fort Collins',
   radius: 4,
   'PropertyType.in': 'Residential',
-  'StandardStatus.in': 'Active'
+  'MlsStatus.in': 'Active'
 }
 
 const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
@@ -175,7 +174,7 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
 
     // Add status filter
     if (searchFilters?.statuses && searchFilters.statuses.length > 0) {
-      newFilters['StandardStatus.in'] = searchFilters.statuses.join(',')
+      newFilters['MlsStatus.in'] = searchFilters.statuses.join(',')
     }
 
     setFilters(newFilters)

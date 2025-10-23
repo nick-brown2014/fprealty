@@ -52,7 +52,6 @@ export type DetailedListing = {
 
   // Status
   MlsStatus: string
-  StandardStatus?: string
   DaysOnMarket: number
   CumulativeDaysOnMarket?: number
   OnMarketDate?: string

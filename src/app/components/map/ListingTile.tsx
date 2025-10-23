@@ -20,9 +20,6 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
   }
 
   const getSubStatus = () => {
-    if (listing.StandardStatus === 'Active Under Contract') {
-      return 'Under Contract'
-    }
     if (listing.MlsStatus === 'Active/Backup') {
       return 'Backup'
     }
@@ -38,11 +35,11 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
 
   return (
     <div
-      className='flex w-full min-h-36 border border-gray-300 rounded-md cursor-pointer hover:shadow-lg transition-shadow px-1.5 py-2 sm:px-2'
+      className='flex flex-col w-full min-h-96 border border-gray-300 rounded-md cursor-pointer hover:shadow-lg transition-shadow overflow-hidden'
       onClick={handleClick}
     >
-      {/* Image on the left - full height */}
-      <div className='relative w-32 h-32 flex-shrink-0 bg-gray-200'>
+      {/* Image on top - full width */}
+      <div className='relative w-full h-64 bg-gray-200'>
         <FavoriteButton listingId={listing.ListingKey} />
         {getPhotoUrl() ? (
           <Image
@@ -52,20 +49,20 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
             className='object-cover'
           />
         ) : (
-          <div className='w-full h-full flex items-center justify-center text-gray-400 text-xs'>
+          <div className='w-full h-full flex items-center justify-center text-gray-400 text-sm'>
             No photo
           </div>
         )}
       </div>
 
-      {/* Content on the right */}
-      <div className='flex flex-col justify-between pl-2 lg:pl-6 py-3 flex-1 min-w-0'>
-        <div>
-          <div className='flex flex-col xl:flex-row xl:items-baseline gap-0 xl:gap-2 mb-1'>
-            <p className='text-base font-semibold text-gray-900'>
+      {/* Content below */}
+      <div className='flex flex-col p-4'>
+        <div className='mb-3'>
+          <div className='flex gap-2 items-center mb-2'>
+            <p className='text-lg font-bold text-gray-900 mb-1 md:mb-0'>
               {formatPrice(listing.ListPrice)}
             </p>
-            <p className='text-xs text-gray-600'>
+            <p className='text-sm text-gray-600'>
               {listing.PropertyType === 'Land' ? (
                 listing.LotSizeAcres && `${listing.LotSizeAcres} acres`
               ) : (
@@ -76,19 +73,21 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
               )}
             </p>
           </div>
-          <p className='text-sm text-gray-800 break-words leading-tight sm:leading-normal'>
-            {listing.streetAddress}
-          </p>
-          <p className='text-xs text-gray-500'>
-            {listing.City}, {listing.StateOrProvince || 'CO'} {listing.PostalCode}
-          </p>
+          <div className='flex gap-2 items-center'>
+            <p className='text-sm text-gray-800 font-medium'>
+              {listing.streetAddress}
+            </p>
+            <p className='text-xs text-gray-500 md:text-sm md:ml-2'>
+              {listing.City}, {listing.StateOrProvince || 'CO'} {listing.PostalCode}
+            </p>
+          </div>
         </div>
-        <div className='mt-2'>
+        <div className='pt-2 border-t border-gray-200'>
           <p className='text-xs text-gray-500'>
-            {listing.StandardStatus || listing.MlsStatus} • {listing.DaysOnMarket} days on market
+            {listing.MlsStatus} • {listing.DaysOnMarket} days on market
           </p>
           {getSubStatus() && (
-            <p className='text-xs font-semibold text-gray-700 mt-0.5'>
+            <p className='text-xs font-semibold text-gray-700 mt-1'>
               {getSubStatus()}
             </p>
           )}
