@@ -5,6 +5,7 @@ import Image from 'next/image'
 import useListing from '@/app/hooks/useListing'
 import Nav from '@/app/components/Nav'
 import Footer from '@/app/components/Footer'
+import Slideshow from '@/app/components/Slideshow'
 
 type ListingPageProps = {
   params: Promise<{
@@ -15,9 +16,9 @@ type ListingPageProps = {
 const ListingPage = ({ params }: ListingPageProps) => {
   const { listing_id } = use(params)
   const { listing, brokerage, loading } = useListing(listing_id)
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+  const [isSlideshowOpen, setIsSlideshowOpen] = useState(false)
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
   if (!!loading) {
     return (
@@ -37,27 +38,9 @@ const ListingPage = ({ params }: ListingPageProps) => {
     }).format(price)
   }
 
-  const openGallery = (index: number = 0) => {
-    setCurrentImageIndex(index)
-    setIsGalleryOpen(true)
-    document.body.style.overflow = 'hidden' // Prevent background scrolling
-  }
-
-  const closeGallery = () => {
-    setIsGalleryOpen(false)
-    document.body.style.overflow = 'unset'
-  }
-
-  const nextImage = () => {
-    if (listing?.Media) {
-      setCurrentImageIndex((prev) => (prev + 1) % (listing?.Media?.length ?? 1))
-    }
-  }
-
-  const prevImage = () => {
-    if (listing?.Media) {
-      setCurrentImageIndex((prev) => (prev - 1 + (listing?.Media?.length ?? 1)) % (listing?.Media?.length ?? 1))
-    }
+  const openSlideshow = (index: number = 0) => {
+    setSelectedImageIndex(index)
+    setIsSlideshowOpen(true)
   }
 
   return (
@@ -70,7 +53,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
             <>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-2 h-[350px] overflow-hidden rounded-4xl'>
                 {/* Large image on the left */}
-                <div className='relative h-full bg-gray-200' onClick={() => openGallery(0)}>
+                <div className='relative h-full bg-gray-200' onClick={() => openSlideshow(0)}>
                   <Image
                     src={listing.Media[0].MediaURL}
                     alt={`${listing.streetAddress} property`}
@@ -86,7 +69,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
                     <div
                       key={media.MediaObjectID || index}
                       className='relative bg-gray-200'
-                      onClick={() => openGallery(index + 1)}
+                      onClick={() => openSlideshow(index + 1)}
                     >
                       <Image
                         src={media.MediaURL}
@@ -105,13 +88,24 @@ const ListingPage = ({ params }: ListingPageProps) => {
                 </div>
               </div>
 
-              {/* All Photos Button */}
-              <button
-                onClick={() => openGallery(0)}
-                className='absolute cursor-pointer bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow font-semibold text-gray-900 border border-gray-300'
-              >
-                All Photos ({listing.Media.length})
-              </button>
+              {/* Photo Buttons */}
+              <div className='absolute bottom-4 right-4 flex gap-2'>
+                <button
+                  onClick={() => openSlideshow(0)}
+                  className='cursor-pointer bg-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow font-semibold text-gray-900 border border-gray-300'
+                >
+                  Slideshow
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    window.open(`/listing/${listing.ListingKey}/gallery`, '_blank')
+                  }}
+                  className='cursor-pointer bg-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow font-semibold text-gray-900 border border-gray-300'
+                >
+                  All Photos ({listing.Media.length})
+                </button>
+              </div>
             </>
           ) : (
             <div className='w-full h-[500px] bg-gray-200 rounded-3xl flex items-center justify-center'>
@@ -145,60 +139,16 @@ const ListingPage = ({ params }: ListingPageProps) => {
           </div>
         ) }
 
-        {/* Full-Screen Gallery Modal */}
-        {isGalleryOpen && listing.Media && listing.Media.length > 0 && (
-          <div className='fixed inset-0 z-50 bg-black flex items-center justify-center'>
-            {/* Close Button */}
-            <button
-              onClick={closeGallery}
-              className='absolute cursor-pointer top-4 right-4 z-50 text-white hover:text-gray-300 transition-colors'
-              aria-label='Close gallery'
-            >
-              <svg className='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
-              </svg>
-            </button>
-
-            {/* Previous Button */}
-            <button
-              onClick={prevImage}
-              className='absolute cursor-pointer left-4 z-50 text-white hover:text-gray-300 transition-colors'
-              aria-label='Previous image'
-            >
-              <svg className='w-12 h-12' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
-              </svg>
-            </button>
-
-            {/* Next Button */}
-            <button
-              onClick={nextImage}
-              className='absolute cursor-pointer right-4 z-50 text-white hover:text-gray-300 transition-colors'
-              aria-label='Next image'
-            >
-              <svg className='w-12 h-12' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
-              </svg>
-            </button>
-
-            {/* Current Image */}
-            <div className='relative w-full h-full flex items-center justify-center p-16'>
-              <div className='relative w-full h-full'>
-                <Image
-                  src={listing.Media[currentImageIndex].MediaURL}
-                  alt={`${listing.streetAddress} property ${currentImageIndex + 1}`}
-                  fill
-                  className='object-contain'
-                />
-              </div>
-            </div>
-
-            {/* Image Counter */}
-            <div className='absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-lg font-semibold'>
-              {currentImageIndex + 1} / {listing.Media.length}
-            </div>
-          </div>
+        {/* Slideshow */}
+        {listing.Media && (
+          <Slideshow
+            media={listing.Media}
+            isOpen={isSlideshowOpen}
+            initialIndex={selectedImageIndex}
+            onClose={() => setIsSlideshowOpen(false)}
+          />
         )}
+
         {/* Price and Address Header */}
         <div className='flex flex-col md:flex-row md:justify-between md:items-center w-full mb-12'>
           <div>
