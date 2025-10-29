@@ -6,16 +6,19 @@ import { signIn as nextAuthSignIn } from 'next-auth/react'
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
+  initialEmail?: string
+  initialEmailOptIn?: boolean
+
 }
 
-const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [email, setEmail] = useState('')
+const AuthModal = ({ isOpen, onClose, initialEmail, initialEmailOptIn }: AuthModalProps) => {
+  const [isSignUp, setIsSignUp] = useState(initialEmailOptIn || false)
+  const [email, setEmail] = useState(initialEmail || '')
   const [password, setPassword] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [emailOptIn, setEmailOptIn] = useState(false)
+  const [emailOptIn, setEmailOptIn] = useState(initialEmailOptIn || false)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -87,12 +90,12 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   // Clear form when changing between Sign In and Sign Up
   useEffect(() => {
-    setEmail('')
+    setEmail(initialEmail || '')
     setPassword('')
     setFirstName('')
     setLastName('')
     setPhoneNumber('')
-    setEmailOptIn(false)
+    setEmailOptIn(initialEmailOptIn || false)
     setShowPassword(false)
     setError('')
     setSuccess('')
@@ -104,7 +107,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       password: false,
       phone: false
     })
-  }, [isSignUp])
+  }, [isSignUp, initialEmail, initialEmailOptIn])
 
   if (!isOpen) return null
 

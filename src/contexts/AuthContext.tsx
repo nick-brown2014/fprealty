@@ -52,6 +52,11 @@ interface AuthContextType {
   loadFavorites: () => Promise<void>
   savedSearches: SavedSearch[]
   loadSavedSearches: () => Promise<void>
+  openAuthModal: (initialEmail?: string, initialEmailOptIn?: boolean) => void
+  closeAuthModal: () => void
+  authModalOpen: boolean
+  authModalInitialEmail?: string
+  authModalInitialEmailOptIn?: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -62,6 +67,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [saveSearchState, setSaveSearchState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([])
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authModalInitialEmail, setAuthModalInitialEmail] = useState<string | undefined>(undefined)
+  const [authModalInitialEmailOptIn, setAuthModalInitialEmailOptIn] = useState<boolean | undefined>(undefined)
 
   const isLoading = status === 'loading'
 
@@ -223,6 +231,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const openAuthModal = (initialEmail?: string, initialEmailOptIn?: boolean) => {
+    setAuthModalInitialEmail(initialEmail)
+    setAuthModalInitialEmailOptIn(initialEmailOptIn)
+    setAuthModalOpen(true)
+  }
+
+  const closeAuthModal = () => {
+    setAuthModalOpen(false)
+    setAuthModalInitialEmail(undefined)
+    setAuthModalInitialEmailOptIn(undefined)
+  }
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -235,7 +255,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toggleFavorite,
       loadFavorites,
       savedSearches,
-      loadSavedSearches
+      loadSavedSearches,
+      openAuthModal,
+      closeAuthModal,
+      authModalOpen,
+      authModalInitialEmail,
+      authModalInitialEmailOptIn
     }}>
       {children}
     </AuthContext.Provider>

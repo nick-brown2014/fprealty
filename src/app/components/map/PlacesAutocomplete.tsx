@@ -3,7 +3,6 @@
 import { useMapsLibrary } from '@vis.gl/react-google-maps'
 
 type PlacesAutocompleteProps = {
-  value: string
   onPlaceSelect: (place: string, location?: { lat: number; lng: number }) => void
 }
 

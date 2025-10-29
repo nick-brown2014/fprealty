@@ -1,11 +1,14 @@
 'use client'
 import { ChangeEvent, useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import Link from 'next/link'
 
 const Footer = () => {
+  const { openAuthModal } = useAuth()
   const [email, setEmail] = useState<string>('')
-  
+
   const handleSubscribe = () => {
-    // Handle Subscribe
+    openAuthModal(email, true)
   }
 
   return (
@@ -38,13 +41,13 @@ const Footer = () => {
       <div className='justify-center flex w-full mt-6'>
         <div className='justify-between lg:items-center gap-8 max-w-[1200px] w-full flex flex-col lg:flex-row'>
           <img src='/logo-white.png' className='w-42 h-42' />
-          <div className='flex-col gap-2 ml-6 lg:ml-0'>
+          <div className='flex flex-col gap-2 ml-6 lg:ml-0'>
             <p className='text-background font-semibold tracking-tight'>Contact us:</p>
             <p className='text-background font-semibold tracking-tight'>(970) 510-8414</p>
             <p className='text-background font-semibold tracking-tight'>info@nocorealtor.com</p>
           </div>
-          <div className='flex-col gap-2 ml-6 lg:ml-0 lg:self-end max-w-[600px]'>
-            <a href='/privacy-policy' target='_blank' className='text-background font-semibold tracking-tight'>Privacy policy</a>
+          <div className='flex flex-col gap-2 ml-6 lg:ml-0 lg:self-end max-w-[600px]'>
+            <Link href='/privacy-policy' className='text-background font-semibold tracking-tight'>Privacy policy</Link>
             <p className='text-background text-xs'>
               IDX information is provided exclusively for consumers&#39; personal, non-commercial use, that it may not be used for any purpose other than to identify prospective properties consumers may be interested in purchasing, and that the data is deemed reliable but is not guaranteed accurate by the MLS.
               <br></br>
@@ -55,18 +58,19 @@ const Footer = () => {
             <a
               href='https://www.flaticon.com/'
               target='_blank'
+              rel='noopener noreferrer'
               title='flaticon icons'
               className='mt-4 text-background text-xs w-full flex'
             >
                 Icons created by Pixel perfect - Flaticon
             </a>
-            <a
+            <Link
               href='/terms-and-conditions'
               target='_blank'
               className='text-background text-xs w-full flex'
             >
               Terms and Conditions
-            </a>
+            </Link>
           </div>
         </div>
       </div>

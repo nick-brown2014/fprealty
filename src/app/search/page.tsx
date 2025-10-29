@@ -11,7 +11,7 @@ import ListingMarker from '../components/map/ListingMarker'
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import ListingTile from "../components/map/ListingTile"
 import PlacesAutocomplete from "../components/map/PlacesAutocomplete"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { SavedSearch } from "../types/SavedSearch"
 
 const MapEventHandler = ({ onIdle }: { onIdle: (map: google.maps.Map) => void }) => {
@@ -64,8 +64,9 @@ const SavedSearchBoundsHandler = ({ bounds, onBoundsApplied }: { bounds: google.
 
 const Search = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, signOut, saveSearch, saveSearchState, favorites, savedSearches } = useAuth()
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('location') || '')
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [pendingMapBounds, setPendingMapBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [showSearchAreaButton, setShowSearchAreaButton] = useState(false)
@@ -95,6 +96,60 @@ const Search = () => {
   const [savedSearchBounds, setSavedSearchBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [isApplyingSavedSearch, setIsApplyingSavedSearch] = useState(false)
   const [isApplyingFavorites, setIsApplyingFavorites] = useState(false)
+  const [initialLocationParam] = useState(() => searchParams.get('location'))
+
+  // Handle location URL parameter on mount
+  useEffect(() => {
+    if (!initialLocationParam) return
+
+    // Wait for Google Maps API to be available
+    const checkGoogleMaps = () => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        // Use Google Places Autocomplete Service to geocode the location
+        const service = new google.maps.places.AutocompleteService()
+        service.getPlacePredictions(
+          { input: initialLocationParam },
+          (predictions, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+              // Get the first prediction and convert it to a Place
+              const placesService = new google.maps.places.PlacesService(document.createElement('div'))
+              placesService.getDetails(
+                { placeId: predictions[0].place_id },
+                (place, detailStatus) => {
+                  if (detailStatus === google.maps.places.PlacesServiceStatus.OK && place && place.geometry?.location) {
+                    const location = {
+                      lat: place.geometry.location.lat(),
+                      lng: place.geometry.location.lng()
+                    }
+
+                    // Create a 4-mile radius bounds around the location
+                    const radiusInMeters = 4 * 1609.34
+                    const center = new google.maps.LatLng(location.lat, location.lng)
+                    const circle = new google.maps.Circle({
+                      center: center,
+                      radius: radiusInMeters
+                    })
+                    const bounds = circle.getBounds()
+
+                    setMapCenter(location)
+                    if (bounds) {
+                      setMapBounds(bounds)
+                    }
+                    // Don't set searchQuery - we're using bounds-based search
+                  }
+                }
+              )
+            }
+          }
+        )
+      } else {
+        // Retry after a short delay
+        setTimeout(checkGoogleMaps, 100)
+      }
+    }
+
+    checkGoogleMaps()
+  }, [initialLocationParam])
 
   // Memoize filters to prevent infinite loop
   const searchFilters = useMemo(() => ({
@@ -321,7 +376,6 @@ const Search = () => {
           {/* Search Bar and Filters */}
           <div className='w-[90vw] max-w-[1200px] mt-4 flex flex-col md:flex-row gap-3 items-stretch md:items-center'>
             <PlacesAutocomplete
-              value={searchQuery}
               onPlaceSelect={(place, location) => {
                 if (location) {
                   // Create a 4-mile radius bounds around the selected location
