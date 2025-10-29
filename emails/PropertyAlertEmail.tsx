@@ -14,62 +14,77 @@ import * as React from 'react'
 
 interface PropertyAlertEmailProps {
   userName: string
-  properties: Array<{
-    address: string
-    price: number
-    beds: number
-    baths: number
-    sqft: number
-    imageUrl?: string
-    listingUrl: string
+  searchResults: Array<{
+    searchName: string
+    properties: Array<{
+      address: string
+      price: number
+      beds: number
+      baths: number
+      sqft: number
+      imageUrl?: string
+      listingUrl: string
+    }>
   }>
-  searchName: string
 }
 
 export const PropertyAlertEmail = ({
   userName = 'Valued Client',
-  properties = [],
-  searchName = 'Your Saved Search',
-}: PropertyAlertEmailProps) => (
-  <Html>
-    <Head />
-    <Preview>New properties matching {searchName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>New Properties Alert</Heading>
-        <Text style={text}>Hi {userName},</Text>
-        <Text style={text}>
-          We found {properties.length} new {properties.length === 1 ? 'property' : 'properties'} matching your saved search "{searchName}":
-        </Text>
+  searchResults = [],
+}: PropertyAlertEmailProps) => {
+  const totalProperties = searchResults.reduce((sum, result) => sum + result.properties.length, 0)
 
-        {properties.map((property, index) => (
-          <Section key={index} style={propertyCard}>
-            {property.imageUrl && (
-              <Img
-                src={property.imageUrl}
-                alt={property.address}
-                style={propertyImage}
-              />
-            )}
-            <Heading style={propertyAddress}>{property.address}</Heading>
-            <Text style={propertyPrice}>${property.price.toLocaleString()}</Text>
-            <Text style={propertyDetails}>
-              {property.beds} beds • {property.baths} baths • {property.sqft.toLocaleString()} sqft
-            </Text>
-            <Button style={button} href={property.listingUrl}>
-              View Details
-            </Button>
-          </Section>
-        ))}
+  return (
+    <Html>
+      <Head />
+      <Preview>{String(totalProperties)} new listing{totalProperties === 1 ? '' : 's'} just hit the market!</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Heading style={h1}>New Listings Alert</Heading>
+          <Text style={text}>Hi {userName},</Text>
+          <Text style={text}>
+            Great news! We found {totalProperties} new {totalProperties === 1 ? 'listing' : 'listings'} that just hit the market (within the last 24 hours) matching your saved {searchResults.length === 1 ? 'search' : 'searches'}:
+          </Text>
 
-        <Text style={footer}>
-          This email was sent because you opted in to receive property alerts from Fred Porter Realty.
-          To unsubscribe, please visit your account settings.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+          {searchResults.map((result, resultIndex) => (
+            <React.Fragment key={resultIndex}>
+              {searchResults.length > 1 && (
+                <Heading style={searchHeading}>
+                  {result.searchName} ({result.properties.length} {result.properties.length === 1 ? 'property' : 'properties'})
+                </Heading>
+              )}
+
+              {result.properties.map((property, propIndex) => (
+                <Section key={`${resultIndex}-${propIndex}`} style={propertyCard}>
+                  {property.imageUrl && (
+                    <Img
+                      src={property.imageUrl}
+                      alt={property.address}
+                      style={propertyImage}
+                    />
+                  )}
+                  <Heading style={propertyAddress}>{property.address}</Heading>
+                  <Text style={propertyPrice}>${property.price.toLocaleString()}</Text>
+                  <Text style={propertyDetails}>
+                    {property.beds} beds • {property.baths} baths • {property.sqft.toLocaleString()} sqft
+                  </Text>
+                  <Button style={button} href={property.listingUrl}>
+                    View Details
+                  </Button>
+                </Section>
+              ))}
+            </React.Fragment>
+          ))}
+
+          <Text style={footer}>
+            This email was sent because you opted in to receive property alerts from Fred Porter Realty.
+            To unsubscribe, please visit your account settings.
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default PropertyAlertEmail
 
@@ -148,6 +163,14 @@ const button = {
   display: 'block',
   width: '100%',
   padding: '12px',
+}
+
+const searchHeading = {
+  color: '#555',
+  fontSize: '18px',
+  fontWeight: 'bold',
+  margin: '32px 40px 16px 40px',
+  padding: '0',
 }
 
 const footer = {

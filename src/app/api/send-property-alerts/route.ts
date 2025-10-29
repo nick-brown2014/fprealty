@@ -16,13 +16,14 @@ interface EmailProperty {
   listingUrl: string
 }
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    // Optional: Add authentication to protect this endpoint
-    // For now, you might want to add a secret key check
-    const { secret } = await request.json()
+    // Verify the request is authorized (from Vercel Cron or with proper secret)
+    const authHeader = request.headers.get('authorization')
+    const secret = request.nextUrl.searchParams.get('secret')
 
-    if (secret !== process.env.CRON_SECRET) {
+    // Check either Bearer token (Vercel Cron) or secret query param
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && secret !== process.env.CRON_SECRET) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -55,65 +56,88 @@ export async function POST(request: NextRequest) {
     for (const user of optedInUsers) {
       if (user.savedSearches.length === 0) continue
 
-      for (const savedSearch of user.savedSearches) {
-        try {
-          // Fetch new listings matching this saved search
-          // This is a simplified example - you'd want to track which listings
-          // have already been sent to avoid duplicates
+      try {
+        // Collect all new listings across all saved searches for this user
+        const searchResults: Array<{
+          searchName: string
+          properties: Array<{
+            address: string
+            price: number
+            beds: number
+            baths: number
+            sqft: number
+            imageUrl?: string
+            listingUrl: string
+          }>
+        }> = []
 
-          // Convert Prisma null values to undefined to match SavedSearch type
-          const searchParams: SavedSearch = {
-            id: savedSearch.id,
-            userId: savedSearch.userId,
-            createdAt: savedSearch.createdAt,
-            updatedAt: savedSearch.updatedAt,
-            name: savedSearch.name,
-            searchQuery: savedSearch.searchQuery ?? undefined,
-            minPrice: savedSearch.minPrice ?? undefined,
-            maxPrice: savedSearch.maxPrice ?? undefined,
-            minBeds: savedSearch.minBeds ?? undefined,
-            minBaths: savedSearch.minBaths ?? undefined,
-            propertyTypes: savedSearch.propertyTypes as string[],
-            includeLand: savedSearch.includeLand,
-            statuses: savedSearch.statuses as string[],
-            bounds: savedSearch.bounds ? savedSearch.bounds as SavedSearch['bounds'] : undefined
+        for (const savedSearch of user.savedSearches) {
+          try {
+            // Convert Prisma null values to undefined to match SavedSearch type
+            const searchParams: SavedSearch = {
+              id: savedSearch.id,
+              userId: savedSearch.userId,
+              createdAt: savedSearch.createdAt,
+              updatedAt: savedSearch.updatedAt,
+              name: savedSearch.name,
+              searchQuery: savedSearch.searchQuery ?? undefined,
+              minPrice: savedSearch.minPrice ?? undefined,
+              maxPrice: savedSearch.maxPrice ?? undefined,
+              minBeds: savedSearch.minBeds ?? undefined,
+              minBaths: savedSearch.minBaths ?? undefined,
+              propertyTypes: savedSearch.propertyTypes as string[],
+              includeLand: savedSearch.includeLand,
+              statuses: savedSearch.statuses as string[],
+              bounds: savedSearch.bounds ? savedSearch.bounds as SavedSearch['bounds'] : undefined
+            }
+
+            const newProperties = await fetchNewListingsForSearch(searchParams)
+
+            if (newProperties.length > 0) {
+              searchResults.push({
+                searchName: savedSearch.name,
+                properties: newProperties.map(p => ({
+                  address: p.address,
+                  price: p.price,
+                  beds: p.beds,
+                  baths: p.baths,
+                  sqft: p.sqft,
+                  imageUrl: p.imageUrl,
+                  listingUrl: `${process.env.NEXTAUTH_URL}/listing/${p.id}`
+                }))
+              })
+            }
+          } catch (err) {
+            console.error(`Error processing search "${savedSearch.name}" for ${user.email}:`, err)
           }
-
-          const newProperties = await fetchNewListingsForSearch(searchParams)
-
-          if (newProperties.length === 0) continue
-
-          // Send email using Resend
-          const { error } = await resend.emails.send({
-            from: 'Fred Porter Realty <alerts@yourdomain.com>', // Replace with your verified domain
-            to: [user.email],
-            subject: `New Properties: ${savedSearch.name}`,
-            react: PropertyAlertEmail({
-              userName: `${user.firstName} ${user.lastName}`,
-              properties: newProperties.map(p => ({
-                address: p.address,
-                price: p.price,
-                beds: p.beds,
-                baths: p.baths,
-                sqft: p.sqft,
-                imageUrl: p.imageUrl,
-                listingUrl: `${process.env.NEXTAUTH_URL}/listing/${p.id}`
-              })),
-              searchName: savedSearch.name
-            })
-          })
-
-          if (error) {
-            console.error(`Error sending email to ${user.email}:`, error)
-            errors.push(`${user.email}: ${error.message}`)
-          } else {
-            console.log(`Email sent to ${user.email} for search "${savedSearch.name}"`)
-            emailsSent++
-          }
-        } catch (err) {
-          console.error(`Error processing search for ${user.email}:`, err)
-          errors.push(`${user.email}: ${err instanceof Error ? err.message : 'Unknown error'}`)
         }
+
+        // Only send email if we found new properties across any saved search
+        if (searchResults.length === 0) continue
+
+        const totalProperties = searchResults.reduce((sum, result) => sum + result.properties.length, 0)
+
+        // Send consolidated email using Resend
+        const { error } = await resend.emails.send({
+          from: 'Fred Porter Realty <noreply@alerts.nocorealtor.com>',
+          to: [user.email],
+          subject: `${totalProperties} New ${totalProperties === 1 ? 'Listing' : 'Listings'} Just Hit the Market!`,
+          react: PropertyAlertEmail({
+            userName: `${user.firstName} ${user.lastName}`,
+            searchResults
+          })
+        })
+
+        if (error) {
+          console.error(`Error sending email to ${user.email}:`, error)
+          errors.push(`${user.email}: ${error.message}`)
+        } else {
+          console.log(`Email sent to ${user.email} with ${totalProperties} new properties from ${searchResults.length} saved searches`)
+          emailsSent++
+        }
+      } catch (err) {
+        console.error(`Error processing user ${user.email}:`, err)
+        errors.push(`${user.email}: ${err instanceof Error ? err.message : 'Unknown error'}`)
       }
     }
 
@@ -139,7 +163,7 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
     const filters: Record<string, string | number> = {
       limit: 100,
       offset: 0,
-      fields: 'ListingKey,ListPrice,City,StateOrProvince,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,BedroomsTotal,BathroomsTotalInteger,LivingArea,Media,MajorChangeTimestamp'
+      fields: 'ListingKey,ListPrice,City,StateOrProvince,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,BedroomsTotal,BathroomsTotalInteger,LivingArea,Media,DaysOnMarket'
     }
 
     // Use bounds if available, otherwise use search query
@@ -194,17 +218,16 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
       filters['StandardStatus.in'] = 'Active'
     }
 
-    // Filter for listings with MajorChangeTimestamp in the last 24 hours
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
-    filters['MajorChangeTimestamp.gte'] = twentyFourHoursAgo.toISOString()
+    // Filter for new listings (0-1 days on market)
+    filters['DaysOnMarket.lte'] = 1
 
-    // Build query string
+    // Build query string for Bridge API
     const queryString = Object.entries(filters)
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
       .join('&')
 
-    // Make API call to listings endpoint (using the same endpoint as your app)
-    const apiUrl = `${process.env.NEXTAUTH_URL}/api/listings?${queryString}`
+    // Make API call directly to Bridge Data Output API
+    const apiUrl = `https://api.bridgedataoutput.com/api/v2/iresds/listings?access_token=${process.env.NEXT_PUBLIC_BROWSER_TOKEN}&${queryString}`
 
     const response = await fetch(apiUrl)
 
