@@ -43,7 +43,7 @@ export const PropertyAlertEmail = ({
           <Heading style={h1}>New Listings Alert</Heading>
           <Text style={text}>Hi {userName},</Text>
           <Text style={text}>
-            Great news! We found {totalProperties} new {totalProperties === 1 ? 'listing' : 'listings'} that just hit the market (within the last 24 hours) matching your saved {searchResults.length === 1 ? 'search' : 'searches'}:
+            Great news! We found {totalProperties} new {totalProperties === 1 ? 'listing' : 'listings'} from yesterday matching your saved {searchResults.length === 1 ? 'search' : 'searches'}:
           </Text>
 
           {searchResults.map((result, resultIndex) => (
@@ -99,6 +99,7 @@ const container = {
   margin: '0 auto',
   padding: '20px 0 48px',
   marginBottom: '64px',
+  minWidth: '80%',
 }
 
 const h1 = {
@@ -118,11 +119,13 @@ const text = {
 }
 
 const propertyCard = {
-  margin: '24px 40px',
+  margin: '24px auto',
   padding: '24px',
   border: '1px solid #e6e6e6',
   borderRadius: '8px',
   backgroundColor: '#ffffff',
+  width: '37.5em',
+  maxWidth: '90%',
 }
 
 const propertyImage = {

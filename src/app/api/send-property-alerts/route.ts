@@ -163,7 +163,7 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
     const filters: Record<string, string | number> = {
       limit: 100,
       offset: 0,
-      fields: 'ListingKey,ListPrice,City,StateOrProvince,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,BedroomsTotal,BathroomsTotalInteger,LivingArea,Media,DaysOnMarket'
+      fields: 'ListingKey,ListPrice,City,StateOrProvince,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,BedroomsTotal,BathroomsTotalInteger,LivingArea,Media,ListingContractDate'
     }
 
     // Use bounds if available, otherwise use search query
@@ -218,8 +218,11 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
       filters['StandardStatus.in'] = 'Active'
     }
 
-    // Filter for new listings (0-1 days on market)
-    filters['DaysOnMarket.lte'] = 1
+    // Filter for new listings with ListingContractDate from previous day
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayFormatted = yesterday.toISOString().split('T')[0] // Format: YYYY-MM-DD
+    filters['ListingContractDate'] = yesterdayFormatted
 
     // Build query string for Bridge API
     const queryString = Object.entries(filters)
