@@ -26,13 +26,13 @@ async function checkAdminAuth() {
 // PUT - Update user
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authCheck = await checkAdminAuth()
     if (!authCheck.isAdmin) return authCheck.error
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     const { email, firstName, lastName, phoneNumber, emailOptIn, isAdmin, password } = body
 
@@ -99,13 +99,13 @@ export async function PUT(
 // DELETE - Delete user
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authCheck = await checkAdminAuth()
     if (!authCheck.isAdmin) return authCheck.error
 
-    const { id } = params
+    const { id } = await params
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
