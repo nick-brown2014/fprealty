@@ -502,7 +502,7 @@ const AdminPage = () => {
             </p>
 
             <p className='text-gray-700 mb-4'>
-              To confirm, please type the user's full name exactly:
+              To confirm, please type the user&apos;s full name exactly:
             </p>
 
             <p className='text-sm font-mono bg-gray-100 p-2 rounded mb-4 text-center'>

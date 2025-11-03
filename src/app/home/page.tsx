@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Footer from '../components/Footer'
+import Link from 'next/link'
 
 export default function NewHome() {
   const router = useRouter()
@@ -65,9 +66,9 @@ export default function NewHome() {
           <div className='max-w-7xl mx-auto px-6 py-4'>
             <div className='flex justify-between items-center'>
               {/* Logo */}
-              <a href='/' className='text-white text-xl font-bold tracking-wide hover:text-primary transition'>
+              <Link href='/' className='text-white text-xl font-bold tracking-wide hover:text-primary transition'>
                 PORTER REAL ESTATE
-              </a>
+              </Link>
 
               {/* Navigation Links */}
               <div className='hidden md:flex items-center gap-8'>
@@ -144,7 +145,7 @@ export default function NewHome() {
                 With deep local roots and a passion for the communities we serve, we offer expert guidance on market trends, lifestyle options, and the best neighborhoods for your next move.
                 <br></br>
                 <br></br>
-                Whether you're downsizing, relocating, or investing, Porter Real Estate is committed to making your real estate journey smooth and successful.
+                Whether you&apos;re downsizing, relocating, or investing, Porter Real Estate is committed to making your real estate journey smooth and successful.
                 <br></br>
                 <br></br>
                 <span className='text-primary'>

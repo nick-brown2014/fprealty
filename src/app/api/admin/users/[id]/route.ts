@@ -45,8 +45,18 @@ export async function PUT(
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
+    type PartialUser = {
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber: string,
+      emailOptIn: boolean,
+      isAdmin: boolean,
+      password?: string
+    }
+
     // Prepare update data
-    const updateData: any = {
+    const updateData: PartialUser = {
       email,
       firstName,
       lastName,
