@@ -10,6 +10,8 @@ export default function NewHome() {
   const [navVisible, setNavVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [parallaxOffset, setParallaxOffset] = useState(0)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,10 +21,14 @@ export default function NewHome() {
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         // Scrolling down & past threshold - hide nav
         setNavVisible(false)
+        setMobileMenuOpen(false) // Close mobile menu when hiding nav
       } else {
         // Scrolling up - show nav
         setNavVisible(true)
       }
+
+      // Check if scrolled past top
+      setIsScrolled(currentScrollY > 50)
 
       // Handle parallax effect - hero scrolls at 15% speed
       setParallaxOffset(currentScrollY * 0.05)
@@ -37,6 +43,7 @@ export default function NewHome() {
     }
   }, [lastScrollY])
 
+  console.log('isScrolled', isScrolled)
   return (
     <div className='w-full h-full relative'>
       {/* Hero Background - Fixed position for parallax */}
@@ -58,44 +65,120 @@ export default function NewHome() {
       <div className='relative z-10'>
         {/* Navigation */}
         <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
-          navVisible ? 'translate-y-0' : '-translate-y-full'
-        }`}
-      >
-        <div className='bg-transparent backdrop-blur-sm'>
-          <div className='max-w-7xl mx-auto px-6 py-4'>
-            <div className='flex justify-between items-center'>
-              {/* Logo */}
-              <Link href='/' className='text-white text-xl font-bold tracking-wide hover:text-primary transition'>
-                PORTER REAL ESTATE
-              </Link>
+          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+            navVisible ? 'translate-y-0' : '-translate-y-full'
+          } ${isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'}`}
+        >
+          <div className={`${isScrolled ? '' : 'backdrop-blur-sm'}`}>
+            <div className='max-w-7xl mx-auto px-6 py-4'>
+              <div className='flex justify-between items-center'>
+                {/* Logo */}
+                <Link
+                  href='/'
+                  className={`text-xl font-bold tracking-wide hover:text-primary transition ${
+                    isScrolled ? 'text-black' : 'text-white'
+                  }`}
+                >
+                  PORTER REAL ESTATE
+                </Link>
 
-              {/* Navigation Links */}
-              <div className='hidden md:flex items-center gap-8'>
-                <a href='/search' className='text-white hover:text-primary transition uppercase tracking-wide text-sm'>
-                  Search
-                </a>
-                <a href='/buying' className='text-white hover:text-primary transition uppercase tracking-wide text-sm'>
-                  Buy
-                </a>
-                <a href='/selling' className='text-white hover:text-primary transition uppercase tracking-wide text-sm'>
-                  Sell
-                </a>
-                <a href='/about' className='text-white hover:text-primary transition uppercase tracking-wide text-sm'>
-                  About
-                </a>
+                {/* Navigation Links */}
+                <div className='hidden md:flex items-center gap-8'>
+                  <a
+                    href='/search'
+                    className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                      isScrolled ? 'text-black' : 'text-white'
+                    }`}
+                  >
+                    Search
+                  </a>
+                  <a
+                    href='/buying'
+                    className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                      isScrolled ? 'text-black' : 'text-white'
+                    }`}
+                  >
+                    Buy
+                  </a>
+                  <a
+                    href='/selling'
+                    className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                      isScrolled ? 'text-black' : 'text-white'
+                    }`}
+                  >
+                    Sell
+                  </a>
+                  <a
+                    href='/about'
+                    className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                      isScrolled ? 'text-black' : 'text-white'
+                    }`}
+                  >
+                    About
+                  </a>
+                </div>
+
+                {/* Mobile Menu Button */}
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className={`cursor-pointer md:hidden ${isScrolled ? 'text-black' : 'text-white'}`}
+                >
+                  <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    {mobileMenuOpen ? (
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                    ) : (
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
+                    )}
+                  </svg>
+                </button>
               </div>
 
-              {/* Mobile Menu Button */}
-              <button className='md:hidden text-white'>
-                <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
-                </svg>
-              </button>
+              {/* Mobile Menu Dropdown */}
+              {mobileMenuOpen && (
+                <div className='md:hidden mt-4 pb-4'>
+                  <div className='flex flex-col gap-4'>
+                    <a
+                      href='/search'
+                      className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                        isScrolled ? 'text-black' : 'text-white'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Search
+                    </a>
+                    <a
+                      href='/buying'
+                      className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                        isScrolled ? 'text-black' : 'text-white'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Buy
+                    </a>
+                    <a
+                      href='/selling'
+                      className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                        isScrolled ? 'text-black' : 'text-white'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sell
+                    </a>
+                    <a
+                      href='/about'
+                      className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                        isScrolled ? 'text-black' : 'text-white'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      About
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
         {/* Hero Content Section */}
         <div className='relative w-full h-screen flex items-center justify-center'>
@@ -127,14 +210,14 @@ export default function NewHome() {
           <h2 className='text-lg lg:text-xl tracking-wide text-primary mt-2'>
             Experience. Commitment. Integrity.
           </h2>
-          <div className='w-full flex flex-col lg:flex-row max-w-4xl mt-8'>
+          <div className='w-full flex flex-col items-center lg:items-stretch lg:flex-row max-w-4xl mt-8'>
             {/* Image - 60% width on large screens */}
             <div className='w-full lg:w-[60%]'>
-              <img src='/fredshot.jpg' className='w-full h-full max-w-[700px] object-contain' />
+              <img src='/fredshot.jpg' className='w-full h-full max-w-[700px] object-contain m-auto' />
             </div>
 
             {/* Text - 40% width on large screens */}
-            <div className='w-full lg:w-[40%] flex'>
+            <div className='w-full lg:w-[40%] flex max-w-[700px]'>
               <p className='tracking-wide px-6 py-12 lg:px-12 bg-slate-100 w-full h-full'>
                 Porter Real Estate is your trusted NoCo Realtor, dedicated to helping buyers and sellers navigate the Northern Colorado market with expertise and care.
                 <br></br>
