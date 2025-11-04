@@ -5,6 +5,40 @@ import { useRouter } from 'next/navigation'
 import Footer from '../components/Footer'
 import Link from 'next/link'
 
+type ReviewProps = {
+  review: string,
+  homeDetails: string,
+  date: string,
+}
+
+const reviews: ReviewProps[] = [
+  {
+    review: "If you are looking for a realtor who will go above and beyond your expectations, then you are looking for Porter Real Estate. Fred commuted over multiple weekends, looking at dozens of potential homes. Rather than pushing us into a sale, he used his decades of experience as a realtor and civil engineer to point out flaws that we had missed. When we did decide on a place, he got it for us for well under the original asking price as well! As a first time home owner, his commitment to ensuring that we found the perfect place was an invaluable comfort. We will never use another realtor, and neither should you.",
+    homeDetails: 'Bought a Townhouse home in 2024 in West colfax, Denver, CO.',
+    date: '8/21/2024',
+  },
+  {
+    review: "We had the pleasure of working with Fred Porter as our real estate agent and couldn't be happier with the experience. As first-time buyers, Fred was incredibly helpful, taking the time to thoroughly explain each step, ensuring we understood everything. His expertise and proactive approach kept everything moving smoothly, and he was always on top of things. Communicating with Fred was always a pleasure; he was not only responsive but also made sure all our concerns were addressed with patience and clarity. We highly recommend Fred without any hesitation to anyone stepping into the real estate market. His support and guidance were invaluable to us, making our first buying experience a great success!",
+    homeDetails: 'Bought a Vacant Land home in 2024 in Drake, CO.',
+    date: '5/24/2024',
+  },
+  {
+    review: "Top marks. Fred helped with most every aspect of the purchase. Including putting his own vehicle in harm's way helping me with the survey. Will definitely recommend him.",
+    homeDetails: 'Bought a Vacant Land home in 2022 in Red feather lakes, CO.',
+    date: '8/23/2022',
+  },
+  {
+    review: "Our experience with Fred Porter was excellent! We were selling our house from across the country and Fred’s communication and knowledge were awesome! Fred was always thorough and knew the rules for selling a house. He worked well with the other agent and set up the closing appointment that fit our needs. We would highly recommend Fred to others—whether buying or selling.",
+    homeDetails: 'Sold a Single Family home in 2022 in Johnstown, CO.',
+    date: '6/19/2022',
+  },
+  {
+    review: "The best realtor I have ever worked with, this was a very difficult project and Fred took care of every detail he worked on my behalf with the county, surveyors, HOA, and the title company. He returned every phone call in a timely manner and resolved every issue. I highly recommend him.",
+    homeDetails: 'Sold a Multiple Occupancy home in 2022 in Red feather lakes, CO.',
+    date: '3/15/2022',
+  },
+]
+
 export default function NewHome() {
   const router = useRouter()
   const [navVisible, setNavVisible] = useState(true)
@@ -12,6 +46,16 @@ export default function NewHome() {
   const [parallaxOffset, setParallaxOffset] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [currentReview, setCurrentReview] = useState(0)
+
+  // Auto-rotate reviews every 10 seconds (resets when manually selecting)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentReview((prev) => (prev + 1) % reviews.length)
+    }, 10000)
+
+    return () => clearInterval(interval)
+  }, [currentReview])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -237,7 +281,45 @@ export default function NewHome() {
               </p>
             </div>
           </div>
-          
+
+          {/* Reviews Slider */}
+          <div className='w-full max-w-7xl mt-24'>
+            <div className='relative p-8 lg:p-12 flex items-center'>
+              {reviews.map((review, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 p-8 lg:p-12 transition-opacity duration-500 flex flex-col justify-center ${
+                    index === currentReview ? 'opacity-100' : 'opacity-0'
+                  }`}
+                >
+                  <p className='italic text-gray-700 mb-6 text-center'>
+                    &ldquo;{review.review}&rdquo;
+                  </p>
+                  <p className='text-sm text-gray-600 text-center mt-1'>
+                    {review.homeDetails}
+                  </p>
+                  <p className='text-sm text-gray-500 text-center mt-1'>
+                    {review.date}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Slider Indicators */}
+            <div className='flex justify-center gap-2 mt-16'>
+              {reviews.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentReview(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentReview ? 'bg-primary w-8' : 'bg-gray-300'
+                  }`}
+                  aria-label={`Go to review ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
 
