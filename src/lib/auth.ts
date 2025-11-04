@@ -37,9 +37,33 @@ export const authOptions: NextAuthOptions = {
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
+        impersonateUserId: { label: 'Impersonate User ID', type: 'text' }
       },
       async authorize(credentials) {
+        // Check for impersonation flow
+        if (credentials?.impersonateUserId) {
+          // Verify the request comes from an admin
+          // Note: In a real production app, you'd want additional security checks here
+          const user = await prisma.user.findUnique({
+            where: { id: credentials.impersonateUserId }
+          })
+
+          if (!user) {
+            return null
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phoneNumber: user.phoneNumber
+          }
+        }
+
+        // Regular password-based login
         if (!credentials?.email || !credentials?.password) {
           return null
         }

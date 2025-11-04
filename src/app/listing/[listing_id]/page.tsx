@@ -3,9 +3,9 @@
 import { use, useState } from 'react'
 import Image from 'next/image'
 import useListing from '@/app/hooks/useListing'
-import Nav from '@/app/components/Nav'
 import Footer from '@/app/components/Footer'
 import Slideshow from '@/app/components/Slideshow'
+import SearchNav from '@/app/components/SearchNav'
 
 type ListingPageProps = {
   params: Promise<{
@@ -45,8 +45,8 @@ const ListingPage = ({ params }: ListingPageProps) => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      <Nav />
-      <div className='max-w-7xl mx-auto px-4 py-8'>
+      <SearchNav />
+      <div className='max-w-7xl mx-auto px-4 py-8 mt-16'>
         {/* Hero Image Gallery */}
         <div className='w-[100%] mx-auto mb-8 relative'>
           {listing.Media && listing.Media.length > 0 ? (

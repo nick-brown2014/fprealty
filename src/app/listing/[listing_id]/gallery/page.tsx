@@ -3,10 +3,10 @@
 import { use, useState } from 'react'
 import Image from 'next/image'
 import useListing from '@/app/hooks/useListing'
-import Nav from '@/app/components/Nav'
 import Footer from '@/app/components/Footer'
 import Slideshow from '@/app/components/Slideshow'
 import { useRouter } from 'next/navigation'
+import SearchNav from '@/app/components/SearchNav'
 
 type GalleryPageProps = {
   params: Promise<{
@@ -38,8 +38,8 @@ const GalleryPage = ({ params }: GalleryPageProps) => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      <Nav />
-      <div className='max-w-7xl mx-auto px-4 py-8'>
+      <SearchNav />
+      <div className='max-w-7xl mx-auto px-4 py-8 mt-16'>
         {/* Header */}
         <div className='flex justify-between items-center mb-6'>
           <div>

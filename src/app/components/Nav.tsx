@@ -1,44 +1,161 @@
 'use client'
 
-import Link from "next/link"
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from "react"
 
 const Nav = () => {
-  const [hamburgerOpen, setHamburgerOpen] = useState<boolean>(false)
+  const pathname = usePathname()
+  const [navVisible, setNavVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const pathName = usePathname()
-  const isActive = (param: string) => pathName.includes(param)
+  const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/')
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => event.stopPropagation()
-  const closeMenu = () => setHamburgerOpen(false)
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      // Handle nav visibility
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down & past threshold - hide nav
+        setNavVisible(false)
+        setMobileMenuOpen(false) // Close mobile menu when hiding nav
+      } else {
+        // Scrolling up - show nav
+        setNavVisible(true)
+      }
+
+      // Check if scrolled past top
+      setIsScrolled(currentScrollY > 50)
+
+      setLastScrollY(currentScrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [lastScrollY])
 
   return (
-    <>
-      <div className='w-full h-16 flex flex-row justify-between items-center p-4 sticky top-0 z-20 bg-background border-b border-foreground relative'>
-        <Link href='/'>
-          <img src='/logo-small.jpg' className='w-auto h-12 hover:opacity-70' />
-        </Link>
-        <div className='w-full h-full flex-row justify-end items-center hidden lg:flex'>
-          <Link aria-disabled={isActive('search')} href='/search' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('buying') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Search</Link>
-          <Link aria-disabled={isActive('buying')} href='/buying' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('buying') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Buying</Link>
-          <Link aria-disabled={isActive('selling')} href='/selling' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('selling') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Selling</Link>
-          <Link aria-disabled={isActive('about')} href='/about' className={`text-lg font-semibold tracking-tight pr-16 ${isActive('about') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>About Us</Link>
-        </div>
-        <img src='/menu.png' className='w-auto h-8 hover:opacity-70 cursor-pointer lg:hidden' onClick={() => setHamburgerOpen(true)} />
-        <div className={`${ hamburgerOpen ? 'block' : 'hidden' } fixed inset-0 z-30 w-screen overflow-y-auto`} onClick={closeMenu}>
-          <div
-            className={`flex z-40 flex-col absolute top-16 right-0 w-40 h-56 border border-black bg-white items-center shadow-lg justify-between py-4`}
-            onClick={handleMenuClick}
-          >
-            <Link aria-disabled={isActive('search')} href='/search' className={`text-xl font-semibold tracking-tight ${isActive('advanced-search') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Search</Link>
-            <Link aria-disabled={isActive('buying')} href='/buying' className={`text-xl font-semibold tracking-tight ${isActive('buying') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Buying</Link>
-            <Link aria-disabled={isActive('selling')} href='/selling' className={`text-xl font-semibold tracking-tight ${isActive('selling') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>Selling</Link>
-            <Link aria-disabled={isActive('about')} href='/about' className={`text-xl font-semibold tracking-tight ${isActive('about') ? 'cursor-default text-primary' : 'hover:text-primary transition duration-300'}`}>About Us</Link>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        navVisible ? 'translate-y-0' : '-translate-y-full'
+      } ${isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'}`}
+    >
+      <div className={`${isScrolled ? '' : 'backdrop-blur-sm'}`}>
+        <div className='max-w-7xl mx-auto px-6 py-4'>
+          <div className='flex justify-between items-center'>
+            {/* Logo */}
+            <Link
+              href='/'
+              className={`text-xl font-bold tracking-wide hover:text-primary transition ${
+                isScrolled ? 'text-black' : 'text-white'
+              }`}
+            >
+              PORTER REAL ESTATE
+            </Link>
+
+            {/* Navigation Links */}
+            <div className='hidden md:flex items-center gap-8'>
+              <Link
+                href='/search'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isScrolled ? 'text-black' : 'text-white'
+                } ${isActive('/search') ? 'text-primary' : ''}`}
+              >
+                Search
+              </Link>
+              <Link
+                href='/buying'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isScrolled ? 'text-black' : 'text-white'
+                } ${isActive('/buying') ? 'text-primary' : ''}`}
+              >
+                Buy
+              </Link>
+              <Link
+                href='/selling'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isScrolled ? 'text-black' : 'text-white'
+                } ${isActive('/selling') ? 'text-primary' : ''}`}
+              >
+                Sell
+              </Link>
+              <Link
+                href='/about'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isScrolled ? 'text-black' : 'text-white'
+                } ${isActive('/about') ? 'text-primary' : ''}`}
+              >
+                About
+              </Link>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`md:hidden ${isScrolled ? 'text-black' : 'text-white'}`}
+            >
+              <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                {mobileMenuOpen ? (
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                ) : (
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
+                )}
+              </svg>
+            </button>
           </div>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <div className='md:hidden mt-4 pb-4'>
+              <div className='flex flex-col gap-4'>
+                <Link
+                  href='/search'
+                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                    isScrolled ? 'text-black' : 'text-white'
+                  } ${isActive('/search') ? 'text-primary' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Search
+                </Link>
+                <Link
+                  href='/buying'
+                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                    isScrolled ? 'text-black' : 'text-white'
+                  } ${isActive('/buying') ? 'text-primary' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Buy
+                </Link>
+                <Link
+                  href='/selling'
+                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                    isScrolled ? 'text-black' : 'text-white'
+                  } ${isActive('/selling') ? 'text-primary' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sell
+                </Link>
+                <Link
+                  href='/about'
+                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                    isScrolled ? 'text-black' : 'text-white'
+                  } ${isActive('/about') ? 'text-primary' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </nav>
   )
 }
 

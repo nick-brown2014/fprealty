@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut, signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 interface AdminUser {
@@ -209,6 +209,33 @@ const AdminPage = () => {
     }
   }
 
+  const handleImpersonate = async (user: AdminUser) => {
+    if (!confirm(`Log in as ${user.firstName} ${user.lastName}?`)) {
+      return
+    }
+
+    try {
+      // Sign out current session
+      await signOut({ redirect: false })
+
+      // Sign in as the target user using impersonation
+      const result = await signIn('credentials', {
+        impersonateUserId: user.id,
+        redirect: false
+      })
+
+      if (result?.ok) {
+        // Redirect to home page
+        router.push('/')
+      } else {
+        alert('Failed to log in as user')
+      }
+    } catch (err) {
+      console.error('Impersonation error:', err)
+      alert('Failed to log in as user')
+    }
+  }
+
   if (loading || status === 'loading') {
     return (
       <div className='min-h-screen flex items-center justify-center'>
@@ -327,6 +354,13 @@ const AdminPage = () => {
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
+                      <button
+                        onClick={() => handleImpersonate(user)}
+                        className='cursor-pointer text-purple-600 hover:text-purple-900 mr-4'
+                        title='Log in as this user'
+                      >
+                        Log In as User
+                      </button>
                       <button
                         onClick={() => openEditModal(user)}
                         className='cursor-pointer text-blue-600 hover:text-blue-900 mr-4'

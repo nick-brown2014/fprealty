@@ -1,7 +1,7 @@
 'use client'
 
 import Footer from "../components/Footer"
-import Nav from "../components/Nav"
+import SearchNav from "../components/SearchNav"
 import AuthModal from "../components/AuthModal"
 import SavedSearchesModal from "../components/SavedSearchesModal"
 import { useAuth } from '@/contexts/AuthContext'
@@ -341,9 +341,9 @@ const Search = () => {
 
   return (
     <div className='w-full h-full flex-col'>
-      <Nav />
+      <SearchNav />
       <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
-        <div className='pb-10 flex flex-col w-[100vw] items-center'>
+        <div className='pb-10 pt-12 flex flex-col w-[100vw] items-center'>
 
           {/* Auth section */}
           <div className='w-[90vw] max-w-[1200px] mt-8 flex justify-end'>
@@ -717,7 +717,7 @@ const Search = () => {
             </>)}
             </div>
           </div>
-          <div className='mt-8 text-center'>
+          <div className='mt-8 mb-4 text-center'>
             <p className='text-sm text-gray-600'>
               Showing {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
             </p>
