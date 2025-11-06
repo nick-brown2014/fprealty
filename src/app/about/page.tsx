@@ -67,7 +67,7 @@ const About = () => {
             </p>
           </div>
           <div className='flex justify-center w-full lg:w-[40%] lg:pl-6'>
-            <img src='/fred.jpg' className='w-full h-[700px] pt-8 lg:pt-24' />
+            <img src='/fred.jpg' className='w-full h-auto lg:h-[700px] pt-8 lg:pt-24' />
           </div>
         </div>
       </div>
@@ -75,7 +75,7 @@ const About = () => {
       <div className='w-full py-10 px-6 flex justify-center'>
         <div className='px-6 py-10 flex lg:flex-row flex-col lg:w-[1200px]'>
           <div className='flex justify-center w-full lg:w-[40%] lg:pr-6'>
-            <img src='/isabella.jpg' className='w-full h-[700px] pt-8 lg:pt-24' />
+            <img src='/isabella.jpg' className='w-full h-auto lg:h-[700px] pt-8 lg:pt-24' />
           </div>
           <div className='flex-col w-full lg:w-[60%] pt-12'>
             <h3 className='text-primary text-xl lg:text-2xl font-semibold tracking-tight w-full text-right'>Isabella Marcus-Porter</h3>
