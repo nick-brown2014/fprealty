@@ -189,7 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Generate a name for the search based on filters
       const searchName = params.searchQuery ||
-        `Search: ${params.minPrice ? `$${params.minPrice.toLocaleString()}+` : 'Any'} | ${params.minBeds ? `${params.minBeds}+ bd` : 'Any beds'} | ${params.minBaths ? `${params.minBaths}+ ba` : 'Any baths'}`
+        `Search: ${params.minPrice ? `$${params.minPrice.toLocaleString()}+` : 'Any Price'} | ${params.minBeds ? `${params.minBeds}+ bd` : 'Any beds'} | ${params.minBaths ? `${params.minBaths}+ ba` : 'Any baths'}`
 
       const response = await fetch('/api/saved-searches', {
         method: 'POST',

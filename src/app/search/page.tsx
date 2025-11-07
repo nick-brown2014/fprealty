@@ -97,6 +97,9 @@ const Search = () => {
   const [isApplyingSavedSearch, setIsApplyingSavedSearch] = useState(false)
   const [isApplyingFavorites, setIsApplyingFavorites] = useState(false)
   const [initialLocationParam] = useState(() => searchParams.get('location'))
+  const [initialSavedSearchParam] = useState(() => searchParams.get('saved'))
+  const [hasLoadedSavedSearch, setHasLoadedSavedSearch] = useState(false)
+  const [isLoadingSavedSearch, setIsLoadingSavedSearch] = useState(() => !!searchParams.get('saved') || !!searchParams.get('location'))
 
   // Handle location URL parameter on mount
   useEffect(() => {
@@ -152,18 +155,24 @@ const Search = () => {
   }, [initialLocationParam])
 
   // Memoize filters to prevent infinite loop
-  const searchFilters = useMemo(() => ({
-    searchQuery: viewingFavorites ? undefined : searchQuery,
-    mapBounds: viewingFavorites ? null : mapBounds,
-    minPrice: viewingFavorites ? undefined : minPrice,
-    maxPrice: viewingFavorites ? undefined : maxPrice,
-    minBeds: viewingFavorites ? undefined : minBeds,
-    minBaths: viewingFavorites ? undefined : minBaths,
-    propertyTypes: viewingFavorites ? undefined : selectedPropertyTypes,
-    includeLand: viewingFavorites ? undefined : includeLand,
-    statuses: viewingFavorites ? undefined : selectedStatuses,
-    listingIds: viewingFavorites ? Array.from(favorites) : undefined
-  }), [searchQuery, mapBounds, minPrice, maxPrice, minBeds, minBaths, selectedPropertyTypes, includeLand, selectedStatuses, viewingFavorites, favorites])
+  const searchFilters = useMemo(() => {
+    // Don't run search while loading saved search from URL
+    if (isLoadingSavedSearch) {
+      return undefined
+    }
+    return {
+      searchQuery: viewingFavorites ? undefined : searchQuery,
+      mapBounds: viewingFavorites ? null : mapBounds,
+      minPrice: viewingFavorites ? undefined : minPrice,
+      maxPrice: viewingFavorites ? undefined : maxPrice,
+      minBeds: viewingFavorites ? undefined : minBeds,
+      minBaths: viewingFavorites ? undefined : minBaths,
+      propertyTypes: viewingFavorites ? undefined : selectedPropertyTypes,
+      includeLand: viewingFavorites ? undefined : includeLand,
+      statuses: viewingFavorites ? undefined : selectedStatuses,
+      listingIds: viewingFavorites ? Array.from(favorites) : undefined
+    }
+  }, [searchQuery, mapBounds, minPrice, maxPrice, minBeds, minBaths, selectedPropertyTypes, includeLand, selectedStatuses, viewingFavorites, favorites, isLoadingSavedSearch])
 
   // Pass filters to the hook
   const { listings, loading } = useMapDisplay(searchFilters)
@@ -338,6 +347,24 @@ const Search = () => {
       setSavedSearchBounds(null)
     }
   }, [])
+
+  // Handle saved search URL parameter on mount
+  useEffect(() => {
+    if (!initialSavedSearchParam) {
+      setIsLoadingSavedSearch(false)
+      return
+    }
+
+    if (hasLoadedSavedSearch || savedSearches.length === 0) return
+
+    // Find the saved search by ID
+    const savedSearch = savedSearches.find(s => s.id === initialSavedSearchParam)
+    if (savedSearch) {
+      handleSelectSearch(savedSearch)
+      setHasLoadedSavedSearch(true)
+      setIsLoadingSavedSearch(false)
+    }
+  }, [initialSavedSearchParam, savedSearches, hasLoadedSavedSearch, handleSelectSearch])
 
   return (
     <div className='w-full h-full flex-col'>
@@ -617,8 +644,8 @@ const Search = () => {
           {user && (
             <div className='flex justify-between pt-2 w-[90vw] max-w-[1200px]'>
               <button
-                  onClick={() => saveSearch(searchFilters)}
-                  disabled={saveSearchState !== 'idle'}
+                  onClick={() => searchFilters && saveSearch(searchFilters)}
+                  disabled={saveSearchState !== 'idle' || !searchFilters}
                   className='text-primary text-sm hover:underline cursor-pointer font-semibold disabled:opacity-50'
                 >
                   {saveSearchState === 'idle' && 'Save Search'}

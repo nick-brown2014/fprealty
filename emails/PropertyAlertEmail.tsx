@@ -15,6 +15,7 @@ import * as React from 'react'
 interface PropertyAlertEmailProps {
   userName: string
   searchResults: Array<{
+    searchId: string
     searchName: string
     properties: Array<{
       address: string
@@ -48,13 +49,11 @@ export const PropertyAlertEmail = ({
 
           {searchResults.map((result, resultIndex) => (
             <React.Fragment key={resultIndex}>
-              {searchResults.length > 1 && (
-                <Heading style={searchHeading}>
-                  {result.searchName} ({result.properties.length} {result.properties.length === 1 ? 'property' : 'properties'})
-                </Heading>
-              )}
+              <Heading style={searchHeading}>
+                {result.searchName} ({result.properties.length} {result.properties.length === 1 ? 'property' : 'properties'})
+              </Heading>
 
-              {result.properties.map((property, propIndex) => (
+              {result.properties.slice(0, 3).map((property, propIndex) => (
                 <Section key={`${resultIndex}-${propIndex}`} style={propertyCard}>
                   {property.imageUrl && (
                     <Img
@@ -73,6 +72,12 @@ export const PropertyAlertEmail = ({
                   </Button>
                 </Section>
               ))}
+
+              <Section style={viewAllSection}>
+                <Button style={viewAllButton} href={`https://nocorealtor.com/search?saved=${result.searchId}`}>
+                  View All Results
+                </Button>
+              </Section>
             </React.Fragment>
           ))}
 
@@ -174,6 +179,25 @@ const searchHeading = {
   fontWeight: 'bold',
   margin: '32px 40px 16px 40px',
   padding: '0',
+}
+
+const viewAllSection = {
+  margin: '16px auto 32px auto',
+  width: '37.5em',
+  maxWidth: '90%',
+}
+
+const viewAllButton = {
+  backgroundColor: '#28a745',
+  borderRadius: '5px',
+  color: '#fff',
+  fontSize: '16px',
+  fontWeight: 'bold',
+  textDecoration: 'none',
+  textAlign: 'center' as const,
+  display: 'block',
+  width: '100%',
+  padding: '12px',
 }
 
 const footer = {

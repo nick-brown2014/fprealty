@@ -40,8 +40,13 @@ export async function GET(request: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     // Get all users who have opted in to emails
+    // For testing: only send to nick.brown2014@gmail.com
+    const testMode = request.nextUrl.searchParams.get('test') === 'true'
     const optedInUsers = await prisma.user.findMany({
-      where: { emailOptIn: true },
+      where: {
+        emailOptIn: true,
+        ...(testMode && { email: 'nick.brown2014@gmail.com' })
+      },
       include: {
         savedSearches: true
       }
@@ -59,6 +64,7 @@ export async function GET(request: NextRequest) {
       try {
         // Collect all new listings across all saved searches for this user
         const searchResults: Array<{
+          searchId: string
           searchName: string
           properties: Array<{
             address: string
@@ -95,6 +101,7 @@ export async function GET(request: NextRequest) {
 
             if (newProperties.length > 0) {
               searchResults.push({
+                searchId: savedSearch.id,
                 searchName: savedSearch.name,
                 properties: newProperties.map(p => ({
                   address: p.address,
