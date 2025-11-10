@@ -273,7 +273,7 @@ export default function NewHome() {
             Follow us to stay up to date with the latest tips and trends on NoCo housing and lifestyle
           </p>
 
-          <div className='mt-8 w-full lg:flex flex-row gap-8 z-10 hidden px-4'>
+          <div className='mt-8 w-full lg:flex flex-row gap-8 z-10 hidden px-4 max-w-[1400px]'>
             <iframe width='450' height='235' src='https://www.youtube.com/embed/VYysxfzgMx0?si=ySI3GUTlvBeLOieG' title='YouTube video player' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerPolicy='strict-origin-when-cross-origin' allowFullScreen></iframe>
             <iframe width='450' height='235' src='https://www.youtube.com/embed/N2g1gFCXq1g?si=5Olg6ebPQNLKE14c' title='YouTube video player' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerPolicy='strict-origin-when-cross-origin' allowFullScreen></iframe>
             <iframe width='450' height='235' src='https://www.youtube.com/embed/_gYoP3U2hFE?si=eF12D5W9AmOxsdI8' title='YouTube video player' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerPolicy='strict-origin-when-cross-origin' allowFullScreen></iframe>
