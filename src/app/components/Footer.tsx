@@ -40,7 +40,20 @@ const Footer = () => {
       </div>
       <div className='justify-center flex w-full mt-6'>
         <div className='justify-between lg:items-center gap-8 max-w-[1200px] w-full flex flex-col lg:flex-row'>
-          <img src='/logo-white.png' className='w-42 h-42' />
+          <div className='flex flex-col gap-4'>
+            <img src='/logo-white.png' className='w-42 h-42' />
+            <p className='text-background text-sm hidden lg:block'>
+              Built by{' '}
+              <a
+                href='https://sunnybrown.dev'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-amber-500 hover:text-amber-400 transition-colors'
+              >
+                Sunshine Web Development
+              </a>
+            </p>
+          </div>
           <div className='flex flex-col gap-2 ml-6 lg:ml-0'>
             <p className='text-background font-semibold tracking-tight'>Contact us:</p>
             <a href='tel:+19705108414' className='text-background font-semibold tracking-tight'>(970) 510-8414</a>
@@ -71,6 +84,17 @@ const Footer = () => {
             >
               Terms and Conditions
             </Link>
+                        <p className='text-background text-sm block lg:hidden'>
+              Built by{' '}
+              <a
+                href='https://sunnybrown.dev'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-amber-500 hover:text-amber-400 transition-colors'
+              >
+                Sunshine Web Development
+              </a>
+            </p>
           </div>
         </div>
       </div>
