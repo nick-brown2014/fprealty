@@ -56,8 +56,8 @@ const Footer = () => {
           </div>
           <div className='flex flex-col gap-2 ml-6 lg:ml-0'>
             <p className='text-background font-semibold tracking-tight'>Contact us:</p>
-            <a href='tel:+19705108414' className='text-background font-semibold tracking-tight'>(970) 510-8414</a>
-            <a href='mailto:info@nocorealtor.com' className='text-background font-semibold tracking-tight'>info@nocorealtor.com</a>
+            <p className='text-background font-semibold tracking-tight'>(970) 510-8414</p>
+            <p className='text-background font-semibold tracking-tight'>info@nocorealtor.com</p>
           </div>
           <div className='flex flex-col gap-2 ml-6 lg:ml-0 lg:self-end max-w-[600px]'>
             <Link href='/privacy-policy' className='text-background font-semibold tracking-tight'>Privacy policy</Link>

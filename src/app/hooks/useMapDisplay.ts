@@ -88,9 +88,7 @@ const defaultFilters = {
   offset: 0,
   fields: listingsListFields,
   near: 'Fort Collins',
-  radius: 4,
-  'PropertyType.in': 'Residential',
-  'MlsStatus.in': 'Active'
+  radius: 4
 }
 
 const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
