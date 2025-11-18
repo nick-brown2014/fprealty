@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'd19kqrrdn1ne5k.cloudfront.net',
             },
+            {
+                protocol: 'https',
+                hostname: 'p.iresis.com',
+            },
         ],
     },
 };

@@ -84,7 +84,7 @@ const Search = () => {
   const [propertyTypesDropdownOpen, setPropertyTypesDropdownOpen] = useState(false)
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([
     'Income Property',
-    'Residential-Detached',
+    'Residential',
     'Attached Dwelling'
   ])
   const [includeLand, setIncludeLand] = useState(false)
@@ -259,7 +259,7 @@ const Search = () => {
   const bedBathOptions = [1, 2, 3, 4, 5]
 
   const propertyTypes = [
-    { label: 'Residential', value: 'Residential-Detached' },
+    { label: 'Residential', value: 'Residential' },
     { label: 'Attached Dwelling', value: 'Attached Dwelling' },
     { label: 'Income Property', value: 'Income Property' },
   ]
@@ -323,7 +323,7 @@ const Search = () => {
     setMinBaths(search.minBaths || null)
     setSelectedPropertyTypes(search.propertyTypes || [
       'Income Property',
-      'Residential-Detached',
+      'Residential',
       'Attached Dwelling'
     ])
     setIncludeLand(search.includeLand || false)
@@ -677,7 +677,7 @@ const Search = () => {
                         setMinBaths(null)
                         setSelectedPropertyTypes([
                           'Income Property',
-                          'Residential-Detached',
+                          'Residential',
                           'Attached Dwelling'
                         ])
                         setIncludeLand(false)

@@ -203,19 +203,12 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
     }
 
     // Add property types filter
-    const propertySubTypes = [...(savedSearch.propertyTypes || [])]
+    const propertyTypes = [...(savedSearch.propertyTypes || [])]
     if (savedSearch.includeLand) {
-      propertySubTypes.push('Unimproved Land')
+      propertyTypes.push('Land')
     }
-    if (propertySubTypes.length > 0) {
-      filters['PropertySubType.in'] = propertySubTypes.join(',')
-    }
-
-    // Handle PropertyType
-    if (savedSearch.includeLand) {
-      filters['PropertyType.in'] = 'Residential,Land'
-    } else {
-      filters['PropertyType.in'] = 'Residential'
+    if (propertyTypes.length > 0) {
+      filters['PropertyType.in'] = propertyTypes.join(',')
     }
 
     // Add status filter
