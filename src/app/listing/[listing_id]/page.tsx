@@ -6,6 +6,7 @@ import useListing from '@/app/hooks/useListing'
 import Footer from '@/app/components/Footer'
 import Slideshow from '@/app/components/Slideshow'
 import SearchNav from '@/app/components/SearchNav'
+import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps'
 
 type ListingPageProps = {
   params: Promise<{
@@ -405,6 +406,30 @@ const ListingPage = ({ params }: ListingPageProps) => {
                 )}
               </div>
             </div>
+
+            {/* Map */}
+            {listing.Latitude && listing.Longitude && (
+              <div className='bg-white rounded-lg shadow-md p-6'>
+                <h2 className='text-xl font-bold text-gray-900 mb-4'>Location</h2>
+                <div className='w-full h-64 rounded-lg overflow-hidden'>
+                  <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
+                    <Map
+                      defaultCenter={{ lat: listing.Latitude, lng: listing.Longitude }}
+                      defaultZoom={15}
+                      mapId='listing-detail-map'
+                      disableDefaultUI={true}
+                      zoomControl={true}
+                    >
+                      <AdvancedMarker
+                        position={{ lat: listing.Latitude, lng: listing.Longitude }}
+                      >
+                        <div className='w-6 h-6 bg-primary rounded-full border-4 border-white shadow-lg'></div>
+                      </AdvancedMarker>
+                    </Map>
+                  </APIProvider>
+                </div>
+              </div>
+            )}
 
             {/* HOA Information */}
             {listing.AssociationYN && listing.AssociationFee && (

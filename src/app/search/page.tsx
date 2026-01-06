@@ -88,7 +88,9 @@ const Search = () => {
     'Attached Dwelling'
   ])
   const [includeLand, setIncludeLand] = useState(false)
+  const [newConstructionOnly, setNewConstructionOnly] = useState(false)
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['Active'])
+  const [mlsNumber, setMlsNumber] = useState('')
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [savedSearchesModalOpen, setSavedSearchesModalOpen] = useState(false)
   const [viewingFavorites, setViewingFavorites] = useState(false)
@@ -169,10 +171,12 @@ const Search = () => {
       minBaths: viewingFavorites ? undefined : minBaths,
       propertyTypes: viewingFavorites ? undefined : selectedPropertyTypes,
       includeLand: viewingFavorites ? undefined : includeLand,
+      newConstructionOnly: viewingFavorites ? undefined : newConstructionOnly,
       statuses: viewingFavorites ? undefined : selectedStatuses,
+      mlsNumber: viewingFavorites ? undefined : mlsNumber,
       listingIds: viewingFavorites ? Array.from(favorites) : undefined
     }
-  }, [searchQuery, mapBounds, minPrice, maxPrice, minBeds, minBaths, selectedPropertyTypes, includeLand, selectedStatuses, viewingFavorites, favorites, isLoadingSavedSearch])
+  }, [searchQuery, mapBounds, minPrice, maxPrice, minBeds, minBaths, selectedPropertyTypes, includeLand, newConstructionOnly, selectedStatuses, mlsNumber, viewingFavorites, favorites, isLoadingSavedSearch])
 
   // Pass filters to the hook
   const { listings, loading } = useMapDisplay(searchFilters)
@@ -600,6 +604,18 @@ const Search = () => {
                           Include Land
                         </span>
                       </label>
+                      {/* New Construction Label */}
+                      {/* <label className='flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-50 cursor-pointer'>
+                        <input
+                          type='checkbox'
+                          checked={newConstructionOnly}
+                          onChange={(e) => setNewConstructionOnly(e.target.checked)}
+                          className='w-4 h-4 accent-primary border-gray-300 rounded cursor-pointer'
+                        />
+                        <span className='text-sm font-medium text-gray-700'>
+                          New Construction Only
+                        </span>
+                      </label> */}
                     </div>
 
                     <div className='mb-4 pt-4 border-t border-gray-200'>
@@ -624,11 +640,24 @@ const Search = () => {
                       </div>
                     </div>
 
+                    <div className='mb-4 pt-4 border-t border-gray-200'>
+                      <p className='text-xs font-bold text-gray-500 uppercase mb-2'>MLS Number</p>
+                      <input
+                        type='text'
+                        value={mlsNumber}
+                        onChange={(e) => setMlsNumber(e.target.value)}
+                        placeholder='Enter MLS #'
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
+                      />
+                    </div>
+
                     <button
                       onClick={() => {
                         setSelectedPropertyTypes([])
                         setIncludeLand(false)
+                        setNewConstructionOnly(false)
                         setSelectedStatuses(['Active'])
+                        setMlsNumber('')
                       }}
                       className='w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition font-semibold text-sm'
                     >

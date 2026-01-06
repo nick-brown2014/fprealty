@@ -82,7 +82,7 @@ export const PropertyAlertEmail = ({
           ))}
 
           <Text style={footer}>
-            This email was sent because you opted in to receive property alerts from Fred Porter Realty.
+            This email was sent because you opted in to receive property alerts from Fred Porter Real Estate.
             To unsubscribe, please visit your account settings.
           </Text>
         </Container>

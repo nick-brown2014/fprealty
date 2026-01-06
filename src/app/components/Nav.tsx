@@ -77,6 +77,7 @@ const Nav = () => {
               >
                 Buy
               </Link>
+              
               <Link
                 href='/selling'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
@@ -86,6 +87,14 @@ const Nav = () => {
                 Sell
               </Link>
               <Link
+                target='_blank'
+                href='https://www.newhomesourceprofessional.com/'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isScrolled ? 'text-black' : 'text-white' }`}
+              >
+                New Construction
+              </Link>
+                            <Link
                 href='/about'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
                   isScrolled ? 'text-black' : 'text-white'
@@ -140,6 +149,16 @@ const Nav = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Sell
+                </Link>
+                <Link
+                  target='_blank'
+                  href='https://www.newhomesourceprofessional.com/'
+                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                    isScrolled ? 'text-black' : 'text-white'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  New Construction
                 </Link>
                 <Link
                   href='/about'

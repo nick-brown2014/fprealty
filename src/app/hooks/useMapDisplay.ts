@@ -59,7 +59,9 @@ export type SearchFilters = {
   minBaths?: number | null
   propertyTypes?: string[]
   includeLand?: boolean
+  newConstructionOnly?: boolean
   statuses?: string[]
+  mlsNumber?: string
   listingIds?: string[]
 }
 
@@ -81,6 +83,8 @@ type Filters = {
   'PropertySubType.in'?: string
   'MlsStatus.in'?: string
   'ListingKey.in'?: string
+  'ListingId'?: string
+  'NewConstructionYN'?: boolean
 }
 
 const defaultFilters = {
@@ -112,6 +116,18 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
         'ListingKey.in': searchFilters.listingIds.join(',')
       }
       setFilters(favoritesFilters as Filters)
+      return
+    }
+
+    // If MLS Number is provided, search by ListingId only
+    if (searchFilters?.mlsNumber?.trim()) {
+      const mlsFilters: Filters = {
+        limit: 100,
+        offset: 0,
+        fields: listingsListFields,
+        'ListingId': searchFilters.mlsNumber.trim()
+      }
+      setFilters(mlsFilters as Filters)
       return
     }
 
@@ -173,6 +189,11 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
     // Add status filter
     if (searchFilters?.statuses && searchFilters.statuses.length > 0) {
       newFilters['MlsStatus.in'] = searchFilters.statuses.join(',')
+    }
+
+    // Add new construction filter
+    if (searchFilters?.newConstructionOnly) {
+      newFilters['NewConstructionYN'] = true
     }
 
     setFilters(newFilters)

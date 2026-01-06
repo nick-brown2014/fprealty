@@ -107,6 +107,30 @@ export default function NewHome() {
           </div>
         </div>
 
+        {/* Homebot Banner */}
+        <div className='relative bg-gradient-to-r from-[#f51e84] to-[#c91869] py-8'>
+          <div className='max-w-7xl mx-auto px-6 flex flex-col items-center gap-4'>
+            <div className='flex items-center gap-3 text-center'>
+              <p className='text-white text-base md:text-lg tracking-wide'>
+                Get instant property insights powered by AI with
+              </p>
+              <img
+                src='https://cdn.brandfetch.io/idoWnVrzio/theme/light/logo.svg'
+                alt='Homebot Logo'
+                className='h-6 md:h-7'
+              />
+            </div>
+            <a
+              href='https://www.homebot.ai'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='cursor-pointer bg-white hover:bg-gray-100 text-[#f51e84] px-6 py-2 rounded-full text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105'
+            >
+              Try Homebot AI
+            </a>
+          </div>
+        </div>
+
         {/* Realtor Section */}
         <div className='relative bg-white'>
         <div className='max-w-7xl mx-auto px-6 py-16 lg:py-24 flex flex-col items-center'>
