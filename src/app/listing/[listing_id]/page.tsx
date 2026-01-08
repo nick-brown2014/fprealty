@@ -218,6 +218,12 @@ const ListingPage = ({ params }: ListingPageProps) => {
               <h2 className='text-2xl font-bold text-gray-900 mb-4'>Property Details</h2>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div className='space-y-3'>
+                  {listing.ListingId && (
+                    <div className='flex justify-between py-2 border-b border-gray-200'>
+                      <span className='text-gray-600'>MLS Number</span>
+                      <span className='font-medium text-gray-900'>{listing.ListingId}</span>
+                    </div>
+                  )}
                   <div className='flex justify-between py-2 border-b border-gray-200'>
                     <span className='text-gray-600'>Property Type</span>
                     <span className='font-medium text-gray-900'>{listing.PropertySubType}</span>
