@@ -88,13 +88,13 @@ const Nav = () => {
               </Link>
               <Link
                 target='_blank'
-                href='https://www.newhomesourceprofessional.com/'
+                href='https://www.showingnew.com/nocorealtor'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
                   isScrolled ? 'text-black' : 'text-white' }`}
               >
                 New Construction
               </Link>
-                            <Link
+              <Link
                 href='/about'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
                   isScrolled ? 'text-black' : 'text-white'
@@ -152,7 +152,7 @@ const Nav = () => {
                 </Link>
                 <Link
                   target='_blank'
-                  href='https://www.newhomesourceprofessional.com/'
+                  href='https://www.showingnew.com/nocorealtor '
                   className={`hover:text-primary transition uppercase tracking-wide text-sm ${
                     isScrolled ? 'text-black' : 'text-white'
                   }`}

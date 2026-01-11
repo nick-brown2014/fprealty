@@ -49,6 +49,13 @@ const SearchNav = () => {
               Sell
             </Link>
             <Link
+                target='_blank'
+                href='https://www.showingnew.com/nocorealtor'
+                className='hover:text-primary transition uppercase tracking-wide text-sm text-black'
+              >
+                New Construction
+            </Link>
+            <Link
               href='/about'
               className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
                 isActive('/about') ? 'text-primary' : ''
@@ -103,6 +110,16 @@ const SearchNav = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Sell
+              </Link>
+              <Link
+                target='_blank'
+                href='https://www.showingnew.com/nocorealtor'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
+                  isActive('/selling') ? 'text-primary' : ''
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                New Construction
               </Link>
               <Link
                 href='/about'
