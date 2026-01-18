@@ -56,7 +56,7 @@ const Nav = () => {
                 isScrolled ? 'text-black' : 'text-white'
               }`}
             >
-              PORTER REAL ESTATE
+              YOUR APP NAME
             </Link>
 
             {/* Navigation Links */}
@@ -85,14 +85,6 @@ const Nav = () => {
                 } ${isActive('/selling') ? 'text-primary' : ''}`}
               >
                 Sell
-              </Link>
-              <Link
-                target='_blank'
-                href='https://www.showingnew.com/nocorealtor'
-                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                  isScrolled ? 'text-black' : 'text-white' }`}
-              >
-                New Construction
               </Link>
               <Link
                 href='/about'
@@ -149,16 +141,6 @@ const Nav = () => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Sell
-                </Link>
-                <Link
-                  target='_blank'
-                  href='https://www.showingnew.com/nocorealtor '
-                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                    isScrolled ? 'text-black' : 'text-white'
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  New Construction
                 </Link>
                 <Link
                   href='/about'
