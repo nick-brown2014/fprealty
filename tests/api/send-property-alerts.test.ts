@@ -113,7 +113,7 @@ describe('GET /api/send-property-alerts', () => {
         updatedAt: new Date(),
         savedSearches: []
       }
-    ])
+    ] as any)
 
     const res = await GET(req)
     expect(res.status).toBe(200)
@@ -159,7 +159,7 @@ describe('GET /api/send-property-alerts', () => {
           }
         ]
       }
-    ])
+    ] as any)
 
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,
@@ -211,7 +211,7 @@ describe('GET /api/send-property-alerts', () => {
           }
         ]
       }
-    ])
+    ] as any)
 
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,
@@ -267,7 +267,7 @@ describe('GET /api/send-property-alerts', () => {
           }
         ]
       }
-    ])
+    ] as any)
 
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,
@@ -349,7 +349,7 @@ describe('GET /api/send-property-alerts', () => {
           }
         ]
       }
-    ])
+    ] as any)
 
     vi.mocked(global.fetch).mockResolvedValue({
       ok: false,
@@ -401,7 +401,7 @@ describe('GET /api/send-property-alerts', () => {
           }
         ]
       }
-    ])
+    ] as any)
 
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,
@@ -451,7 +451,7 @@ describe('GET /api/send-property-alerts', () => {
           }
         ]
       }
-    ])
+    ] as any)
 
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,

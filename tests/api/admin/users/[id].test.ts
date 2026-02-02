@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { PUT, DELETE } from '@/app/api/admin/users/[id]/route'
 import { prismaMock } from '../../../setup'
 import { getServerSession } from 'next-auth'
+import { NextRequest } from 'next/server'
 
 vi.mock('next-auth', () => ({
   getServerSession: vi.fn()
@@ -14,12 +15,12 @@ vi.mock('@/lib/auth', () => ({
 describe('PUT /api/admin/users/[id]', () => {
   it('returns 401 when no session exists', async () => {
     vi.mocked(getServerSession).mockResolvedValue(null)
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'PUT',
       body: JSON.stringify({})
     })
     const res = await PUT(req, { params: Promise.resolve({ id: 'user-id' }) })
-    expect(res.status).toBe(401)
+    expect(res!.status).toBe(401)
   })
 
   it('returns 403 when user is not admin', async () => {
@@ -40,12 +41,12 @@ describe('PUT /api/admin/users/[id]', () => {
       createdAt: new Date(),
       updatedAt: new Date()
     })
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'PUT',
       body: JSON.stringify({})
     })
     const res = await PUT(req, { params: Promise.resolve({ id: 'target-user-id' }) })
-    expect(res.status).toBe(403)
+    expect(res!.status).toBe(403)
   })
 
   it('returns 404 when user to update does not exist', async () => {
@@ -69,7 +70,7 @@ describe('PUT /api/admin/users/[id]', () => {
       })
       .mockResolvedValueOnce(null)
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'PUT',
       body: JSON.stringify({
         email: 'updated@test.com',
@@ -81,8 +82,8 @@ describe('PUT /api/admin/users/[id]', () => {
       })
     })
     const res = await PUT(req, { params: Promise.resolve({ id: 'nonexistent-id' }) })
-    expect(res.status).toBe(404)
-    const data = await res.json()
+    expect(res!.status).toBe(404)
+    const data = await res!.json()
     expect(data.error).toBe('User not found')
   })
 
@@ -135,7 +136,7 @@ describe('PUT /api/admin/users/[id]', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'PUT',
       body: JSON.stringify({
         email: 'updated@test.com',
@@ -147,7 +148,7 @@ describe('PUT /api/admin/users/[id]', () => {
       })
     })
     const res = await PUT(req, { params: Promise.resolve({ id: 'target-user-id' }) })
-    expect(res.status).toBe(200)
+    expect(res!.status).toBe(200)
     expect(prismaMock.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'target-user-id' },
@@ -207,7 +208,7 @@ describe('PUT /api/admin/users/[id]', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'PUT',
       body: JSON.stringify({
         email: 'updated@test.com',
@@ -220,7 +221,7 @@ describe('PUT /api/admin/users/[id]', () => {
       })
     })
     const res = await PUT(req, { params: Promise.resolve({ id: 'target-user-id' }) })
-    expect(res.status).toBe(200)
+    expect(res!.status).toBe(200)
     expect(prismaMock.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'target-user-id' },
@@ -280,7 +281,7 @@ describe('PUT /api/admin/users/[id]', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'PUT',
       body: JSON.stringify({
         email: 'updated@test.com',
@@ -292,7 +293,7 @@ describe('PUT /api/admin/users/[id]', () => {
       })
     })
     const res = await PUT(req, { params: Promise.resolve({ id: 'target-user-id' }) })
-    expect(res.status).toBe(200)
+    expect(res!.status).toBe(200)
     expect(prismaMock.user.update).toHaveBeenCalledWith(
       expect.objectContaining({
         select: expect.not.objectContaining({
@@ -306,9 +307,9 @@ describe('PUT /api/admin/users/[id]', () => {
 describe('DELETE /api/admin/users/[id]', () => {
   it('returns 401 when no session exists', async () => {
     vi.mocked(getServerSession).mockResolvedValue(null)
-    const req = new Request('http://localhost', { method: 'DELETE' })
+    const req = new NextRequest('http://localhost', { method: 'DELETE' })
     const res = await DELETE(req, { params: Promise.resolve({ id: 'user-id' }) })
-    expect(res.status).toBe(401)
+    expect(res!.status).toBe(401)
   })
 
   it('returns 403 when user is not admin', async () => {
@@ -329,9 +330,9 @@ describe('DELETE /api/admin/users/[id]', () => {
       createdAt: new Date(),
       updatedAt: new Date()
     })
-    const req = new Request('http://localhost', { method: 'DELETE' })
+    const req = new NextRequest('http://localhost', { method: 'DELETE' })
     const res = await DELETE(req, { params: Promise.resolve({ id: 'target-user-id' }) })
-    expect(res.status).toBe(403)
+    expect(res!.status).toBe(403)
   })
 
   it('returns 404 when user to delete does not exist', async () => {
@@ -355,10 +356,10 @@ describe('DELETE /api/admin/users/[id]', () => {
       })
       .mockResolvedValueOnce(null)
 
-    const req = new Request('http://localhost', { method: 'DELETE' })
+    const req = new NextRequest('http://localhost', { method: 'DELETE' })
     const res = await DELETE(req, { params: Promise.resolve({ id: 'nonexistent-id' }) })
-    expect(res.status).toBe(404)
-    const data = await res.json()
+    expect(res!.status).toBe(404)
+    const data = await res!.json()
     expect(data.error).toBe('User not found')
   })
 
@@ -396,10 +397,10 @@ describe('DELETE /api/admin/users/[id]', () => {
         updatedAt: new Date()
       })
 
-    const req = new Request('http://localhost', { method: 'DELETE' })
+    const req = new NextRequest('http://localhost', { method: 'DELETE' })
     const res = await DELETE(req, { params: Promise.resolve({ id: 'admin-id' }) })
-    expect(res.status).toBe(400)
-    const data = await res.json()
+    expect(res!.status).toBe(400)
+    const data = await res!.json()
     expect(data.error).toBe('Cannot delete your own account')
   })
 
@@ -452,10 +453,10 @@ describe('DELETE /api/admin/users/[id]', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', { method: 'DELETE' })
+    const req = new NextRequest('http://localhost', { method: 'DELETE' })
     const res = await DELETE(req, { params: Promise.resolve({ id: 'target-user-id' }) })
-    expect(res.status).toBe(200)
-    const data = await res.json()
+    expect(res!.status).toBe(200)
+    const data = await res!.json()
     expect(data.message).toBe('User deleted successfully')
     expect(prismaMock.user.delete).toHaveBeenCalledWith({
       where: { id: 'target-user-id' }

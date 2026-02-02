@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { POST } from '@/app/api/auth/signup/route'
 import { prismaMock } from '../../setup'
+import { NextRequest } from 'next/server'
 
 describe('POST /api/auth/signup', () => {
   it('returns 400 when required fields are missing', async () => {
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({ email: 'test@test.com' })
     })
@@ -15,7 +16,7 @@ describe('POST /api/auth/signup', () => {
   })
 
   it('validates email format', async () => {
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'invalid-email',
@@ -32,7 +33,7 @@ describe('POST /api/auth/signup', () => {
   })
 
   it('enforces password length requirement', async () => {
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@test.com',
@@ -49,7 +50,7 @@ describe('POST /api/auth/signup', () => {
   })
 
   it('requires lowercase letter in password', async () => {
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@test.com',
@@ -66,7 +67,7 @@ describe('POST /api/auth/signup', () => {
   })
 
   it('requires uppercase letter in password', async () => {
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@test.com',
@@ -83,7 +84,7 @@ describe('POST /api/auth/signup', () => {
   })
 
   it('requires number in password', async () => {
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@test.com',
@@ -100,7 +101,7 @@ describe('POST /api/auth/signup', () => {
   })
 
   it('validates phone number format', async () => {
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@test.com',
@@ -132,7 +133,7 @@ describe('POST /api/auth/signup', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@test.com',
@@ -165,7 +166,7 @@ describe('POST /api/auth/signup', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'new@test.com',
@@ -199,7 +200,7 @@ describe('POST /api/auth/signup', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@test.com',
@@ -241,7 +242,7 @@ describe('POST /api/auth/signup', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
         email: 'test@test.com',

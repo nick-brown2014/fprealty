@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { POST } from '@/app/api/auth/forgot-password/route'
 import { prismaMock } from '../../setup'
+import { NextRequest } from 'next/server'
 
 vi.mock('resend', () => ({
   Resend: class MockResend {
@@ -17,7 +18,7 @@ describe('POST /api/auth/forgot-password', () => {
   })
 
   it('returns 400 when email is not provided', async () => {
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({})
     })
@@ -30,7 +31,7 @@ describe('POST /api/auth/forgot-password', () => {
   it('returns success message even for non-existent users (security)', async () => {
     prismaMock.user.findUnique.mockResolvedValue(null)
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({ email: 'nonexistent@test.com' })
     })
@@ -70,7 +71,7 @@ describe('POST /api/auth/forgot-password', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({ email: 'test@test.com' })
     })
@@ -120,7 +121,7 @@ describe('POST /api/auth/forgot-password', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({ email: 'test@test.com' })
     })
@@ -166,7 +167,7 @@ describe('POST /api/auth/forgot-password', () => {
       updatedAt: new Date()
     })
 
-    const req = new Request('http://localhost', {
+    const req = new NextRequest('http://localhost', {
       method: 'POST',
       body: JSON.stringify({ email: 'test@test.com' })
     })
