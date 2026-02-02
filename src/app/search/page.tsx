@@ -378,31 +378,36 @@ const Search = () => {
         <div className='pb-10 pt-12 flex flex-col w-[100vw] items-center'>
 
           {/* Auth section */}
-          <div className='w-[90vw] max-w-[1200px] mt-8 flex justify-end'>
-            {user ? (
-              <p className='text-sm text-gray-700'>
-                Welcome, {user.firstName} {user.lastName} |{' '}
+          <div className='w-[90vw] max-w-[1200px] mt-8 flex justify-between'>
+            <Link href="/search/advanced" className='text-primary hover:underline font-semibold text-sm'>
+              Advanced Search
+            </Link>
+            <div className='flex justify-end flex-1'>
+              {user ? (
+                <p className='text-sm text-gray-700'>
+                  Welcome, {user.firstName} {user.lastName} |{' '}
+                  <button
+                    onClick={goToSettings}
+                    className='text-primary hover:underline cursor-pointer font-semibold'
+                  >
+                    Settings
+                  </button>{' '}|{' '}
+                  <button
+                    onClick={signOut}
+                    className='text-primary hover:underline cursor-pointer font-semibold'
+                  >
+                    Sign Out
+                  </button>
+                </p>
+              ) : (
                 <button
-                  onClick={goToSettings}
-                  className='text-primary hover:underline cursor-pointer font-semibold'
+                  onClick={() => setAuthModalOpen(true)}
+                  className='cursor-pointer px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:opacity-70 bg-white text-primary transition font-semibold whitespace-nowrap'
                 >
-                  Settings
-                </button>{' '}|{' '}
-                <button
-                  onClick={signOut}
-                  className='text-primary hover:underline cursor-pointer font-semibold'
-                >
-                  Sign Out
+                  Sign in / Sign up
                 </button>
-              </p>
-            ) : (
-              <button
-                onClick={() => setAuthModalOpen(true)}
-                className='cursor-pointer px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:opacity-70 bg-white text-primary transition font-semibold whitespace-nowrap'
-              >
-                Sign in / Sign up
-              </button>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Search Bar and Filters */}
@@ -667,12 +672,6 @@ const Search = () => {
                   </div>
                 )}
               </div>
-              <Link
-                href="/search/advanced"
-                className='cursor-pointer px-4 py-2 border border-primary rounded-md hover:opacity-70 bg-white text-primary transition font-semibold whitespace-nowrap'
-              >
-                Advanced
-              </Link>
             </div>
           </div>
 

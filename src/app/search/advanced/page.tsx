@@ -550,11 +550,10 @@ const AdvancedSearch = () => {
 
           {/* Auth section */}
           <div className='w-[95vw] max-w-[1600px] mt-8 flex justify-between items-center'>
-            <div className='flex items-center gap-4'>
+            <div className='flex items-center'>
               <Link href="/search" className='text-primary hover:underline font-semibold text-sm'>
                 &larr; Basic Search
               </Link>
-              <h1 className='text-xl font-bold text-gray-800'>Advanced Search</h1>
             </div>
             {user ? (
               <p className='text-sm text-gray-700'>
