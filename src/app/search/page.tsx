@@ -378,7 +378,7 @@ const Search = () => {
         <div className='pb-10 pt-12 flex flex-col w-[100vw] items-center'>
 
           {/* Auth section */}
-          <div className='w-[90vw] max-w-[1200px] mt-8 flex justify-between'>
+          <div className='w-[90vw] max-w-[1200px] mt-8 flex justify-between items-center'>
             <Link href="/search/advanced" className='text-primary hover:underline font-semibold text-sm'>
               Advanced Search
             </Link>
