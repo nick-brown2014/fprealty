@@ -13,6 +13,7 @@ import ListingTile from "../components/map/ListingTile"
 import PlacesAutocomplete from "../components/map/PlacesAutocomplete"
 import { useRouter, useSearchParams } from "next/navigation"
 import { SavedSearch } from "../types/SavedSearch"
+import Link from "next/link"
 
 const MapEventHandler = ({ onIdle }: { onIdle: (map: google.maps.Map) => void }) => {
   const map = useMap()
@@ -666,6 +667,12 @@ const Search = () => {
                   </div>
                 )}
               </div>
+              <Link
+                href="/search/advanced"
+                className='cursor-pointer px-4 py-2 border border-primary rounded-md hover:opacity-70 bg-white text-primary transition font-semibold whitespace-nowrap'
+              >
+                Advanced
+              </Link>
             </div>
           </div>
 

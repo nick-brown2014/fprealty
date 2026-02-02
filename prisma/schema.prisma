@@ -74,21 +74,37 @@ model Favorite {
 }
 
 model SavedSearch {
-  id              String   @id @default(cuid())
-  userId          String
-  name            String
-  searchQuery     String?
-  minPrice        Int?
-  maxPrice        Int?
-  minBeds         Int?
-  minBaths        Int?
-  propertyTypes   String[] @default([])
-  includeLand     Boolean  @default(false)
-  statuses        String[] @default([])
-  bounds          Json?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String   @id @default(cuid())
+  userId              String
+  name                String
+  searchQuery         String?
+  minPrice            Int?
+  maxPrice            Int?
+  minBeds             Int?
+  minBaths            Int?
+  propertyTypes       String[] @default([])
+  includeLand         Boolean  @default(false)
+  statuses            String[] @default([])
+  bounds              Json?
+  minSqft             Int?
+  maxSqft             Int?
+  minLotSize          Float?
+  maxLotSize          Float?
+  minYearBuilt        Int?
+  maxYearBuilt        Int?
+  minStories          Int?
+  maxStories          Int?
+  minGarageSpaces     Int?
+  hasPool             Boolean  @default(false)
+  hasAC               Boolean  @default(false)
+  hasBasement         Boolean  @default(false)
+  isWaterfront        Boolean  @default(false)
+  hasFireplace        Boolean  @default(false)
+  isSeniorCommunity   Boolean  @default(false)
+  maxHoaFee           Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

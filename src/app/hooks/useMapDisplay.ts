@@ -63,6 +63,22 @@ export type SearchFilters = {
   statuses?: string[]
   mlsNumber?: string
   listingIds?: string[]
+  minSqft?: number | null
+  maxSqft?: number | null
+  minLotSize?: number | null
+  maxLotSize?: number | null
+  minYearBuilt?: number | null
+  maxYearBuilt?: number | null
+  minStories?: number | null
+  maxStories?: number | null
+  minGarageSpaces?: number | null
+  hasPool?: boolean
+  hasAC?: boolean
+  hasBasement?: boolean
+  isWaterfront?: boolean
+  hasFireplace?: boolean
+  isSeniorCommunity?: boolean
+  maxHoaFee?: number | null
 }
 
 type Filters = {
@@ -85,6 +101,22 @@ type Filters = {
   'ListingKey.in'?: string
   'ListingId'?: string
   'NewConstructionYN'?: boolean
+  'LivingArea.gte'?: number
+  'LivingArea.lte'?: number
+  'LotSizeAcres.gte'?: number
+  'LotSizeAcres.lte'?: number
+  'YearBuilt.gte'?: number
+  'YearBuilt.lte'?: number
+  'Stories.gte'?: number
+  'Stories.lte'?: number
+  'GarageSpaces.gte'?: number
+  'PoolPrivateYN'?: boolean
+  'CoolingYN'?: boolean
+  'Basement.ne'?: string
+  'WaterfrontYN'?: boolean
+  'FireplaceYN'?: boolean
+  'SeniorCommunityYN'?: boolean
+  'AssociationFee.lte'?: number
 }
 
 const defaultFilters = {
@@ -194,6 +226,68 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
     // Add new construction filter
     if (searchFilters?.newConstructionOnly) {
       newFilters['NewConstructionYN'] = true
+    }
+
+    // Add square footage filters
+    if (searchFilters?.minSqft !== null && searchFilters?.minSqft !== undefined) {
+      newFilters['LivingArea.gte'] = searchFilters.minSqft
+    }
+    if (searchFilters?.maxSqft !== null && searchFilters?.maxSqft !== undefined) {
+      newFilters['LivingArea.lte'] = searchFilters.maxSqft
+    }
+
+    // Add lot size filters (in acres)
+    if (searchFilters?.minLotSize !== null && searchFilters?.minLotSize !== undefined) {
+      newFilters['LotSizeAcres.gte'] = searchFilters.minLotSize
+    }
+    if (searchFilters?.maxLotSize !== null && searchFilters?.maxLotSize !== undefined) {
+      newFilters['LotSizeAcres.lte'] = searchFilters.maxLotSize
+    }
+
+    // Add year built filters
+    if (searchFilters?.minYearBuilt !== null && searchFilters?.minYearBuilt !== undefined) {
+      newFilters['YearBuilt.gte'] = searchFilters.minYearBuilt
+    }
+    if (searchFilters?.maxYearBuilt !== null && searchFilters?.maxYearBuilt !== undefined) {
+      newFilters['YearBuilt.lte'] = searchFilters.maxYearBuilt
+    }
+
+    // Add stories filters
+    if (searchFilters?.minStories !== null && searchFilters?.minStories !== undefined) {
+      newFilters['Stories.gte'] = searchFilters.minStories
+    }
+    if (searchFilters?.maxStories !== null && searchFilters?.maxStories !== undefined) {
+      newFilters['Stories.lte'] = searchFilters.maxStories
+    }
+
+    // Add garage spaces filter
+    if (searchFilters?.minGarageSpaces !== null && searchFilters?.minGarageSpaces !== undefined) {
+      newFilters['GarageSpaces.gte'] = searchFilters.minGarageSpaces
+    }
+
+    // Add boolean feature filters
+    if (searchFilters?.hasPool) {
+      newFilters['PoolPrivateYN'] = true
+    }
+    if (searchFilters?.hasAC) {
+      newFilters['CoolingYN'] = true
+    }
+    if (searchFilters?.hasBasement) {
+      newFilters['Basement.ne'] = 'None'
+    }
+    if (searchFilters?.isWaterfront) {
+      newFilters['WaterfrontYN'] = true
+    }
+    if (searchFilters?.hasFireplace) {
+      newFilters['FireplaceYN'] = true
+    }
+    if (searchFilters?.isSeniorCommunity) {
+      newFilters['SeniorCommunityYN'] = true
+    }
+
+    // Add HOA fee filter
+    if (searchFilters?.maxHoaFee !== null && searchFilters?.maxHoaFee !== undefined) {
+      newFilters['AssociationFee.lte'] = searchFilters.maxHoaFee
     }
 
     setFilters(newFilters)
