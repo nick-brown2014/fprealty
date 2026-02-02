@@ -63,6 +63,43 @@ export type SearchFilters = {
   statuses?: string[]
   mlsNumber?: string
   listingIds?: string[]
+  minSqft?: number | null
+  maxSqft?: number | null
+  minLotSize?: number | null
+  maxLotSize?: number | null
+  minYearBuilt?: number | null
+  maxYearBuilt?: number | null
+  minStories?: number | null
+  maxStories?: number | null
+  minGarageSpaces?: number | null
+  hasPool?: boolean
+  hasAC?: boolean
+  hasBasement?: boolean
+  isWaterfront?: boolean
+  hasFireplace?: boolean
+  isSeniorCommunity?: boolean
+  maxHoaFee?: number | null
+  // New filters
+  hasSpa?: boolean
+  isHorseProperty?: boolean
+  hasGarage?: boolean
+  hasAttachedGarage?: boolean
+  hasHeating?: boolean
+  minDaysOnMarket?: number | null
+  maxDaysOnMarket?: number | null
+  minTaxAmount?: number | null
+  maxTaxAmount?: number | null
+  minCoveredSpaces?: number | null
+  hasVirtualTour?: boolean
+  isGreenEnergy?: boolean
+  view?: string[]
+  flooring?: string[]
+  appliances?: string[]
+  heatingType?: string[]
+  architecturalStyle?: string[]
+  fencing?: string[]
+  patioFeatures?: string[]
+  schoolDistrict?: string
 }
 
 type Filters = {
@@ -85,6 +122,43 @@ type Filters = {
   'ListingKey.in'?: string
   'ListingId'?: string
   'NewConstructionYN'?: boolean
+  'LivingArea.gte'?: number
+  'LivingArea.lte'?: number
+  'LotSizeAcres.gte'?: number
+  'LotSizeAcres.lte'?: number
+  'YearBuilt.gte'?: number
+  'YearBuilt.lte'?: number
+  'Stories.gte'?: number
+  'Stories.lte'?: number
+  'GarageSpaces.gte'?: number
+  'PoolPrivateYN'?: boolean
+  'CoolingYN'?: boolean
+  'Basement.ne'?: string
+  'WaterfrontYN'?: boolean
+  'FireplaceYN'?: boolean
+  'SeniorCommunityYN'?: boolean
+  'AssociationFee.lte'?: number
+  // New filter parameters
+  'SpaYN'?: boolean
+  'HorseYN'?: boolean
+  'GarageYN'?: boolean
+  'AttachedGarageYN'?: boolean
+  'HeatingYN'?: boolean
+  'DaysOnMarket.gte'?: number
+  'DaysOnMarket.lte'?: number
+  'TaxAnnualAmount.gte'?: number
+  'TaxAnnualAmount.lte'?: number
+  'CoveredSpaces.gte'?: number
+  'VirtualTourURLUnbranded.ne'?: string
+  'GreenEnergyEfficient.ne'?: string
+  'View.in'?: string
+  'Flooring.in'?: string
+  'Appliances.in'?: string
+  'Heating.in'?: string
+  'ArchitecturalStyle.in'?: string
+  'Fencing.in'?: string
+  'PatioAndPorchFeatures.in'?: string
+  'HighSchoolDistrict'?: string
 }
 
 const defaultFilters = {
@@ -194,6 +268,144 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
     // Add new construction filter
     if (searchFilters?.newConstructionOnly) {
       newFilters['NewConstructionYN'] = true
+    }
+
+    // Add square footage filters
+    if (searchFilters?.minSqft !== null && searchFilters?.minSqft !== undefined) {
+      newFilters['LivingArea.gte'] = searchFilters.minSqft
+    }
+    if (searchFilters?.maxSqft !== null && searchFilters?.maxSqft !== undefined) {
+      newFilters['LivingArea.lte'] = searchFilters.maxSqft
+    }
+
+    // Add lot size filters (in acres)
+    if (searchFilters?.minLotSize !== null && searchFilters?.minLotSize !== undefined) {
+      newFilters['LotSizeAcres.gte'] = searchFilters.minLotSize
+    }
+    if (searchFilters?.maxLotSize !== null && searchFilters?.maxLotSize !== undefined) {
+      newFilters['LotSizeAcres.lte'] = searchFilters.maxLotSize
+    }
+
+    // Add year built filters
+    if (searchFilters?.minYearBuilt !== null && searchFilters?.minYearBuilt !== undefined) {
+      newFilters['YearBuilt.gte'] = searchFilters.minYearBuilt
+    }
+    if (searchFilters?.maxYearBuilt !== null && searchFilters?.maxYearBuilt !== undefined) {
+      newFilters['YearBuilt.lte'] = searchFilters.maxYearBuilt
+    }
+
+    // Add stories filters
+    if (searchFilters?.minStories !== null && searchFilters?.minStories !== undefined) {
+      newFilters['Stories.gte'] = searchFilters.minStories
+    }
+    if (searchFilters?.maxStories !== null && searchFilters?.maxStories !== undefined) {
+      newFilters['Stories.lte'] = searchFilters.maxStories
+    }
+
+    // Add garage spaces filter
+    if (searchFilters?.minGarageSpaces !== null && searchFilters?.minGarageSpaces !== undefined) {
+      newFilters['GarageSpaces.gte'] = searchFilters.minGarageSpaces
+    }
+
+    // Add boolean feature filters
+    if (searchFilters?.hasPool) {
+      newFilters['PoolPrivateYN'] = true
+    }
+    if (searchFilters?.hasAC) {
+      newFilters['CoolingYN'] = true
+    }
+    if (searchFilters?.hasBasement) {
+      newFilters['Basement.ne'] = 'None'
+    }
+    if (searchFilters?.isWaterfront) {
+      newFilters['WaterfrontYN'] = true
+    }
+    if (searchFilters?.hasFireplace) {
+      newFilters['FireplaceYN'] = true
+    }
+    if (searchFilters?.isSeniorCommunity) {
+      newFilters['SeniorCommunityYN'] = true
+    }
+
+    // Add HOA fee filter
+    if (searchFilters?.maxHoaFee !== null && searchFilters?.maxHoaFee !== undefined) {
+      newFilters['AssociationFee.lte'] = searchFilters.maxHoaFee
+    }
+
+    // New boolean feature filters
+    if (searchFilters?.hasSpa) {
+      newFilters['SpaYN'] = true
+    }
+    if (searchFilters?.isHorseProperty) {
+      newFilters['HorseYN'] = true
+    }
+    if (searchFilters?.hasGarage) {
+      newFilters['GarageYN'] = true
+    }
+    if (searchFilters?.hasAttachedGarage) {
+      newFilters['AttachedGarageYN'] = true
+    }
+    if (searchFilters?.hasHeating) {
+      newFilters['HeatingYN'] = true
+    }
+
+    // Days on market filters
+    if (searchFilters?.minDaysOnMarket !== null && searchFilters?.minDaysOnMarket !== undefined) {
+      newFilters['DaysOnMarket.gte'] = searchFilters.minDaysOnMarket
+    }
+    if (searchFilters?.maxDaysOnMarket !== null && searchFilters?.maxDaysOnMarket !== undefined) {
+      newFilters['DaysOnMarket.lte'] = searchFilters.maxDaysOnMarket
+    }
+
+    // Tax amount filters
+    if (searchFilters?.minTaxAmount !== null && searchFilters?.minTaxAmount !== undefined) {
+      newFilters['TaxAnnualAmount.gte'] = searchFilters.minTaxAmount
+    }
+    if (searchFilters?.maxTaxAmount !== null && searchFilters?.maxTaxAmount !== undefined) {
+      newFilters['TaxAnnualAmount.lte'] = searchFilters.maxTaxAmount
+    }
+
+    // Covered parking spaces filter
+    if (searchFilters?.minCoveredSpaces !== null && searchFilters?.minCoveredSpaces !== undefined) {
+      newFilters['CoveredSpaces.gte'] = searchFilters.minCoveredSpaces
+    }
+
+    // Virtual tour filter
+    if (searchFilters?.hasVirtualTour) {
+      newFilters['VirtualTourURLUnbranded.ne'] = ''
+    }
+
+    // Green energy filter
+    if (searchFilters?.isGreenEnergy) {
+      newFilters['GreenEnergyEfficient.ne'] = ''
+    }
+
+    // Array-based feature filters
+    if (searchFilters?.view && searchFilters.view.length > 0) {
+      newFilters['View.in'] = searchFilters.view.join(',')
+    }
+    if (searchFilters?.flooring && searchFilters.flooring.length > 0) {
+      newFilters['Flooring.in'] = searchFilters.flooring.join(',')
+    }
+    if (searchFilters?.appliances && searchFilters.appliances.length > 0) {
+      newFilters['Appliances.in'] = searchFilters.appliances.join(',')
+    }
+    if (searchFilters?.heatingType && searchFilters.heatingType.length > 0) {
+      newFilters['Heating.in'] = searchFilters.heatingType.join(',')
+    }
+    if (searchFilters?.architecturalStyle && searchFilters.architecturalStyle.length > 0) {
+      newFilters['ArchitecturalStyle.in'] = searchFilters.architecturalStyle.join(',')
+    }
+    if (searchFilters?.fencing && searchFilters.fencing.length > 0) {
+      newFilters['Fencing.in'] = searchFilters.fencing.join(',')
+    }
+    if (searchFilters?.patioFeatures && searchFilters.patioFeatures.length > 0) {
+      newFilters['PatioAndPorchFeatures.in'] = searchFilters.patioFeatures.join(',')
+    }
+
+    // School district filter
+    if (searchFilters?.schoolDistrict?.trim()) {
+      newFilters['HighSchoolDistrict'] = searchFilters.schoolDistrict.trim()
     }
 
     setFilters(newFilters)
