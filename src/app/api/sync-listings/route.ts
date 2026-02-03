@@ -317,8 +317,7 @@ export async function GET(request: NextRequest) {
     let url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(baseFilter)}&$expand=Media&$top=${BATCH_SIZE}`
 
     let totalProcessed = 0
-    let totalCreated = 0
-    let totalUpdated = 0
+    let totalUpserted = 0
     let totalDeleted = 0
     let latestTimestamp: Date | null = null
 
@@ -375,7 +374,7 @@ export async function GET(request: NextRequest) {
           const chunk = upsertOperations.slice(i, i + UPSERT_CHUNK_SIZE)
           await prisma.$transaction(chunk)
         }
-        totalUpdated += toUpsert.length
+        totalUpserted += toUpsert.length
       }
 
       url = data['@odata.nextLink'] || ''
@@ -398,14 +397,13 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log(`Sync complete: ${totalProcessed} processed, ${totalCreated} created, ${totalUpdated} updated, ${totalDeleted} deleted`)
+    console.log(`Sync complete: ${totalProcessed} processed, ${totalUpserted} upserted, ${totalDeleted} deleted`)
 
     return NextResponse.json({
       success: true,
       mode: isFullSync ? 'full' : 'incremental',
       processed: totalProcessed,
-      created: totalCreated,
-      updated: totalUpdated,
+      upserted: totalUpserted,
       deleted: totalDeleted,
       totalListings,
       lastSyncTimestamp: latestTimestamp?.toISOString()
