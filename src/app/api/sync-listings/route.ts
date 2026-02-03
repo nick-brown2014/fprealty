@@ -212,7 +212,7 @@ function transformPropertyToListing(property: MLSGridProperty) {
     highSchoolDistrict: property.HighSchoolDistrict || null,
     photosCount: property.PhotosCount || null,
     photosChangeTimestamp: parseDate(property.PhotosChangeTimestamp),
-    media: property.Media ? transformMedia(property.Media) : null,
+    media: property.Media ? transformMedia(property.Media) : undefined,
     appliances: property.Appliances || [],
     architecturalStyle: property.ArchitecturalStyle || [],
     basement: property.Basement || [],
