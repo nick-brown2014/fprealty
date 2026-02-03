@@ -309,19 +309,22 @@ export async function GET(request: NextRequest) {
     if (resetFullSync && isFullSync) {
       await prisma.syncState.update({
         where: { id: 'mls-grid-sync' },
-        data: { fullSyncInProgress: false, fullSyncSkip: 0 }
+        data: { fullSyncInProgress: false, fullSyncCursor: null }
       })
-      syncState = { ...syncState, fullSyncInProgress: false, fullSyncSkip: 0 }
+      syncState = { ...syncState, fullSyncInProgress: false, fullSyncCursor: null }
     }
 
     let baseFilter = `OriginatingSystemName eq '${ORIGINATING_SYSTEM}'`
-    let currentSkip = 0
 
     if (isFullSync) {
       baseFilter += ' and MlgCanView eq true'
-      currentSkip = syncState.fullSyncSkip
       
-      if (!syncState.fullSyncInProgress && currentSkip === 0) {
+      if (syncState.fullSyncCursor) {
+        const cursor = syncState.fullSyncCursor.toISOString()
+        baseFilter += ` and ModificationTimestamp gt ${cursor}`
+      }
+      
+      if (!syncState.fullSyncInProgress) {
         await prisma.syncState.update({
           where: { id: 'mls-grid-sync' },
           data: { fullSyncInProgress: true }
@@ -335,10 +338,6 @@ export async function GET(request: NextRequest) {
     }
 
     let url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(baseFilter)}&$expand=Media&$top=${BATCH_SIZE}&$orderby=ModificationTimestamp`
-    
-    if (isFullSync && currentSkip > 0) {
-      url += `&$skip=${currentSkip}`
-    }
 
     let totalProcessed = 0
     let totalUpserted = 0
@@ -419,30 +418,28 @@ export async function GET(request: NextRequest) {
     })
 
     if (isFullSync) {
-      const newSkip = currentSkip + totalProcessed
-      
-      if (hasMoreData) {
+      if (hasMoreData && latestTimestamp) {
         await prisma.syncState.update({
           where: { id: 'mls-grid-sync' },
           data: {
-            fullSyncSkip: newSkip,
+            fullSyncCursor: latestTimestamp,
             totalListings
           }
         })
 
-        console.log(`Full sync in progress: ${newSkip} records processed so far, more data available`)
+        console.log(`Full sync in progress: processed ${totalProcessed} this invocation, cursor at ${latestTimestamp.toISOString()}`)
 
         return NextResponse.json({
           success: true,
           mode: 'full',
           status: 'in_progress',
           processed: totalProcessed,
-          totalProcessedSoFar: newSkip,
           upserted: totalUpserted,
           deleted: totalDeleted,
           totalListings,
           hasMoreData: true,
-          message: `Processed ${totalProcessed} records this invocation (${newSkip} total). Call again to continue.`
+          cursor: latestTimestamp.toISOString(),
+          message: `Processed ${totalProcessed} records this invocation. Call again to continue.`
         })
       } else {
         await prisma.syncState.update({
@@ -451,19 +448,18 @@ export async function GET(request: NextRequest) {
             lastSyncTimestamp: latestTimestamp || new Date(),
             lastFullSyncAt: new Date(),
             fullSyncInProgress: false,
-            fullSyncSkip: 0,
+            fullSyncCursor: null,
             totalListings
           }
         })
 
-        console.log(`Full sync complete: ${newSkip} total records processed`)
+        console.log(`Full sync complete: ${totalProcessed} records processed this invocation`)
 
         return NextResponse.json({
           success: true,
           mode: 'full',
           status: 'complete',
           processed: totalProcessed,
-          totalProcessedSoFar: newSkip,
           upserted: totalUpserted,
           deleted: totalDeleted,
           totalListings,
