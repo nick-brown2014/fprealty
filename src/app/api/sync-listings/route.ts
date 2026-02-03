@@ -5,7 +5,8 @@ export const maxDuration = 300
 
 const MLS_GRID_BASE_URL = 'https://api.mlsgrid.com/v2'
 const ORIGINATING_SYSTEM = 'ires'
-const BATCH_SIZE = 1000
+const BATCH_SIZE = 500
+const MAX_RECORDS_PER_INVOCATION = 5000
 
 interface MLSGridMedia {
   MediaKey: string
@@ -127,6 +128,7 @@ interface MLSGridProperty {
 interface MLSGridResponse {
   '@odata.context'?: string
   '@odata.nextLink'?: string
+  '@odata.count'?: number
   value: MLSGridProperty[]
 }
 
@@ -289,6 +291,7 @@ export async function GET(request: NextRequest) {
     }
 
     const mode = request.nextUrl.searchParams.get('mode') || 'incremental'
+    const resetFullSync = request.nextUrl.searchParams.get('reset') === 'true'
     const isFullSync = mode === 'full'
 
     console.log(`Starting ${isFullSync ? 'full' : 'incremental'} sync from MLS Grid...`)
@@ -303,10 +306,27 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    if (resetFullSync && isFullSync) {
+      await prisma.syncState.update({
+        where: { id: 'mls-grid-sync' },
+        data: { fullSyncInProgress: false, fullSyncSkip: 0 }
+      })
+      syncState = { ...syncState, fullSyncInProgress: false, fullSyncSkip: 0 }
+    }
+
     let baseFilter = `OriginatingSystemName eq '${ORIGINATING_SYSTEM}'`
+    let currentSkip = 0
 
     if (isFullSync) {
       baseFilter += ' and MlgCanView eq true'
+      currentSkip = syncState.fullSyncSkip
+      
+      if (!syncState.fullSyncInProgress && currentSkip === 0) {
+        await prisma.syncState.update({
+          where: { id: 'mls-grid-sync' },
+          data: { fullSyncInProgress: true }
+        })
+      }
     } else if (syncState.lastSyncTimestamp) {
       const timestamp = syncState.lastSyncTimestamp.toISOString()
       baseFilter += ` and ModificationTimestamp gt ${timestamp}`
@@ -314,20 +334,29 @@ export async function GET(request: NextRequest) {
       baseFilter += ' and MlgCanView eq true'
     }
 
-    let url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(baseFilter)}&$expand=Media&$top=${BATCH_SIZE}`
+    let url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(baseFilter)}&$expand=Media&$top=${BATCH_SIZE}&$orderby=ListingKey`
+    
+    if (isFullSync && currentSkip > 0) {
+      url += `&$skip=${currentSkip}`
+    }
 
     let totalProcessed = 0
     let totalUpserted = 0
     let totalDeleted = 0
     let latestTimestamp: Date | null = null
+    let hasMoreData = false
 
-    while (url) {
+    while (url && totalProcessed < MAX_RECORDS_PER_INVOCATION) {
       console.log(`Fetching batch from: ${url}`)
 
       const data = await fetchFromMLSGrid(url)
       const properties = data.value || []
 
       console.log(`Received ${properties.length} properties`)
+
+      if (properties.length === 0) {
+        break
+      }
 
       const toUpsert: ReturnType<typeof transformPropertyToListing>[] = []
       const toDelete: string[] = []
@@ -350,7 +379,6 @@ export async function GET(request: NextRequest) {
         totalProcessed++
       }
 
-      // Batch delete
       if (toDelete.length > 0) {
         const deleted = await prisma.listing.deleteMany({
           where: { listingKey: { in: toDelete } }
@@ -358,7 +386,6 @@ export async function GET(request: NextRequest) {
         totalDeleted += deleted.count
       }
 
-      // Batch upsert using transaction
       if (toUpsert.length > 0) {
         const upsertOperations = toUpsert.map(listingData =>
           prisma.listing.upsert({
@@ -368,8 +395,7 @@ export async function GET(request: NextRequest) {
           })
         )
 
-        // Process in chunks of 100 to avoid transaction limits
-        const UPSERT_CHUNK_SIZE = 100
+        const UPSERT_CHUNK_SIZE = 50
         for (let i = 0; i < upsertOperations.length; i += UPSERT_CHUNK_SIZE) {
           const chunk = upsertOperations.slice(i, i + UPSERT_CHUNK_SIZE)
           await prisma.$transaction(chunk)
@@ -377,10 +403,14 @@ export async function GET(request: NextRequest) {
         totalUpserted += toUpsert.length
       }
 
-      url = data['@odata.nextLink'] || ''
-
-      if (url) {
+      const nextLink = data['@odata.nextLink']
+      
+      if (nextLink && totalProcessed < MAX_RECORDS_PER_INVOCATION) {
+        url = nextLink
         await new Promise(resolve => setTimeout(resolve, 100))
+      } else {
+        hasMoreData = !!nextLink
+        url = ''
       }
     }
 
@@ -388,26 +418,80 @@ export async function GET(request: NextRequest) {
       where: { mlgCanView: true }
     })
 
-    await prisma.syncState.update({
-      where: { id: 'mls-grid-sync' },
-      data: {
-        lastSyncTimestamp: latestTimestamp || new Date(),
-        lastFullSyncAt: isFullSync ? new Date() : syncState.lastFullSyncAt,
-        totalListings
+    if (isFullSync) {
+      const newSkip = currentSkip + totalProcessed
+      
+      if (hasMoreData) {
+        await prisma.syncState.update({
+          where: { id: 'mls-grid-sync' },
+          data: {
+            fullSyncSkip: newSkip,
+            totalListings
+          }
+        })
+
+        console.log(`Full sync in progress: ${newSkip} records processed so far, more data available`)
+
+        return NextResponse.json({
+          success: true,
+          mode: 'full',
+          status: 'in_progress',
+          processed: totalProcessed,
+          totalProcessedSoFar: newSkip,
+          upserted: totalUpserted,
+          deleted: totalDeleted,
+          totalListings,
+          hasMoreData: true,
+          message: `Processed ${totalProcessed} records this invocation (${newSkip} total). Call again to continue.`
+        })
+      } else {
+        await prisma.syncState.update({
+          where: { id: 'mls-grid-sync' },
+          data: {
+            lastSyncTimestamp: latestTimestamp || new Date(),
+            lastFullSyncAt: new Date(),
+            fullSyncInProgress: false,
+            fullSyncSkip: 0,
+            totalListings
+          }
+        })
+
+        console.log(`Full sync complete: ${newSkip} total records processed`)
+
+        return NextResponse.json({
+          success: true,
+          mode: 'full',
+          status: 'complete',
+          processed: totalProcessed,
+          totalProcessedSoFar: newSkip,
+          upserted: totalUpserted,
+          deleted: totalDeleted,
+          totalListings,
+          hasMoreData: false,
+          lastSyncTimestamp: latestTimestamp?.toISOString()
+        })
       }
-    })
+    } else {
+      await prisma.syncState.update({
+        where: { id: 'mls-grid-sync' },
+        data: {
+          lastSyncTimestamp: latestTimestamp || new Date(),
+          totalListings
+        }
+      })
 
-    console.log(`Sync complete: ${totalProcessed} processed, ${totalUpserted} upserted, ${totalDeleted} deleted`)
+      console.log(`Incremental sync complete: ${totalProcessed} processed, ${totalUpserted} upserted, ${totalDeleted} deleted`)
 
-    return NextResponse.json({
-      success: true,
-      mode: isFullSync ? 'full' : 'incremental',
-      processed: totalProcessed,
-      upserted: totalUpserted,
-      deleted: totalDeleted,
-      totalListings,
-      lastSyncTimestamp: latestTimestamp?.toISOString()
-    })
+      return NextResponse.json({
+        success: true,
+        mode: 'incremental',
+        processed: totalProcessed,
+        upserted: totalUpserted,
+        deleted: totalDeleted,
+        totalListings,
+        lastSyncTimestamp: latestTimestamp?.toISOString()
+      })
+    }
   } catch (error) {
     console.error('Sync error:', error)
     return NextResponse.json(
