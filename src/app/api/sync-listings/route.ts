@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const maxDuration = 300
+
 const MLS_GRID_BASE_URL = 'https://api.mlsgrid.com/v2'
 const ORIGINATING_SYSTEM = 'ires'
 const BATCH_SIZE = 1000
@@ -328,6 +330,9 @@ export async function GET(request: NextRequest) {
 
       console.log(`Received ${properties.length} properties`)
 
+      const toUpsert: ReturnType<typeof transformPropertyToListing>[] = []
+      const toDelete: string[] = []
+
       for (const property of properties) {
         const listingData = transformPropertyToListing(property)
 
@@ -338,38 +343,45 @@ export async function GET(request: NextRequest) {
         }
 
         if (!listingData.mlgCanView) {
-          const deleted = await prisma.listing.deleteMany({
-            where: { listingKey: listingData.listingKey }
-          })
-          if (deleted.count > 0) {
-            totalDeleted++
-          }
+          toDelete.push(listingData.listingKey)
         } else {
-          const existing = await prisma.listing.findUnique({
-            where: { listingKey: listingData.listingKey }
-          })
-
-          if (existing) {
-            await prisma.listing.update({
-              where: { listingKey: listingData.listingKey },
-              data: listingData
-            })
-            totalUpdated++
-          } else {
-            await prisma.listing.create({
-              data: listingData
-            })
-            totalCreated++
-          }
+          toUpsert.push(listingData)
         }
 
         totalProcessed++
       }
 
+      // Batch delete
+      if (toDelete.length > 0) {
+        const deleted = await prisma.listing.deleteMany({
+          where: { listingKey: { in: toDelete } }
+        })
+        totalDeleted += deleted.count
+      }
+
+      // Batch upsert using transaction
+      if (toUpsert.length > 0) {
+        const upsertOperations = toUpsert.map(listingData =>
+          prisma.listing.upsert({
+            where: { listingKey: listingData.listingKey },
+            update: listingData,
+            create: listingData,
+          })
+        )
+
+        // Process in chunks of 100 to avoid transaction limits
+        const UPSERT_CHUNK_SIZE = 100
+        for (let i = 0; i < upsertOperations.length; i += UPSERT_CHUNK_SIZE) {
+          const chunk = upsertOperations.slice(i, i + UPSERT_CHUNK_SIZE)
+          await prisma.$transaction(chunk)
+        }
+        totalUpdated += toUpsert.length
+      }
+
       url = data['@odata.nextLink'] || ''
 
       if (url) {
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 100))
       }
     }
 
