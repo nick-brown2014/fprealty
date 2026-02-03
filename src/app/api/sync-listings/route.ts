@@ -334,7 +334,7 @@ export async function GET(request: NextRequest) {
       baseFilter += ' and MlgCanView eq true'
     }
 
-    let url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(baseFilter)}&$expand=Media&$top=${BATCH_SIZE}&$orderby=ListingKey`
+    let url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(baseFilter)}&$expand=Media&$top=${BATCH_SIZE}&$orderby=ModificationTimestamp`
     
     if (isFullSync && currentSkip > 0) {
       url += `&$skip=${currentSkip}`
