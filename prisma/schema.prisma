@@ -128,3 +128,148 @@ model SavedSearch {
 
   @@index([userId])
 }
+
+model Listing {
+  listingKey                String    @id
+  listingId                 String?
+  mlsStatus                 String?
+  standardStatus            String?
+  propertyType              String?
+  propertySubType           String?
+  listPrice                 Int?
+  originalListPrice         Int?
+  closePrice                Int?
+  closeDate                 DateTime?
+  listingContractDate       DateTime?
+  statusChangeTimestamp     DateTime?
+  priceChangeTimestamp      DateTime?
+  daysOnMarket              Int?
+
+  unparsedAddress           String?
+  streetNumber              String?
+  streetName                String?
+  streetSuffix              String?
+  streetDirPrefix           String?
+  streetDirSuffix           String?
+  unitNumber                String?
+  city                      String?
+  stateOrProvince           String?
+  postalCode                String?
+  countyOrParish            String?
+  country                   String?
+
+  latitude                  Float?
+  longitude                 Float?
+  directions                String?
+  subdivisionName           String?
+  mlsAreaMajor              String?
+
+  bedroomsTotal             Int?
+  bathroomsFull             Int?
+  bathroomsTotalInteger     Int?
+  bathroomsHalf             Int?
+  bathroomsThreeQuarter     Int?
+  livingArea                Int?
+  livingAreaUnits           String?
+  lotSizeAcres              Float?
+  lotSizeSquareFeet         Float?
+
+  yearBuilt                 Int?
+  stories                   Int?
+  garageSpaces              Int?
+  coveredSpaces             Int?
+  newConstructionYN         Boolean   @default(false)
+
+  poolPrivateYN             Boolean?
+  spaYN                     Boolean?
+  waterfrontYN              Boolean?
+  fireplaceYN               Boolean?
+  seniorCommunityYN         Boolean?
+  horseYN                   Boolean?
+  garageYN                  Boolean?
+  attachedGarageYN          Boolean?
+  heatingYN                 Boolean?
+  coolingYN                 Boolean?
+
+  associationYN             Boolean?
+  associationFee            Int?
+  associationFeeFrequency   String?
+
+  publicRemarks             String?
+  virtualTourURLUnbranded   String?
+  zoning                    String?
+
+  listAgentFullName         String?
+  listAgentMlsId            String?
+  listAgentKey              String?
+  listOfficeKey             String?
+  listOfficeMlsId           String?
+  listOfficeName            String?
+
+  taxYear                   Int?
+  taxAnnualAmount           Int?
+  parcelNumber              String?
+
+  elementarySchool          String?
+  middleOrJuniorSchool      String?
+  highSchool                String?
+  highSchoolDistrict        String?
+
+  photosCount               Int?
+  photosChangeTimestamp     DateTime?
+  media                     Json?
+
+  appliances                String[]  @default([])
+  architecturalStyle        String[]  @default([])
+  basement                  String[]  @default([])
+  constructionMaterials     String[]  @default([])
+  cooling                   String[]  @default([])
+  exteriorFeatures          String[]  @default([])
+  fencing                   String[]  @default([])
+  flooring                  String[]  @default([])
+  foundationDetails         String[]  @default([])
+  greenEnergyEfficient      String[]  @default([])
+  heating                   String[]  @default([])
+  interiorFeatures          String[]  @default([])
+  laundryFeatures           String[]  @default([])
+  lotFeatures               String[]  @default([])
+  parkingFeatures           String[]  @default([])
+  patioAndPorchFeatures     String[]  @default([])
+  poolFeatures              String[]  @default([])
+  propertyCondition         String[]  @default([])
+  roof                      String[]  @default([])
+  sewer                     String[]  @default([])
+  utilities                 String[]  @default([])
+  view                      String[]  @default([])
+  waterSource               String[]  @default([])
+  windowFeatures            String[]  @default([])
+
+  mlgCanView                Boolean   @default(true)
+  modificationTimestamp     DateTime?
+  originatingSystemName     String?
+
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  @@index([mlsStatus])
+  @@index([standardStatus])
+  @@index([propertyType])
+  @@index([listPrice])
+  @@index([bedroomsTotal])
+  @@index([bathroomsTotalInteger])
+  @@index([latitude])
+  @@index([longitude])
+  @@index([city])
+  @@index([mlgCanView])
+  @@index([modificationTimestamp])
+  @@index([listingContractDate])
+}
+
+model SyncState {
+  id                        String    @id @default("mls-grid-sync")
+  lastSyncTimestamp         DateTime?
+  lastFullSyncAt            DateTime?
+  totalListings             Int       @default(0)
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+}
