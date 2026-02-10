@@ -6,7 +6,7 @@ export const maxDuration = 300
 const MLS_GRID_BASE_URL = 'https://api.mlsgrid.com/v2'
 const ORIGINATING_SYSTEM = 'ires'
 const BATCH_SIZE = 200
-const MAX_RECORDS_PER_INVOCATION = 2000
+const MAX_RECORDS_PER_INVOCATION = 1000
 
 interface MLSGridMedia {
   MediaKey: string
