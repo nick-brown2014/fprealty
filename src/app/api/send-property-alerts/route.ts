@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { prisma } from '@/lib/prisma'
-import { SavedSearch } from '@/app/types/SavedSearch'
-import { Listing } from '@/app/hooks/useMapDisplay'
+// Phase 4: Replaced with Prisma types for local database queries
+// import { SavedSearch } from '@/app/types/SavedSearch'
+// import { Listing } from '@/app/hooks/useMapDisplay'
+import type { SavedSearch as PrismaSavedSearch } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import PropertyAlertEmail from '../../../../emails/PropertyAlertEmail'
 
 interface EmailProperty {
@@ -79,25 +82,26 @@ export async function GET(request: NextRequest) {
 
         for (const savedSearch of user.savedSearches) {
           try {
-            // Convert Prisma null values to undefined to match SavedSearch type
-            const searchParams: SavedSearch = {
-              id: savedSearch.id,
-              userId: savedSearch.userId,
-              createdAt: savedSearch.createdAt,
-              updatedAt: savedSearch.updatedAt,
-              name: savedSearch.name,
-              searchQuery: savedSearch.searchQuery ?? undefined,
-              minPrice: savedSearch.minPrice ?? undefined,
-              maxPrice: savedSearch.maxPrice ?? undefined,
-              minBeds: savedSearch.minBeds ?? undefined,
-              minBaths: savedSearch.minBaths ?? undefined,
-              propertyTypes: savedSearch.propertyTypes as string[],
-              includeLand: savedSearch.includeLand,
-              statuses: savedSearch.statuses as string[],
-              bounds: savedSearch.bounds ? savedSearch.bounds as SavedSearch['bounds'] : undefined
-            }
-
-            const newProperties = await fetchNewListingsForSearch(searchParams)
+            // Phase 4: Pass Prisma SavedSearch directly to query local Listing table
+            // Previously converted to custom SavedSearch type for Bridge API:
+            // const searchParams: SavedSearch = {
+            //   id: savedSearch.id,
+            //   userId: savedSearch.userId,
+            //   createdAt: savedSearch.createdAt,
+            //   updatedAt: savedSearch.updatedAt,
+            //   name: savedSearch.name,
+            //   searchQuery: savedSearch.searchQuery ?? undefined,
+            //   minPrice: savedSearch.minPrice ?? undefined,
+            //   maxPrice: savedSearch.maxPrice ?? undefined,
+            //   minBeds: savedSearch.minBeds ?? undefined,
+            //   minBaths: savedSearch.minBaths ?? undefined,
+            //   propertyTypes: savedSearch.propertyTypes as string[],
+            //   includeLand: savedSearch.includeLand,
+            //   statuses: savedSearch.statuses as string[],
+            //   bounds: savedSearch.bounds ? savedSearch.bounds as SavedSearch['bounds'] : undefined
+            // }
+            // const newProperties = await fetchNewListingsForSearch(searchParams)
+            const newProperties = await fetchNewListingsForSearch(savedSearch)
 
             if (newProperties.length > 0) {
               searchResults.push({
@@ -163,17 +167,211 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Helper function to fetch new listings for a saved search
+// Phase 4: Query local Listing table using Prisma instead of Bridge API
+async function fetchNewListingsForSearch(savedSearch: PrismaSavedSearch): Promise<EmailProperty[]> {
+  try {
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    const startOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate())
+    const endOfYesterday = new Date(startOfYesterday)
+    endOfYesterday.setDate(endOfYesterday.getDate() + 1)
+
+    const where: Prisma.ListingWhereInput = {
+      listingContractDate: {
+        gte: startOfYesterday,
+        lt: endOfYesterday,
+      },
+    }
+
+    // Geographic bounds filter
+    if (savedSearch.bounds) {
+      const bounds = savedSearch.bounds as { north: number; south: number; east: number; west: number }
+      where.latitude = { gte: bounds.south, lte: bounds.north }
+      where.longitude = { gte: bounds.west, lte: bounds.east }
+    }
+
+    // Price filters (listPrice is BigInt in schema)
+    if (savedSearch.minPrice !== null || savedSearch.maxPrice !== null) {
+      where.listPrice = {
+        ...(savedSearch.minPrice !== null ? { gte: BigInt(savedSearch.minPrice) } : {}),
+        ...(savedSearch.maxPrice !== null ? { lte: BigInt(savedSearch.maxPrice) } : {}),
+      }
+    }
+
+    // Bedroom and bathroom filters
+    if (savedSearch.minBeds !== null) {
+      where.bedroomsTotal = { gte: savedSearch.minBeds }
+    }
+    if (savedSearch.minBaths !== null) {
+      where.bathroomsTotalInteger = { gte: savedSearch.minBaths }
+    }
+
+    // Property type filter
+    const propertyTypes = [...(savedSearch.propertyTypes || [])]
+    if (savedSearch.includeLand) {
+      propertyTypes.push('Land')
+    }
+    if (propertyTypes.length > 0) {
+      where.propertyType = { in: propertyTypes }
+    }
+
+    // Status filter
+    if (savedSearch.statuses && savedSearch.statuses.length > 0) {
+      where.standardStatus = { in: savedSearch.statuses }
+    } else {
+      where.standardStatus = 'Active'
+    }
+
+    // Square footage
+    if (savedSearch.minSqft !== null || savedSearch.maxSqft !== null) {
+      where.livingArea = {
+        ...(savedSearch.minSqft !== null ? { gte: savedSearch.minSqft } : {}),
+        ...(savedSearch.maxSqft !== null ? { lte: savedSearch.maxSqft } : {}),
+      }
+    }
+
+    // Lot size (acres)
+    if (savedSearch.minLotSize !== null || savedSearch.maxLotSize !== null) {
+      where.lotSizeAcres = {
+        ...(savedSearch.minLotSize !== null ? { gte: savedSearch.minLotSize } : {}),
+        ...(savedSearch.maxLotSize !== null ? { lte: savedSearch.maxLotSize } : {}),
+      }
+    }
+
+    // Year built
+    if (savedSearch.minYearBuilt !== null || savedSearch.maxYearBuilt !== null) {
+      where.yearBuilt = {
+        ...(savedSearch.minYearBuilt !== null ? { gte: savedSearch.minYearBuilt } : {}),
+        ...(savedSearch.maxYearBuilt !== null ? { lte: savedSearch.maxYearBuilt } : {}),
+      }
+    }
+
+    // Stories
+    if (savedSearch.minStories !== null || savedSearch.maxStories !== null) {
+      where.stories = {
+        ...(savedSearch.minStories !== null ? { gte: savedSearch.minStories } : {}),
+        ...(savedSearch.maxStories !== null ? { lte: savedSearch.maxStories } : {}),
+      }
+    }
+
+    // Garage spaces
+    if (savedSearch.minGarageSpaces !== null) {
+      where.garageSpaces = { gte: savedSearch.minGarageSpaces }
+    }
+
+    // Boolean feature filters
+    if (savedSearch.hasPool) where.poolPrivateYN = true
+    if (savedSearch.hasAC) where.coolingYN = true
+    if (savedSearch.hasBasement) where.basement = { isEmpty: false }
+    if (savedSearch.isWaterfront) where.waterfrontYN = true
+    if (savedSearch.hasFireplace) where.fireplaceYN = true
+    if (savedSearch.isSeniorCommunity) where.seniorCommunityYN = true
+    if (savedSearch.hasSpa) where.spaYN = true
+    if (savedSearch.isHorseProperty) where.horseYN = true
+    if (savedSearch.hasGarage) where.garageYN = true
+    if (savedSearch.hasAttachedGarage) where.attachedGarageYN = true
+    if (savedSearch.hasHeating) where.heatingYN = true
+
+    // HOA fee
+    if (savedSearch.maxHoaFee !== null) {
+      where.associationFee = { lte: savedSearch.maxHoaFee }
+    }
+
+    // Days on market
+    if (savedSearch.minDaysOnMarket !== null || savedSearch.maxDaysOnMarket !== null) {
+      where.daysOnMarket = {
+        ...(savedSearch.minDaysOnMarket !== null ? { gte: savedSearch.minDaysOnMarket } : {}),
+        ...(savedSearch.maxDaysOnMarket !== null ? { lte: savedSearch.maxDaysOnMarket } : {}),
+      }
+    }
+
+    // Tax amount
+    if (savedSearch.minTaxAmount !== null || savedSearch.maxTaxAmount !== null) {
+      where.taxAnnualAmount = {
+        ...(savedSearch.minTaxAmount !== null ? { gte: savedSearch.minTaxAmount } : {}),
+        ...(savedSearch.maxTaxAmount !== null ? { lte: savedSearch.maxTaxAmount } : {}),
+      }
+    }
+
+    // Covered spaces
+    if (savedSearch.minCoveredSpaces !== null) {
+      where.coveredSpaces = { gte: savedSearch.minCoveredSpaces }
+    }
+
+    // Virtual tour
+    if (savedSearch.hasVirtualTour) {
+      where.virtualTourURLUnbranded = { not: null }
+    }
+
+    // Green energy
+    if (savedSearch.isGreenEnergy) {
+      where.greenEnergyEfficient = { isEmpty: false }
+    }
+
+    // Array overlap filters
+    if (savedSearch.view.length > 0) where.view = { hasSome: savedSearch.view }
+    if (savedSearch.flooring.length > 0) where.flooring = { hasSome: savedSearch.flooring }
+    if (savedSearch.appliances.length > 0) where.appliances = { hasSome: savedSearch.appliances }
+    if (savedSearch.heatingType.length > 0) where.heating = { hasSome: savedSearch.heatingType }
+    if (savedSearch.architecturalStyle.length > 0) where.architecturalStyle = { hasSome: savedSearch.architecturalStyle }
+    if (savedSearch.fencing.length > 0) where.fencing = { hasSome: savedSearch.fencing }
+    if (savedSearch.patioFeatures.length > 0) where.patioAndPorchFeatures = { hasSome: savedSearch.patioFeatures }
+
+    // School district
+    if (savedSearch.schoolDistrict) {
+      where.highSchoolDistrict = savedSearch.schoolDistrict
+    }
+
+    const listings = await prisma.listing.findMany({
+      where,
+      take: 100,
+    })
+
+    return listings.map((listing): EmailProperty => {
+      const address = [
+        listing.streetNumber,
+        listing.streetName,
+        listing.streetSuffix,
+        listing.unitNumber ? `#${listing.unitNumber}` : ''
+      ].filter(Boolean).join(' ') || listing.unparsedAddress || `${listing.city}, ${listing.stateOrProvince}`
+
+      const media = listing.media as Array<{ MediaURL: string }> | null
+      const imageUrl = media && media.length > 0 ? media[0].MediaURL : undefined
+
+      return {
+        id: listing.listingKey,
+        address,
+        price: Number(listing.listPrice) || 0,
+        beds: listing.bedroomsTotal || 0,
+        baths: listing.bathroomsTotalInteger || 0,
+        sqft: listing.livingArea || 0,
+        imageUrl,
+        listingUrl: `${process.env.NEXTAUTH_URL}/listing/${listing.listingKey}`
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching new listings from database:', error)
+    return []
+  }
+}
+
+// =============================================================================
+// BRIDGE DATA OUTPUT API CODE (Phase 4: commented out for rollback)
+// To rollback: uncomment this function and the imports above, revert the
+// savedSearch conversion in the loop, and change the function call back.
+// =============================================================================
+/*
+import { SavedSearch } from '@/app/types/SavedSearch'
+import { Listing } from '@/app/hooks/useMapDisplay'
+
 async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<EmailProperty[]> {
   try {
-    // Build filters based on saved search criteria
     const filters: Record<string, string | number> = {
       limit: 100,
       offset: 0,
       fields: 'ListingKey,ListPrice,City,StateOrProvince,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,BedroomsTotal,BathroomsTotalInteger,LivingArea,Media,ListingContractDate'
     }
 
-    // Use bounds if available, otherwise use search query
     if (savedSearch.bounds) {
       filters['Latitude.gte'] = savedSearch.bounds.south
       filters['Latitude.lte'] = savedSearch.bounds.north
@@ -184,7 +382,6 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
       filters.radius = 4
     }
 
-    // Add price filters
     if (savedSearch.minPrice) {
       filters['ListPrice.gte'] = savedSearch.minPrice
     }
@@ -192,17 +389,14 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
       filters['ListPrice.lte'] = savedSearch.maxPrice
     }
 
-    // Add bedroom filter
     if (savedSearch.minBeds) {
       filters['BedroomsTotal.gte'] = savedSearch.minBeds
     }
 
-    // Add bathroom filter
     if (savedSearch.minBaths) {
       filters['BathroomsTotalInteger.gte'] = savedSearch.minBaths
     }
 
-    // Add property types filter
     const propertyTypes = [...(savedSearch.propertyTypes || [])]
     if (savedSearch.includeLand) {
       propertyTypes.push('Land')
@@ -211,25 +405,21 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
       filters['PropertyType.in'] = propertyTypes.join(',')
     }
 
-    // Add status filter
     if (savedSearch.statuses && savedSearch.statuses.length > 0) {
       filters['StandardStatus.in'] = savedSearch.statuses.join(',')
     } else {
       filters['StandardStatus.in'] = 'Active'
     }
 
-    // Filter for new listings with ListingContractDate from previous day
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayFormatted = yesterday.toISOString().split('T')[0] // Format: YYYY-MM-DD
+    const yesterdayFormatted = yesterday.toISOString().split('T')[0]
     filters['ListingContractDate'] = yesterdayFormatted
 
-    // Build query string for Bridge API
     const queryString = Object.entries(filters)
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
       .join('&')
 
-    // Make API call directly to Bridge Data Output API
     const apiUrl = `https://api.bridgedataoutput.com/api/v2/iresds/listings?access_token=${process.env.NEXT_PUBLIC_BROWSER_TOKEN}&${queryString}`
 
     const response = await fetch(apiUrl)
@@ -242,7 +432,6 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
     const data = await response.json()
     const listings: Listing[] = data.bundle || []
 
-    // Transform to email format
     return listings.map((listing: Listing): EmailProperty => {
       const address = [
         listing.StreetNumber,
@@ -271,3 +460,4 @@ async function fetchNewListingsForSearch(savedSearch: SavedSearch): Promise<Emai
     return []
   }
 }
+*/
