@@ -22,8 +22,29 @@ echo ""
 
 # First call
 echo "=== Iteration $ITERATION ==="
-RESPONSE=$(curl -s "$ENDPOINT?mode=full&secret=$SECRET")
+RESPONSE=$(curl -s --max-time 400 "$ENDPOINT?mode=full&secret=$SECRET")
+CURL_EXIT=$?
+
+if [ $CURL_EXIT -ne 0 ]; then
+  echo "curl failed with exit code $CURL_EXIT (28=timeout, 56=connection reset)"
+  echo "The Vercel function may still be running. Check Vercel logs."
+  exit 1
+fi
+
+if [ -z "$RESPONSE" ]; then
+  echo "Empty response received. The function likely timed out."
+  exit 1
+fi
+
 echo "$RESPONSE" | jq .
+
+# Check for errors
+ERROR=$(echo "$RESPONSE" | jq -r '.error // empty')
+if [ -n "$ERROR" ]; then
+  echo "Error: $ERROR"
+  echo "Details: $(echo "$RESPONSE" | jq -r '.details // empty')"
+  exit 1
+fi
 
 HAS_MORE=$(echo "$RESPONSE" | jq -r '.hasMoreData // false')
 PROCESSED=$(echo "$RESPONSE" | jq -r '.processed // 0')
@@ -39,7 +60,20 @@ while [ "$HAS_MORE" = "true" ]; do
   # Small delay between calls
   sleep 2
   
-  RESPONSE=$(curl -s "$ENDPOINT?mode=full&secret=$SECRET")
+  RESPONSE=$(curl -s --max-time 400 "$ENDPOINT?mode=full&secret=$SECRET")
+  CURL_EXIT=$?
+
+  if [ $CURL_EXIT -ne 0 ]; then
+    echo "curl failed with exit code $CURL_EXIT (28=timeout, 56=connection reset)"
+    echo "The Vercel function may still be running. Check Vercel logs."
+    exit 1
+  fi
+
+  if [ -z "$RESPONSE" ]; then
+    echo "Empty response received. The function likely timed out."
+    exit 1
+  fi
+
   echo "$RESPONSE" | jq .
   
   # Check for errors
