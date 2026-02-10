@@ -138,6 +138,13 @@ function parseDate(dateStr: string | undefined): Date | null {
   return isNaN(date.getTime()) ? null : date
 }
 
+const INT4_MAX = 2147483647
+function safeInt(val: number | undefined): number | null {
+  if (val === undefined || val === null) return null
+  if (val > INT4_MAX || val < -INT4_MAX) return null
+  return val
+}
+
 function transformPropertyToListing(property: MLSGridProperty) {
   return {
     listingKey: property.ListingKey,
@@ -153,7 +160,7 @@ function transformPropertyToListing(property: MLSGridProperty) {
     listingContractDate: parseDate(property.ListingContractDate),
     statusChangeTimestamp: parseDate(property.StatusChangeTimestamp),
     priceChangeTimestamp: parseDate(property.PriceChangeTimestamp),
-    daysOnMarket: property.DaysOnMarket || null,
+    daysOnMarket: safeInt(property.DaysOnMarket),
     unparsedAddress: property.UnparsedAddress || null,
     streetNumber: property.StreetNumber || null,
     streetName: property.StreetName || null,
@@ -171,19 +178,19 @@ function transformPropertyToListing(property: MLSGridProperty) {
     directions: property.Directions || null,
     subdivisionName: property.SubdivisionName || null,
     mlsAreaMajor: property.MLSAreaMajor || null,
-    bedroomsTotal: property.BedroomsTotal || null,
-    bathroomsFull: property.BathroomsFull || null,
-    bathroomsTotalInteger: property.BathroomsTotalInteger || null,
-    bathroomsHalf: property.BathroomsHalf || null,
-    bathroomsThreeQuarter: property.BathroomsThreeQuarter || null,
-    livingArea: property.LivingArea || null,
+    bedroomsTotal: safeInt(property.BedroomsTotal),
+    bathroomsFull: safeInt(property.BathroomsFull),
+    bathroomsTotalInteger: safeInt(property.BathroomsTotalInteger),
+    bathroomsHalf: safeInt(property.BathroomsHalf),
+    bathroomsThreeQuarter: safeInt(property.BathroomsThreeQuarter),
+    livingArea: safeInt(property.LivingArea),
     livingAreaUnits: property.LivingAreaUnits || null,
     lotSizeAcres: property.LotSizeAcres || null,
     lotSizeSquareFeet: property.LotSizeSquareFeet || null,
-    yearBuilt: property.YearBuilt || null,
-    stories: property.Stories || null,
-    garageSpaces: property.GarageSpaces || null,
-    coveredSpaces: property.CoveredSpaces || null,
+    yearBuilt: safeInt(property.YearBuilt),
+    stories: safeInt(property.Stories),
+    garageSpaces: safeInt(property.GarageSpaces),
+    coveredSpaces: safeInt(property.CoveredSpaces),
     newConstructionYN: property.NewConstructionYN ?? false,
     poolPrivateYN: property.PoolPrivateYN ?? null,
     spaYN: property.SpaYN ?? null,
@@ -196,7 +203,7 @@ function transformPropertyToListing(property: MLSGridProperty) {
     heatingYN: property.HeatingYN ?? null,
     coolingYN: property.CoolingYN ?? null,
     associationYN: property.AssociationYN ?? null,
-    associationFee: property.AssociationFee || null,
+    associationFee: safeInt(property.AssociationFee),
     associationFeeFrequency: property.AssociationFeeFrequency || null,
     publicRemarks: property.PublicRemarks || null,
     virtualTourURLUnbranded: property.VirtualTourURLUnbranded || null,
@@ -207,14 +214,14 @@ function transformPropertyToListing(property: MLSGridProperty) {
     listOfficeKey: property.ListOfficeKey || null,
     listOfficeMlsId: property.ListOfficeMlsId || null,
     listOfficeName: property.ListOfficeName || null,
-    taxYear: property.TaxYear || null,
-    taxAnnualAmount: property.TaxAnnualAmount || null,
+    taxYear: safeInt(property.TaxYear),
+    taxAnnualAmount: safeInt(property.TaxAnnualAmount),
     parcelNumber: property.ParcelNumber || null,
     elementarySchool: property.ElementarySchool || null,
     middleOrJuniorSchool: property.MiddleOrJuniorSchool || null,
     highSchool: property.HighSchool || null,
     highSchoolDistrict: property.HighSchoolDistrict || null,
-    photosCount: property.PhotosCount || null,
+    photosCount: safeInt(property.PhotosCount),
     photosChangeTimestamp: parseDate(property.PhotosChangeTimestamp),
     media: property.Media ? transformMedia(property.Media) : undefined,
     appliances: property.Appliances || [],
