@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 import { apiGet } from "../server/api"
 
-const listingsListFields = 'ListingKey,ListPrice,OriginalListPrice,ClosePrice,CloseDate,City,StateOrProvince,PostalCode,CountyOrParish,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,PropertyType,PropertySubType,BedroomsTotal,BathroomsFull,BathroomsTotalInteger,LivingArea,LivingAreaUnits,PhotosCount,Media,MlsStatus,DaysOnMarket,Latitude,Longitude,ListAgentFullName,LotSizeAcres'
+// Bridge API field selection string (no longer needed - Prisma returns selected fields from API route)
+// const listingsListFields = 'ListingKey,ListPrice,OriginalListPrice,ClosePrice,CloseDate,City,StateOrProvince,PostalCode,CountyOrParish,UnparsedAddress,StreetNumber,StreetName,StreetSuffix,UnitNumber,PropertyType,PropertySubType,BedroomsTotal,BathroomsFull,BathroomsTotalInteger,LivingArea,LivingAreaUnits,PhotosCount,Media,MlsStatus,DaysOnMarket,Latitude,Longitude,ListAgentFullName,LotSizeAcres'
 
-interface ListingsResponse extends Response {
+interface ListingsResponse {
   total: number
   success: boolean
   bundle: Listing[]
@@ -105,9 +106,6 @@ export type SearchFilters = {
 type Filters = {
   limit: number
   offset: number
-  fields: string
-  near?: string
-  radius?:number
   'Latitude.gte'?: number
   'Latitude.lte'?: number
   'Longitude.gte'?: number
@@ -161,12 +159,17 @@ type Filters = {
   'HighSchoolDistrict'?: string
 }
 
-const defaultFilters = {
+const FORT_COLLINS_BOUNDS = {
+  'Latitude.gte': 40.35,
+  'Latitude.lte': 40.75,
+  'Longitude.gte': -105.30,
+  'Longitude.lte': -104.80,
+}
+
+const defaultFilters: Filters = {
   limit: 100,
   offset: 0,
-  fields: listingsListFields,
-  near: 'Fort Collins',
-  radius: 4
+  ...FORT_COLLINS_BOUNDS,
 }
 
 const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
@@ -186,10 +189,9 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
       const favoritesFilters: Filters = {
         limit: 100,
         offset: 0,
-        fields: listingsListFields,
         'ListingKey.in': searchFilters.listingIds.join(',')
       }
-      setFilters(favoritesFilters as Filters)
+      setFilters(favoritesFilters)
       return
     }
 
@@ -198,10 +200,9 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
       const mlsFilters: Filters = {
         limit: 100,
         offset: 0,
-        fields: listingsListFields,
         'ListingId': searchFilters.mlsNumber.trim()
       }
-      setFilters(mlsFilters as Filters)
+      setFilters(mlsFilters)
       return
     }
 
@@ -223,12 +224,15 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
       newFilters['Longitude.gte'] = sw.lng() + lngPadding
       newFilters['Longitude.lte'] = ne.lng() - lngPadding
 
-      // Remove 'near' when using bounds
-      delete newFilters.near
-      delete newFilters.radius
-    } else if (searchFilters?.searchQuery) {
-      newFilters.near = searchFilters.searchQuery
-      newFilters.radius = 4
+      delete newFilters['Latitude.gte']
+      delete newFilters['Latitude.lte']
+      delete newFilters['Longitude.gte']
+      delete newFilters['Longitude.lte']
+
+      newFilters['Latitude.gte'] = sw.lat() + latPadding
+      newFilters['Latitude.lte'] = ne.lat() - latPadding
+      newFilters['Longitude.gte'] = sw.lng() + lngPadding
+      newFilters['Longitude.lte'] = ne.lng() - lngPadding
     }
 
     // Add price filters
@@ -432,7 +436,7 @@ const useMapDisplay = (searchFilters?: SearchFilters, userId?: string) => {
 
   const fetchListings = async () => {
     setLoading(true)
-    const listingsRes: ListingsResponse = await apiGet('/listings', filters)
+    const listingsRes: ListingsResponse = await apiGet('/listings', filters as Record<string, string | number | boolean>)
 
     // Add streetAddress field to each listing
     const listingsWithStreetAddress = listingsRes.bundle.map(listing => ({
