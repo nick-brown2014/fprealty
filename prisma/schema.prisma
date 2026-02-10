@@ -136,9 +136,9 @@ model Listing {
   standardStatus            String?
   propertyType              String?
   propertySubType           String?
-  listPrice                 Int?
-  originalListPrice         Int?
-  closePrice                Int?
+  listPrice                 BigInt?
+  originalListPrice         BigInt?
+  closePrice                BigInt?
   closeDate                 DateTime?
   listingContractDate       DateTime?
   statusChangeTimestamp     DateTime?
