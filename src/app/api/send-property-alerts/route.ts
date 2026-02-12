@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma'
 import type { SavedSearch as PrismaSavedSearch } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import PropertyAlertEmail from '../../../../emails/PropertyAlertEmail'
+import { rewriteMediaUrl, isMediaCached } from '@/lib/media'
 
 interface EmailProperty {
   id: string
@@ -215,11 +216,11 @@ async function fetchNewListingsForSearch(savedSearch: PrismaSavedSearch): Promis
       where.propertyType = { in: propertyTypes }
     }
 
-    // Status filter
+    // Status filter (frontend saves mlsStatus values like Active, Pending, Sold)
     if (savedSearch.statuses && savedSearch.statuses.length > 0) {
-      where.standardStatus = { in: savedSearch.statuses }
+      where.mlsStatus = { in: savedSearch.statuses }
     } else {
-      where.standardStatus = 'Active'
+      where.mlsStatus = 'Active'
     }
 
     // Square footage
@@ -336,7 +337,17 @@ async function fetchNewListingsForSearch(savedSearch: PrismaSavedSearch): Promis
       ].filter(Boolean).join(' ') || listing.unparsedAddress || `${listing.city}, ${listing.stateOrProvince}`
 
       const media = listing.media as Array<{ MediaURL: string }> | null
-      const imageUrl = media && media.length > 0 ? media[0].MediaURL : undefined
+      const baseUrl = process.env.NEXTAUTH_URL || 'https://nocorealtor.com'
+      let imageUrl: string | undefined
+      if (media && media.length > 0) {
+        const url = media[0].MediaURL
+        if (isMediaCached(url)) {
+          imageUrl = url
+        } else {
+          // Use absolute proxy URL for emails
+          imageUrl = `${baseUrl}/api/media/${listing.listingKey}?index=0`
+        }
+      }
 
       return {
         id: listing.listingKey,

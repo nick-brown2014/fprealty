@@ -32,21 +32,9 @@ export async function GET(request: NextRequest) {
 // POST - Create a new saved search
 export async function POST(request: NextRequest) {
   try {
-    const {
-      userId,
-      name,
-      searchQuery,
-      minPrice,
-      maxPrice,
-      minBeds,
-      minBaths,
-      propertyTypes,
-      includeLand,
-      statuses,
-      bounds
-    } = await request.json()
+    const body = await request.json()
 
-    if (!userId || !name) {
+    if (!body.userId || !body.name) {
       return NextResponse.json(
         { error: 'User ID and name are required' },
         { status: 400 }
@@ -55,17 +43,53 @@ export async function POST(request: NextRequest) {
 
     const savedSearch = await prisma.savedSearch.create({
       data: {
-        userId,
-        name,
-        searchQuery: searchQuery || null,
-        minPrice: minPrice || null,
-        maxPrice: maxPrice || null,
-        minBeds: minBeds || null,
-        minBaths: minBaths || null,
-        propertyTypes: propertyTypes || [],
-        includeLand: includeLand || false,
-        statuses: statuses || [],
-        bounds: bounds || null
+        userId: body.userId,
+        name: body.name,
+        searchQuery: body.searchQuery || null,
+        minPrice: body.minPrice ?? null,
+        maxPrice: body.maxPrice ?? null,
+        minBeds: body.minBeds ?? null,
+        minBaths: body.minBaths ?? null,
+        propertyTypes: body.propertyTypes || [],
+        includeLand: body.includeLand || false,
+        statuses: body.statuses || [],
+        bounds: body.bounds || null,
+        minSqft: body.minSqft ?? null,
+        maxSqft: body.maxSqft ?? null,
+        minLotSize: body.minLotSize ?? null,
+        maxLotSize: body.maxLotSize ?? null,
+        minYearBuilt: body.minYearBuilt ?? null,
+        maxYearBuilt: body.maxYearBuilt ?? null,
+        minStories: body.minStories ?? null,
+        maxStories: body.maxStories ?? null,
+        minGarageSpaces: body.minGarageSpaces ?? null,
+        hasPool: body.hasPool || false,
+        hasAC: body.hasAC || false,
+        hasBasement: body.hasBasement || false,
+        isWaterfront: body.isWaterfront || false,
+        hasFireplace: body.hasFireplace || false,
+        isSeniorCommunity: body.isSeniorCommunity || false,
+        maxHoaFee: body.maxHoaFee ?? null,
+        hasSpa: body.hasSpa || false,
+        isHorseProperty: body.isHorseProperty || false,
+        hasGarage: body.hasGarage || false,
+        hasAttachedGarage: body.hasAttachedGarage || false,
+        hasHeating: body.hasHeating || false,
+        minDaysOnMarket: body.minDaysOnMarket ?? null,
+        maxDaysOnMarket: body.maxDaysOnMarket ?? null,
+        minTaxAmount: body.minTaxAmount ?? null,
+        maxTaxAmount: body.maxTaxAmount ?? null,
+        minCoveredSpaces: body.minCoveredSpaces ?? null,
+        hasVirtualTour: body.hasVirtualTour || false,
+        isGreenEnergy: body.isGreenEnergy || false,
+        view: body.view || [],
+        flooring: body.flooring || [],
+        appliances: body.appliances || [],
+        heatingType: body.heatingType || [],
+        architecturalStyle: body.architecturalStyle || [],
+        fencing: body.fencing || [],
+        patioFeatures: body.patioFeatures || [],
+        schoolDistrict: body.schoolDistrict || null,
       }
     })
 
