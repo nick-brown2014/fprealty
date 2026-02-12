@@ -1,7 +1,6 @@
 'use client'
 
 import { use, useState } from 'react'
-import Image from 'next/image'
 import useListing from '@/app/hooks/useListing'
 import Footer from '@/app/components/Footer'
 import Slideshow from '@/app/components/Slideshow'
@@ -55,12 +54,10 @@ const ListingPage = ({ params }: ListingPageProps) => {
               <div className='grid grid-cols-1 md:grid-cols-2 gap-2 h-[350px] overflow-hidden rounded-4xl'>
                 {/* Large image on the left */}
                 <div className='relative h-full bg-gray-200' onClick={() => openSlideshow(0)}>
-                  <Image
+                  <img
                     src={listing.Media[0].MediaURL}
                     alt={`${listing.streetAddress} property`}
-                    fill
-                    className='object-cover cursor-pointer hover:opacity-90'
-                    priority
+                    className='object-cover w-full h-full absolute inset-0 cursor-pointer hover:opacity-90'
                   />
                 </div>
 
@@ -72,11 +69,11 @@ const ListingPage = ({ params }: ListingPageProps) => {
                       className='relative bg-gray-200'
                       onClick={() => openSlideshow(index + 1)}
                     >
-                      <Image
+                      <img
                         src={media.MediaURL}
                         alt={`${listing.streetAddress} property ${index + 2}`}
-                        fill
-                        className='object-cover cursor-pointer hover:opacity-90'
+                        className='object-cover w-full h-full absolute inset-0 cursor-pointer hover:opacity-90'
+                        loading='lazy'
                       />
                     </div>
                   ))}
@@ -293,7 +290,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
             </div>
 
             {/* Interior Features */}
-            {(listing.Appliances?.length || listing.InteriorFeatures?.length || listing.Flooring?.length) && (
+            {(listing.Appliances?.length || listing.InteriorFeatures?.length || listing.Flooring?.length) ? (
               <div className='bg-white rounded-lg shadow-md p-6'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-4'>Interior Features</h2>
                 <div className='space-y-4'>
@@ -317,10 +314,10 @@ const ListingPage = ({ params }: ListingPageProps) => {
                   )}
                 </div>
               </div>
-            )}
+            ) : <></>}
 
             {/* Exterior Features */}
-            {(listing.ExteriorFeatures?.length || listing.LotFeatures?.length) && (
+            {(listing.ExteriorFeatures?.length || listing.LotFeatures?.length) ? (
               <div className='bg-white rounded-lg shadow-md p-6'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-4'>Exterior Features</h2>
                 <div className='space-y-4'>
@@ -338,10 +335,10 @@ const ListingPage = ({ params }: ListingPageProps) => {
                   )}
                 </div>
               </div>
-            )}
+            ) : <></>}
 
             {/* Utilities */}
-            {(listing.Heating?.length || listing.Cooling?.length || listing.WaterSource?.length || listing.Sewer?.length) && (
+            {(listing.Heating?.length || listing.Cooling?.length || listing.WaterSource?.length || listing.Sewer?.length) ? (
               <div className='bg-white rounded-lg shadow-md p-6'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-4'>Utilities</h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -371,7 +368,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
                   )}
                 </div>
               </div>
-            )}
+            ) : <></>}
 
             {/* Agent Information */}
             {listing.ListAgentFullName && (

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
 import { Media } from '../hooks/useMapDisplay'
 
 type SlideshowProps = {
@@ -98,11 +97,10 @@ const Slideshow = ({ media, isOpen, initialIndex = 0, onClose }: SlideshowProps)
       {/* Current Image */}
       <div className='relative w-full h-full flex items-center justify-center p-16'>
         <div className='relative w-full h-full'>
-          <Image
+          <img
             src={media[currentImageIndex].MediaURL}
             alt={`Property image ${currentImageIndex + 1}`}
-            fill
-            className='object-contain'
+            className='object-contain w-full h-full absolute inset-0'
           />
         </div>
       </div>

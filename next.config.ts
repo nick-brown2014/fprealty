@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'p.iresis.com',
             },
+            {
+                protocol: 'https',
+                hostname: 'media.mlsgrid.com',
+            },
         ],
     },
 };

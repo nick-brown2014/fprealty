@@ -1,7 +1,6 @@
 'use client'
 
 import { use, useState } from 'react'
-import Image from 'next/image'
 import useListing from '@/app/hooks/useListing'
 import Footer from '@/app/components/Footer'
 import Slideshow from '@/app/components/Slideshow'
@@ -63,11 +62,11 @@ const GalleryPage = ({ params }: GalleryPageProps) => {
                 className='relative w-full h-64 bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity'
                 onClick={() => openSlideshow(index)}
               >
-                <Image
+                <img
                   src={media.MediaURL}
                   alt={`${listing.streetAddress} property ${index + 1}`}
-                  fill
-                  className='object-cover'
+                  className='object-cover w-full h-full absolute inset-0'
+                  loading='lazy'
                 />
               </div>
             ))}
