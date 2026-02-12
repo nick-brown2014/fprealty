@@ -1,12 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/send-property-alerts",
-      "schedule": "0 15 * * *"
-    },
-    {
       "path": "/api/sync-listings?mode=incremental",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 15 * * *"
     }
   ]
 }

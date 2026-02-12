@@ -462,6 +462,8 @@ export async function GET(request: NextRequest) {
 
         console.log(`Full sync complete: ${totalProcessed} records processed this invocation`)
 
+        await triggerPropertyAlerts(request)
+
         return NextResponse.json({
           success: true,
           mode: 'full',
@@ -485,6 +487,8 @@ export async function GET(request: NextRequest) {
 
       console.log(`Incremental sync complete: ${totalProcessed} processed, ${totalUpserted} upserted, ${totalDeleted} deleted`)
 
+      await triggerPropertyAlerts(request)
+
       return NextResponse.json({
         success: true,
         mode: 'incremental',
@@ -501,5 +505,30 @@ export async function GET(request: NextRequest) {
       { error: 'Sync failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
+  }
+}
+
+async function triggerPropertyAlerts(request: NextRequest) {
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL || `${request.nextUrl.protocol}//${request.nextUrl.host}`
+    const alertsUrl = `${baseUrl}/api/send-property-alerts`
+
+    console.log(`Triggering property alerts at ${alertsUrl}...`)
+
+    const response = await fetch(alertsUrl, {
+      headers: {
+        'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+      },
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+      console.log('Property alerts triggered successfully:', result)
+    } else {
+      console.error('Property alerts call returned error:', response.status, result)
+    }
+  } catch (error) {
+    console.error('Failed to trigger property alerts (non-fatal):', error)
   }
 }
