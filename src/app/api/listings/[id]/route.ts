@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Listing as PrismaListing } from '@prisma/client'
+import { rewriteMediaUrls } from '@/lib/media'
 
 function transformListingToDetailedListing(listing: PrismaListing) {
   const media = listing.media as Array<{ MediaURL: string; MediaObjectID: string; Order: number; MimeType: string; ShortDescription?: string }> | null
@@ -53,7 +54,7 @@ function transformListingToDetailedListing(listing: PrismaListing) {
     SubdivisionName: listing.subdivisionName ?? undefined,
 
     PhotosCount: listing.photosCount ?? 0,
-    Media: media ?? undefined,
+    Media: rewriteMediaUrls(listing.listingKey, media),
     PhotosChangeTimestamp: listing.photosChangeTimestamp?.toISOString(),
     VirtualTourURLUnbranded: listing.virtualTourURLUnbranded ?? null,
 

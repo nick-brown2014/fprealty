@@ -3,7 +3,6 @@
 import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from '@vis.gl/react-google-maps'
 import { useState } from 'react'
 import { Listing } from '@/app/hooks/useMapDisplay'
-import Image from 'next/image'
 
 type ListingMarkerProps = {
   listing: Listing
@@ -60,11 +59,11 @@ const ListingMarker = ({ listing }: ListingMarkerProps) => {
           <div className="w-56 cursor-pointer" onClick={handleMarkerClick}>
             <div className="relative w-full h-32 bg-gray-200">
               {getPhotoUrl() ? (
-                <Image
+                <img
                   src={getPhotoUrl()!}
                   alt={`${listing.streetAddress} property`}
-                  fill
-                  className="object-cover"
+                  className="object-cover w-full h-full absolute inset-0"
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">

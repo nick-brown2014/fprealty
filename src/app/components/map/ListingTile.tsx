@@ -1,5 +1,4 @@
 import { Listing } from "@/app/hooks/useMapDisplay"
-import Image from "next/image"
 import FavoriteButton from "../FavoriteButton"
 
 const ListingTile = ({ listing }: { listing: Listing }) => {
@@ -42,11 +41,11 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
       <div className='relative w-full h-64 bg-gray-200'>
         <FavoriteButton listingId={listing.ListingKey} />
         {getPhotoUrl() ? (
-          <Image
+          <img
             src={getPhotoUrl()!}
             alt={`${listing.streetAddress} property`}
-            fill
-            className='object-cover'
+            className='object-cover w-full h-full absolute inset-0'
+            loading='lazy'
           />
         ) : (
           <div className='w-full h-full flex items-center justify-center text-gray-400 text-sm'>

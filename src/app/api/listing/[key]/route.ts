@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
+import { rewriteMediaUrls } from '@/lib/media'
 
 interface MediaItem {
   MediaURL: string
@@ -10,7 +11,7 @@ interface MediaItem {
   ShortDescription?: string
 }
 
-function bigIntToNumber(val: bigint | null): number | null {
+function bigIntToNumber(val: bigint | number | null): number | null {
   if (val === null || val === undefined) return null
   return Number(val)
 }
@@ -59,7 +60,7 @@ function transformDetailedListing(listing: Prisma.ListingGetPayload<object>) {
     MLSAreaMajor: listing.mlsAreaMajor,
     PhotosCount: listing.photosCount ?? 0,
     PhotosChangeTimestamp: listing.photosChangeTimestamp?.toISOString() ?? null,
-    Media: media ?? undefined,
+    Media: rewriteMediaUrls(listing.listingKey, media),
     VirtualTourURLUnbranded: listing.virtualTourURLUnbranded,
     YearBuilt: listing.yearBuilt,
     Stories: listing.stories,
