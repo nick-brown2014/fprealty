@@ -20,7 +20,7 @@ interface EmailProperty {
   listingUrl: string
 }
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Verify the request is authorized (from Vercel Cron or with proper secret)
     const authHeader = request.headers.get('authorization')
@@ -34,6 +34,20 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Parse the new listing keys from the sync route
+    const body = await request.json()
+    const newListingKeys: string[] = body.newListingKeys || []
+
+    if (newListingKeys.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'No new listings to alert on',
+        emailsSent: 0,
+      })
+    }
+
+    console.log(`Processing alerts for ${newListingKeys.length} new listings`)
+
     // Initialize Resend with API key
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
@@ -44,7 +58,6 @@ export async function GET(request: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     // Get all users who have opted in to emails
-    // For testing: only send to nick.brown2014@gmail.com
     const testMode = request.nextUrl.searchParams.get('test') === 'true'
     const optedInUsers = await prisma.user.findMany({
       where: {
@@ -102,7 +115,7 @@ export async function GET(request: NextRequest) {
             //   bounds: savedSearch.bounds ? savedSearch.bounds as SavedSearch['bounds'] : undefined
             // }
             // const newProperties = await fetchNewListingsForSearch(searchParams)
-            const newProperties = await fetchNewListingsForSearch(savedSearch)
+            const newProperties = await fetchNewListingsForSearch(savedSearch, newListingKeys)
 
             if (newProperties.length > 0) {
               searchResults.push({
@@ -168,20 +181,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Phase 4: Query local Listing table using Prisma instead of Bridge API
-async function fetchNewListingsForSearch(savedSearch: PrismaSavedSearch): Promise<EmailProperty[]> {
+// Query local Listing table for new listings that match a saved search
+async function fetchNewListingsForSearch(savedSearch: PrismaSavedSearch, newListingKeys: string[]): Promise<EmailProperty[]> {
   try {
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const startOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate())
-    const endOfYesterday = new Date(startOfYesterday)
-    endOfYesterday.setDate(endOfYesterday.getDate() + 1)
-
     const where: Prisma.ListingWhereInput = {
-      listingContractDate: {
-        gte: startOfYesterday,
-        lt: endOfYesterday,
-      },
+      // Only consider listings that were just synced as new
+      listingKey: { in: newListingKeys },
     }
 
     // Geographic bounds filter

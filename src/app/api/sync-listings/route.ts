@@ -6,7 +6,7 @@ export const maxDuration = 300
 const MLS_GRID_BASE_URL = 'https://api.mlsgrid.com/v2'
 const ORIGINATING_SYSTEM = 'ires'
 const BATCH_SIZE = 200
-const MAX_RECORDS_PER_INVOCATION = 1000
+const MAX_RECORDS_PER_INVOCATION = 2000
 
 interface MLSGridMedia {
   MediaKey: string
@@ -351,6 +351,7 @@ export async function GET(request: NextRequest) {
     let totalDeleted = 0
     let latestTimestamp: Date | null = null
     let hasMoreData = false
+    const newListingKeys: string[] = []
 
     while (url && totalProcessed < MAX_RECORDS_PER_INVOCATION) {
       console.log(`Fetching batch from: ${url}`)
@@ -393,6 +394,19 @@ export async function GET(request: NextRequest) {
       }
 
       if (toUpsert.length > 0) {
+        // Check which listings already exist to identify truly new ones
+        const upsertKeys = toUpsert.map(l => l.listingKey)
+        const existingListings = await prisma.listing.findMany({
+          where: { listingKey: { in: upsertKeys } },
+          select: { listingKey: true },
+        })
+        const existingKeys = new Set(existingListings.map(l => l.listingKey))
+        for (const key of upsertKeys) {
+          if (!existingKeys.has(key)) {
+            newListingKeys.push(key)
+          }
+        }
+
         const upsertOperations = toUpsert.map(listingData =>
           prisma.listing.upsert({
             where: { listingKey: listingData.listingKey },
@@ -462,6 +476,8 @@ export async function GET(request: NextRequest) {
 
         console.log(`Full sync complete: ${totalProcessed} records processed this invocation`)
 
+        await triggerPropertyAlerts(request, newListingKeys)
+
         return NextResponse.json({
           success: true,
           mode: 'full',
@@ -485,6 +501,8 @@ export async function GET(request: NextRequest) {
 
       console.log(`Incremental sync complete: ${totalProcessed} processed, ${totalUpserted} upserted, ${totalDeleted} deleted`)
 
+      await triggerPropertyAlerts(request, newListingKeys)
+
       return NextResponse.json({
         success: true,
         mode: 'incremental',
@@ -501,5 +519,38 @@ export async function GET(request: NextRequest) {
       { error: 'Sync failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
+  }
+}
+
+async function triggerPropertyAlerts(request: NextRequest, newListingKeys: string[]) {
+  if (newListingKeys.length === 0) {
+    console.log('No new listings found, skipping property alerts')
+    return
+  }
+
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL || `${request.nextUrl.protocol}//${request.nextUrl.host}`
+    const alertsUrl = `${baseUrl}/api/send-property-alerts`
+
+    console.log(`Triggering property alerts for ${newListingKeys.length} new listings at ${alertsUrl}...`)
+
+    const response = await fetch(alertsUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newListingKeys }),
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+      console.log('Property alerts triggered successfully:', result)
+    } else {
+      console.error('Property alerts call returned error:', response.status, result)
+    }
+  } catch (error) {
+    console.error('Failed to trigger property alerts (non-fatal):', error)
   }
 }
