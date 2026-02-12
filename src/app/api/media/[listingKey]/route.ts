@@ -20,11 +20,22 @@ interface MLSGridResponse {
 }
 
 // Fetch fresh media URLs from MLS Grid for a given listing
+// MLS Grid only allows filtering by ListingId, not ListingKey, so we look up the ListingId first
 async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[]> {
   const token = process.env.MLS_GRID_ACCESS_TOKEN
   if (!token) throw new Error('MLS_GRID_ACCESS_TOKEN not configured')
 
-  const filter = `ListingKey eq '${listingKey}'`
+  // Look up the ListingId from our DB since MLS Grid API can't filter by ListingKey
+  const listing = await prisma.listing.findUnique({
+    where: { listingKey },
+    select: { listingId: true },
+  })
+
+  if (!listing?.listingId) {
+    throw new Error(`No listingId found for listingKey: ${listingKey}`)
+  }
+
+  const filter = `OriginatingSystemName eq 'ires' and ListingId eq '${listing.listingId}'`
   const url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(filter)}&$expand=Media&$top=1`
 
   const response = await fetch(url, {
@@ -35,7 +46,8 @@ async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[]> {
   })
 
   if (!response.ok) {
-    throw new Error(`MLS Grid API error: ${response.status}`)
+    const errorText = await response.text()
+    throw new Error(`MLS Grid API error: ${response.status} - ${errorText}`)
   }
 
   const data: MLSGridResponse = await response.json()

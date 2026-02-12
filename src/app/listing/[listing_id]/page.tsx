@@ -290,7 +290,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
             </div>
 
             {/* Interior Features */}
-            {(listing.Appliances?.length || listing.InteriorFeatures?.length || listing.Flooring?.length) && (
+            {(listing.Appliances?.length || listing.InteriorFeatures?.length || listing.Flooring?.length) ? (
               <div className='bg-white rounded-lg shadow-md p-6'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-4'>Interior Features</h2>
                 <div className='space-y-4'>
@@ -314,10 +314,10 @@ const ListingPage = ({ params }: ListingPageProps) => {
                   )}
                 </div>
               </div>
-            )}
+            ) : <></>}
 
             {/* Exterior Features */}
-            {(listing.ExteriorFeatures?.length || listing.LotFeatures?.length) && (
+            {(listing.ExteriorFeatures?.length || listing.LotFeatures?.length) ? (
               <div className='bg-white rounded-lg shadow-md p-6'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-4'>Exterior Features</h2>
                 <div className='space-y-4'>
@@ -335,10 +335,10 @@ const ListingPage = ({ params }: ListingPageProps) => {
                   )}
                 </div>
               </div>
-            )}
+            ) : <></>}
 
             {/* Utilities */}
-            {(listing.Heating?.length || listing.Cooling?.length || listing.WaterSource?.length || listing.Sewer?.length) && (
+            {(listing.Heating?.length || listing.Cooling?.length || listing.WaterSource?.length || listing.Sewer?.length) ? (
               <div className='bg-white rounded-lg shadow-md p-6'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-4'>Utilities</h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -368,7 +368,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
                   )}
                 </div>
               </div>
-            )}
+            ) : <></>}
 
             {/* Agent Information */}
             {listing.ListAgentFullName && (
