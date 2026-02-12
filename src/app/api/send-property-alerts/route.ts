@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma'
 import type { SavedSearch as PrismaSavedSearch } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 import PropertyAlertEmail from '../../../../emails/PropertyAlertEmail'
-import { rewriteMediaUrl, isMediaCached } from '@/lib/media'
+import { isMediaCached } from '@/lib/media'
 
 interface EmailProperty {
   id: string
