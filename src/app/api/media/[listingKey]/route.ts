@@ -19,41 +19,71 @@ interface MLSGridResponse {
   }>
 }
 
-// Fetch fresh media URLs from MLS Grid for a given listing
-// MLS Grid only allows filtering by ListingId, not ListingKey, so we look up the ListingId first
-async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[]> {
-  const token = process.env.MLS_GRID_ACCESS_TOKEN
-  if (!token) throw new Error('MLS_GRID_ACCESS_TOKEN not configured')
+// In-flight request coalescing: prevents duplicate MLS Grid API calls
+// for the same listing when multiple images load concurrently
+const inFlightRequests = new Map<string, Promise<MLSGridMedia[]>>()
 
-  // Look up the ListingId from our DB since MLS Grid API can't filter by ListingKey
+// Get media URLs from the local DB (stored during sync)
+// This avoids calling the MLS Grid API entirely in most cases
+async function getMediaFromDB(listingKey: string): Promise<MLSGridMedia[]> {
   const listing = await prisma.listing.findUnique({
     where: { listingKey },
-    select: { listingId: true },
+    select: { media: true },
   })
 
-  if (!listing?.listingId) {
-    throw new Error(`No listingId found for listingKey: ${listingKey}`)
-  }
+  if (!listing?.media) return []
 
-  const filter = `OriginatingSystemName eq 'ires' and ListingId eq '${listing.listingId}'`
-  const url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(filter)}&$expand=Media&$top=1`
+  const media = listing.media as Array<{ MediaKey: string; MediaURL: string; Order: number; LongDescription?: string }>
+  return media
+}
 
-  const response = await fetch(url, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept-Encoding': 'gzip',
-    },
-  })
+// Fetch fresh media URLs from MLS Grid API — only used as a fallback
+// when DB URLs have expired. Uses request coalescing to avoid duplicate calls.
+async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[]> {
+  // Check if there's already an in-flight request for this listing
+  const existing = inFlightRequests.get(listingKey)
+  if (existing) return existing
 
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`MLS Grid API error: ${response.status} - ${errorText}`)
-  }
+  const promise = (async () => {
+    try {
+      const token = process.env.MLS_GRID_ACCESS_TOKEN
+      if (!token) throw new Error('MLS_GRID_ACCESS_TOKEN not configured')
 
-  const data: MLSGridResponse = await response.json()
-  if (!data.value || data.value.length === 0) return []
+      const listing = await prisma.listing.findUnique({
+        where: { listingKey },
+        select: { listingId: true },
+      })
 
-  return data.value[0].Media || []
+      if (!listing?.listingId) {
+        throw new Error(`No listingId found for listingKey: ${listingKey}`)
+      }
+
+      const filter = `OriginatingSystemName eq 'ires' and ListingId eq '${listing.listingId}'`
+      const url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(filter)}&$expand=Media&$top=1`
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept-Encoding': 'gzip',
+        },
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`MLS Grid API error: ${response.status} - ${errorText}`)
+      }
+
+      const data: MLSGridResponse = await response.json()
+      if (!data.value || data.value.length === 0) return []
+
+      return data.value[0].Media || []
+    } finally {
+      inFlightRequests.delete(listingKey)
+    }
+  })()
+
+  inFlightRequests.set(listingKey, promise)
+  return promise
 }
 
 // Download image and upload to Vercel Blob (only when BLOB_READ_WRITE_TOKEN is set)
@@ -81,7 +111,7 @@ async function downloadAndCacheImage(mediaUrl: string, blobPath: string): Promis
   }
 }
 
-// Stream image directly from MLS Grid signed URL
+// Stream image directly from a signed URL
 async function streamImage(mediaUrl: string): Promise<Response> {
   const imageResponse = await fetch(mediaUrl)
   if (!imageResponse.ok) {
@@ -96,9 +126,33 @@ async function streamImage(mediaUrl: string): Promise<Response> {
   })
 }
 
+// Update the media entry in the database with the cached blob URL
+async function updateDBMediaUrl(listingKey: string, targetMedia: MLSGridMedia, blobUrl: string) {
+  try {
+    const listing = await prisma.listing.findUnique({
+      where: { listingKey },
+      select: { media: true },
+    })
+
+    if (listing?.media) {
+      const mediaArray = listing.media as Array<{ MediaKey: string; MediaURL: string; Order: number; ShortDescription?: string; MediaObjectID: string; MimeType: string }>
+      const mediaItem = mediaArray.find(m => m.Order === targetMedia.Order || m.MediaKey === targetMedia.MediaKey)
+      if (mediaItem) {
+        mediaItem.MediaURL = blobUrl
+        await prisma.listing.update({
+          where: { listingKey },
+          data: { media: mediaArray },
+        })
+      }
+    }
+  } catch (e) {
+    console.error('Failed to update DB media URL (non-fatal):', e)
+  }
+}
+
 // GET /api/media/[listingKey]?index=0
-// Returns the image for a specific listing at the given index
-// Fetches fresh signed URL from MLS Grid, optionally caches to Vercel Blob
+// Returns the image for a specific listing at the given index.
+// Priority: 1) Blob cache  2) DB media URL  3) MLS Grid API (fallback)
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ listingKey: string }> }
@@ -109,7 +163,7 @@ export async function GET(
 
     const blobPath = `listings/${listingKey}/${index}.jpg`
 
-    // Check if already cached in Vercel Blob
+    // 1. Check if already cached in Vercel Blob
     if (hasBlobStorage) {
       try {
         const { head } = await import('@vercel/blob')
@@ -118,45 +172,59 @@ export async function GET(
           return NextResponse.redirect(existing.url, 302)
         }
       } catch {
-        // Not cached yet, continue to download
+        // Not cached yet, continue
       }
     }
 
-    // Fetch fresh media URLs from MLS Grid
-    const media = await fetchFreshMedia(listingKey)
-    if (!media || media.length === 0 || index >= media.length) {
+    // 2. Try using the media URL stored in our DB (from the daily sync)
+    //    This avoids calling the MLS Grid API entirely
+    const dbMedia = await getMediaFromDB(listingKey)
+    if (dbMedia.length > 0) {
+      const sortedMedia = [...dbMedia].sort((a, b) => (a.Order || 0) - (b.Order || 0))
+      if (index < sortedMedia.length) {
+        const targetMedia = sortedMedia[index]
+
+        // Skip if the URL is already a blob URL (shouldn't reach here, but safety check)
+        if (targetMedia.MediaURL.includes('.public.blob.vercel-storage.com')) {
+          return NextResponse.redirect(targetMedia.MediaURL, 302)
+        }
+
+        // Try to download and cache from the DB URL
+        const blobUrl = await downloadAndCacheImage(targetMedia.MediaURL, blobPath)
+        if (blobUrl) {
+          await updateDBMediaUrl(listingKey, targetMedia, blobUrl)
+          return NextResponse.redirect(blobUrl, 302)
+        }
+
+        // If blob storage isn't configured, try streaming from DB URL
+        if (!hasBlobStorage) {
+          try {
+            return await streamImage(targetMedia.MediaURL)
+          } catch {
+            // DB URL may be expired, fall through to MLS Grid API
+          }
+        }
+        // If download failed, the signed URL is likely expired — fall through to API
+      }
+    }
+
+    // 3. Last resort: fetch fresh media URLs from MLS Grid API
+    //    Uses request coalescing to prevent duplicate concurrent calls
+    console.log(`DB media URL expired/missing for ${listingKey}, falling back to MLS Grid API`)
+    const freshMedia = await fetchFreshMedia(listingKey)
+    if (!freshMedia || freshMedia.length === 0 || index >= freshMedia.length) {
       return NextResponse.json({ error: 'Image not found' }, { status: 404 })
     }
 
-    const sortedMedia = media.sort((a, b) => (a.Order || 0) - (b.Order || 0))
-    const targetMedia = sortedMedia[index]
+    const sortedFreshMedia = freshMedia.sort((a, b) => (a.Order || 0) - (b.Order || 0))
+    const targetMedia = sortedFreshMedia[index]
 
-    // Try to cache to Vercel Blob
     const blobUrl = await downloadAndCacheImage(targetMedia.MediaURL, blobPath)
-
     if (blobUrl) {
-      // Update the media entry in the database with the blob URL
-      const listing = await prisma.listing.findUnique({
-        where: { listingKey },
-        select: { media: true },
-      })
-
-      if (listing?.media) {
-        const mediaArray = listing.media as Array<{ MediaKey: string; MediaURL: string; Order: number; ShortDescription?: string; MediaObjectID: string; MimeType: string }>
-        const mediaItem = mediaArray.find(m => m.Order === targetMedia.Order || m.MediaKey === targetMedia.MediaKey)
-        if (mediaItem) {
-          mediaItem.MediaURL = blobUrl
-          await prisma.listing.update({
-            where: { listingKey },
-            data: { media: mediaArray },
-          })
-        }
-      }
-
+      await updateDBMediaUrl(listingKey, targetMedia, blobUrl)
       return NextResponse.redirect(blobUrl, 302)
     }
 
-    // No blob storage — stream the image directly
     return streamImage(targetMedia.MediaURL)
   } catch (error) {
     console.error('Media proxy error:', error)
