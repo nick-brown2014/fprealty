@@ -772,7 +772,9 @@ const Search = () => {
             </div>
             
             <div className='w-full lg:w-[35%] md:pl-4 flex flex-col gap-2 mt-6 md:mt-0 max-h-[600px] overflow-y-scroll'>
-            {listings.length === 0 ? (
+            {loading ? (
+              <p className='text-gray-500 text-center py-8'>Loading listings...</p>
+            ) : listings.length === 0 ? (
               <p>No results found</p>
             ) : (<>
               {listings.map((listing) => <ListingTile key={listing.ListingKey} listing={listing} /> )}

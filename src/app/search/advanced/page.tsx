@@ -1291,7 +1291,9 @@ const AdvancedSearch = () => {
 
               {/* Listings */}
               <div className='w-full lg:w-[40%] flex flex-col gap-2 max-h-[500px] lg:max-h-[600px] overflow-y-auto'>
-                {listings.length === 0 ? (
+                {loading ? (
+                  <p className='text-gray-500 text-center py-8'>Loading listings...</p>
+                ) : listings.length === 0 ? (
                   <p className='text-gray-500 text-center py-8'>No results found</p>
                 ) : (
                   listings.map((listing) => <ListingTile key={listing.ListingKey} listing={listing} />)
