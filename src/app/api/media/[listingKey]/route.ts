@@ -2,8 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 const MLS_GRID_BASE_URL = 'https://api.mlsgrid.com/v2'
-
 const hasBlobStorage = !!process.env.BLOB_READ_WRITE_TOKEN
+
+// Rate limiter: max 1 MLS Grid API call every 2 seconds per warm instance.
+// Combined with coalescing + cache, one call serves ALL images for a listing.
+let lastApiCallTime = 0
+const MIN_API_INTERVAL_MS = 750
+
+// In-memory cache: after fetching fresh media for a listing, cache for 60s
+// so concurrent/subsequent requests for other image indices reuse the result.
+const freshMediaCache = new Map<string, { media: MLSGridMedia[]; timestamp: number }>()
+const FRESH_CACHE_TTL_MS = 60_000
+
+// Request coalescing: concurrent requests for the same listing share one API call
+const inFlightRequests = new Map<string, Promise<MLSGridMedia[] | null>>()
 
 interface MLSGridMedia {
   MediaKey: string
@@ -19,12 +31,8 @@ interface MLSGridResponse {
   }>
 }
 
-// In-flight request coalescing: prevents duplicate MLS Grid API calls
-// for the same listing when multiple images load concurrently
-const inFlightRequests = new Map<string, Promise<MLSGridMedia[]>>()
-
 // Get media URLs from the local DB (stored during sync)
-// This avoids calling the MLS Grid API entirely in most cases
+// This avoids calling the MLS Grid API entirely
 async function getMediaFromDB(listingKey: string): Promise<MLSGridMedia[]> {
   const listing = await prisma.listing.findUnique({
     where: { listingKey },
@@ -37,26 +45,53 @@ async function getMediaFromDB(listingKey: string): Promise<MLSGridMedia[]> {
   return media
 }
 
-// Fetch fresh media URLs from MLS Grid API — only used as a fallback
-// when DB URLs have expired. Uses request coalescing to avoid duplicate calls.
-async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[]> {
-  // Check if there's already an in-flight request for this listing
-  const existing = inFlightRequests.get(listingKey)
-  if (existing) return existing
+// Fetch fresh media URLs from MLS Grid API with coalescing + caching + queuing.
+// 1) Check in-memory cache (60s TTL) — serves all indices for a listing from one API call
+// 2) Coalesce concurrent requests — 30 gallery images = 1 API call, not 30
+// 3) Queue behind rate limiter — waits up to 20s instead of immediately returning placeholder
+async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[] | null> {
+  // 1. Check in-memory cache first (populated by a previous request for this listing)
+  const cached = freshMediaCache.get(listingKey)
+  if (cached && Date.now() - cached.timestamp < FRESH_CACHE_TTL_MS) {
+    return cached.media
+  }
 
-  const promise = (async () => {
+  // 2. Coalesce: if another request is already fetching this listing, wait for it
+  const inFlight = inFlightRequests.get(listingKey)
+  if (inFlight) return inFlight
+
+  // 3. Wait for rate limiter (queue instead of returning placeholder immediately).
+  //    While waiting, re-check cache in case another request cached this listing's media.
+  const MAX_WAIT_MS = 20_000
+  const waitStart = Date.now()
+  while (Date.now() - lastApiCallTime < MIN_API_INTERVAL_MS) {
+    if (Date.now() - waitStart > MAX_WAIT_MS) return null // Timed out
+
+    // Re-check cache while waiting — another request may have fetched this listing
+    const rechecked = freshMediaCache.get(listingKey)
+    if (rechecked && Date.now() - rechecked.timestamp < FRESH_CACHE_TTL_MS) {
+      return rechecked.media
+    }
+
+    // Re-check coalescing — another request for same listing may have started
+    const reInFlight = inFlightRequests.get(listingKey)
+    if (reInFlight) return reInFlight
+
+    await new Promise(r => setTimeout(r, 100))
+  }
+  lastApiCallTime = Date.now()
+
+  const promise = (async (): Promise<MLSGridMedia[] | null> => {
     try {
       const token = process.env.MLS_GRID_ACCESS_TOKEN
-      if (!token) throw new Error('MLS_GRID_ACCESS_TOKEN not configured')
+      if (!token) return null
 
       const listing = await prisma.listing.findUnique({
         where: { listingKey },
         select: { listingId: true },
       })
 
-      if (!listing?.listingId) {
-        throw new Error(`No listingId found for listingKey: ${listingKey}`)
-      }
+      if (!listing?.listingId) return null
 
       const filter = `OriginatingSystemName eq 'ires' and ListingId eq '${listing.listingId}'`
       const url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(filter)}&$expand=Media&$top=1`
@@ -69,14 +104,41 @@ async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[]> {
       })
 
       if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`MLS Grid API error: ${response.status} - ${errorText}`)
+        console.error(`MLS Grid API error for ${listingKey}: ${response.status}`)
+        return null
       }
 
       const data: MLSGridResponse = await response.json()
-      if (!data.value || data.value.length === 0) return []
+      const media = data.value?.[0]?.Media || []
 
-      return data.value[0].Media || []
+      // Cache in memory so concurrent requests for other indices reuse it
+      freshMediaCache.set(listingKey, { media, timestamp: Date.now() })
+
+      // Persist fresh URLs to DB so future requests (even from other instances)
+      // find valid URLs at step 2 and never need the API again until next expiry
+      if (media.length > 0) {
+        try {
+          const freshMediaArray = media
+            .sort((a, b) => (a.Order || 0) - (b.Order || 0))
+            .map(m => ({
+              MediaKey: m.MediaKey,
+              MediaURL: m.MediaURL,
+              Order: m.Order,
+              ShortDescription: m.LongDescription || '',
+              MediaObjectID: m.MediaKey,
+              MimeType: 'image/jpeg',
+            }))
+          await prisma.listing.update({
+            where: { listingKey },
+            data: { media: freshMediaArray },
+          })
+          console.log(`Refreshed ${media.length} media URLs in DB for ${listingKey}`)
+        } catch (e) {
+          console.error(`Failed to update DB media URLs for ${listingKey} (non-fatal):`, e)
+        }
+      }
+
+      return media
     } finally {
       inFlightRequests.delete(listingKey)
     }
@@ -201,31 +263,47 @@ export async function GET(
           try {
             return await streamImage(targetMedia.MediaURL)
           } catch {
-            // DB URL may be expired, fall through to MLS Grid API
+            // DB URL may be expired, fall through to placeholder
           }
         }
-        // If download failed, the signed URL is likely expired — fall through to API
+        // If download failed, the signed URL is likely expired — fall through to placeholder
       }
     }
 
-    // 3. Last resort: fetch fresh media URLs from MLS Grid API
-    //    Uses request coalescing to prevent duplicate concurrent calls
-    console.log(`DB media URL expired/missing for ${listingKey}, falling back to MLS Grid API`)
+    // 3. DB URL expired or missing — try rate-limited MLS Grid API call.
+    //    Returns null if rate-limited; in that case, serve placeholder.
     const freshMedia = await fetchFreshMedia(listingKey)
-    if (!freshMedia || freshMedia.length === 0 || index >= freshMedia.length) {
-      return NextResponse.json({ error: 'Image not found' }, { status: 404 })
+    if (freshMedia && freshMedia.length > 0) {
+      const sortedFreshMedia = freshMedia.sort((a, b) => (a.Order || 0) - (b.Order || 0))
+      if (index < sortedFreshMedia.length) {
+        const targetMedia = sortedFreshMedia[index]
+
+        const blobUrl = await downloadAndCacheImage(targetMedia.MediaURL, blobPath)
+        if (blobUrl) {
+          await updateDBMediaUrl(listingKey, targetMedia, blobUrl)
+          return NextResponse.redirect(blobUrl, 302)
+        }
+
+        // Couldn't cache to blob, stream directly
+        try {
+          return await streamImage(targetMedia.MediaURL)
+        } catch {
+          // Fall through to placeholder
+        }
+      }
     }
 
-    const sortedFreshMedia = freshMedia.sort((a, b) => (a.Order || 0) - (b.Order || 0))
-    const targetMedia = sortedFreshMedia[index]
-
-    const blobUrl = await downloadAndCacheImage(targetMedia.MediaURL, blobPath)
-    if (blobUrl) {
-      await updateDBMediaUrl(listingKey, targetMedia, blobUrl)
-      return NextResponse.redirect(blobUrl, 302)
-    }
-
-    return streamImage(targetMedia.MediaURL)
+    // 4. Rate-limited or no media found — serve placeholder inline.
+    //    Cache-Control: no-store ensures the browser retries on next page load
+    //    instead of permanently caching the placeholder.
+    const placeholderSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect width="800" height="600" fill="#f0f0f0"/><g transform="translate(400,280)" fill="#ccc"><rect x="-60" y="-40" width="120" height="80" rx="4"/><polygon points="-40,30 0,-20 40,30"/><circle cx="30" cy="-15" r="12"/></g><text x="400" y="340" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" fill="#999">Image loading…</text></svg>`
+    return new Response(placeholderSvg, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'no-store',
+      },
+    })
   } catch (error) {
     console.error('Media proxy error:', error)
     return NextResponse.json(

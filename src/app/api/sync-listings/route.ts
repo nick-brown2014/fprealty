@@ -268,6 +268,57 @@ function transformMedia(media: MLSGridMedia[]) {
     }))
 }
 
+// Pre-cache primary images to Vercel Blob while signed URLs are still fresh.
+// This runs after the main sync loop completes, using remaining time budget.
+// Only caches images not already in blob. CDN downloads don't count toward MLS Grid API limits.
+async function precachePrimaryImages(
+  images: Array<{ listingKey: string; mediaUrl: string }>,
+  timeLimitMs: number
+): Promise<{ cached: number; skipped: number; failed: number }> {
+  if (!process.env.BLOB_READ_WRITE_TOKEN || images.length === 0) {
+    return { cached: 0, skipped: 0, failed: 0 }
+  }
+
+  const { put, head } = await import('@vercel/blob')
+  const startTime = Date.now()
+  let cached = 0, skipped = 0, failed = 0
+
+  for (const { listingKey, mediaUrl } of images) {
+    if (Date.now() - startTime > timeLimitMs) {
+      console.log(`Image pre-cache time limit reached (${cached} cached, ${skipped} skipped, ${failed} failed, ${images.length - cached - skipped - failed} remaining)`)
+      break
+    }
+
+    const blobPath = `listings/${listingKey}/0.jpg`
+
+    // Check if already cached in blob
+    try {
+      await head(blobPath)
+      skipped++
+      continue
+    } catch {
+      // Not cached yet, proceed to download
+    }
+
+    try {
+      const response = await fetch(mediaUrl)
+      if (!response.ok) { failed++; continue }
+
+      const buffer = await response.arrayBuffer()
+      await put(blobPath, Buffer.from(buffer), {
+        access: 'public',
+        contentType: 'image/jpeg',
+        addRandomSuffix: false,
+      })
+      cached++
+    } catch {
+      failed++
+    }
+  }
+
+  return { cached, skipped, failed }
+}
+
 async function fetchFromMLSGrid(url: string): Promise<MLSGridResponse> {
   const token = process.env.MLS_GRID_ACCESS_TOKEN
   if (!token) {
@@ -347,12 +398,14 @@ export async function GET(request: NextRequest) {
 
     let url = `${MLS_GRID_BASE_URL}/Property?$filter=${encodeURIComponent(baseFilter)}&$expand=Media&$top=${BATCH_SIZE}&$orderby=ModificationTimestamp`
 
+    const syncStartTime = Date.now()
     let totalProcessed = 0
     let totalUpserted = 0
     let totalDeleted = 0
     let latestTimestamp: Date | null = null
     let hasMoreData = false
     const newListingKeys: string[] = []
+    const imagesToCache: Array<{ listingKey: string; mediaUrl: string }> = []
 
     while (url && totalProcessed < MAX_RECORDS_PER_INVOCATION) {
       console.log(`Fetching batch from: ${url}`)
@@ -422,6 +475,17 @@ export async function GET(request: NextRequest) {
           await prisma.$transaction(chunk)
         }
         totalUpserted += toUpsert.length
+
+        // Collect primary image URLs for pre-caching (signed URLs are fresh right now)
+        for (const listing of toUpsert) {
+          const media = listing.media as Array<{ MediaURL: string; Order: number }> | undefined
+          if (media && media.length > 0) {
+            const primary = media[0] // Already sorted by Order in transformMedia
+            if (!primary.MediaURL.includes('.public.blob.vercel-storage.com')) {
+              imagesToCache.push({ listingKey: listing.listingKey, mediaUrl: primary.MediaURL })
+            }
+          }
+        }
       }
 
       const nextLink = data['@odata.nextLink']
@@ -451,6 +515,13 @@ export async function GET(request: NextRequest) {
 
         console.log(`Full sync in progress: processed ${totalProcessed} this invocation, cursor at ${latestTimestamp.toISOString()}`)
 
+        // Pre-cache primary images with remaining time (leave 10s buffer)
+        const elapsed = Date.now() - syncStartTime
+        const cacheTimeBudget = Math.max(0, 280_000 - elapsed)
+        console.log(`Pre-caching up to ${imagesToCache.length} primary images (${Math.round(cacheTimeBudget / 1000)}s budget)...`)
+        const cacheResult = await precachePrimaryImages(imagesToCache, cacheTimeBudget)
+        console.log(`Pre-cache result: ${cacheResult.cached} cached, ${cacheResult.skipped} skipped, ${cacheResult.failed} failed`)
+
         return NextResponse.json({
           success: true,
           mode: 'full',
@@ -458,6 +529,7 @@ export async function GET(request: NextRequest) {
           processed: totalProcessed,
           upserted: totalUpserted,
           deleted: totalDeleted,
+          imagesCached: cacheResult,
           totalListings,
           hasMoreData: true,
           cursor: latestTimestamp.toISOString(),
@@ -477,6 +549,13 @@ export async function GET(request: NextRequest) {
 
         console.log(`Full sync complete: ${totalProcessed} records processed this invocation`)
 
+        // Pre-cache primary images with remaining time (leave 30s for alerts)
+        const elapsed2 = Date.now() - syncStartTime
+        const cacheTimeBudget2 = Math.max(0, 250_000 - elapsed2)
+        console.log(`Pre-caching up to ${imagesToCache.length} primary images (${Math.round(cacheTimeBudget2 / 1000)}s budget)...`)
+        const cacheResult2 = await precachePrimaryImages(imagesToCache, cacheTimeBudget2)
+        console.log(`Pre-cache result: ${cacheResult2.cached} cached, ${cacheResult2.skipped} skipped, ${cacheResult2.failed} failed`)
+
         console.log(`Full sync found ${newListingKeys.length} new listings`)
         const alertsResult = await processPropertyAlerts(newListingKeys)
         console.log('Alerts result:', JSON.stringify(alertsResult))
@@ -489,6 +568,7 @@ export async function GET(request: NextRequest) {
           upserted: totalUpserted,
           deleted: totalDeleted,
           newListingsDetected: newListingKeys.length,
+          imagesCached: cacheResult2,
           alertsResult,
           totalListings,
           hasMoreData: false,
@@ -506,6 +586,13 @@ export async function GET(request: NextRequest) {
 
       console.log(`Incremental sync complete: ${totalProcessed} processed, ${totalUpserted} upserted, ${totalDeleted} deleted`)
 
+      // Pre-cache primary images with remaining time (leave 30s for alerts)
+      const elapsedInc = Date.now() - syncStartTime
+      const cacheTimeBudgetInc = Math.max(0, 250_000 - elapsedInc)
+      console.log(`Pre-caching up to ${imagesToCache.length} primary images (${Math.round(cacheTimeBudgetInc / 1000)}s budget)...`)
+      const cacheResultInc = await precachePrimaryImages(imagesToCache, cacheTimeBudgetInc)
+      console.log(`Pre-cache result: ${cacheResultInc.cached} cached, ${cacheResultInc.skipped} skipped, ${cacheResultInc.failed} failed`)
+
       console.log(`Incremental sync found ${newListingKeys.length} new listings`)
       const alertsResult = await processPropertyAlerts(newListingKeys)
       console.log('Alerts result:', JSON.stringify(alertsResult))
@@ -517,6 +604,7 @@ export async function GET(request: NextRequest) {
         upserted: totalUpserted,
         deleted: totalDeleted,
         newListingsDetected: newListingKeys.length,
+        imagesCached: cacheResultInc,
         alertsResult,
         totalListings,
         lastSyncTimestamp: latestTimestamp?.toISOString()
