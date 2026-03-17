@@ -64,16 +64,16 @@ const Nav = () => {
               <Link
                 href='/search'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                  isScrolled ? 'text-black' : 'text-white'
-                } ${isActive('/search') ? 'text-primary' : ''}`}
+                  isActive('/search') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                }`}
               >
                 Search
               </Link>
               <Link
                 href='/buying'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                  isScrolled ? 'text-black' : 'text-white'
-                } ${isActive('/buying') ? 'text-primary' : ''}`}
+                  isActive('/buying') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                }`}
               >
                 Buy
               </Link>
@@ -81,8 +81,8 @@ const Nav = () => {
               <Link
                 href='/selling'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                  isScrolled ? 'text-black' : 'text-white'
-                } ${isActive('/selling') ? 'text-primary' : ''}`}
+                  isActive('/selling') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                }`}
               >
                 Sell
               </Link>
@@ -97,8 +97,8 @@ const Nav = () => {
               <Link
                 href='/about'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                  isScrolled ? 'text-black' : 'text-white'
-                } ${isActive('/about') ? 'text-primary' : ''}`}
+                  isActive('/about') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                }`}
               >
                 About
               </Link>
@@ -126,8 +126,8 @@ const Nav = () => {
                 <Link
                   href='/search'
                   className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                    isScrolled ? 'text-black' : 'text-white'
-                  } ${isActive('/search') ? 'text-primary' : ''}`}
+                    isActive('/search') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Search
@@ -135,8 +135,8 @@ const Nav = () => {
                 <Link
                   href='/buying'
                   className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                    isScrolled ? 'text-black' : 'text-white'
-                  } ${isActive('/buying') ? 'text-primary' : ''}`}
+                    isActive('/buying') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Buy
@@ -144,8 +144,8 @@ const Nav = () => {
                 <Link
                   href='/selling'
                   className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                    isScrolled ? 'text-black' : 'text-white'
-                  } ${isActive('/selling') ? 'text-primary' : ''}`}
+                    isActive('/selling') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Sell
@@ -163,8 +163,8 @@ const Nav = () => {
                 <Link
                   href='/about'
                   className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                    isScrolled ? 'text-black' : 'text-white'
-                  } ${isActive('/about') ? 'text-primary' : ''}`}
+                    isActive('/about') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   About

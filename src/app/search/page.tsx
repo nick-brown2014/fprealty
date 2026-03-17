@@ -138,10 +138,11 @@ const Search = () => {
                     const bounds = circle.getBounds()
 
                     setMapCenter(location)
+                    setMapInitialized(false)
                     if (bounds) {
                       setMapBounds(bounds)
                     }
-                    // Don't set searchQuery - we're using bounds-based search
+                    setIsLoadingSavedSearch(false)
                   }
                 }
               )
@@ -356,7 +357,9 @@ const Search = () => {
   // Handle saved search URL parameter on mount
   useEffect(() => {
     if (!initialSavedSearchParam) {
-      setIsLoadingSavedSearch(false)
+      if (!initialLocationParam) {
+        setIsLoadingSavedSearch(false)
+      }
       return
     }
 
