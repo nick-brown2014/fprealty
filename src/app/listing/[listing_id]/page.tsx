@@ -28,7 +28,7 @@ const ListingPage = ({ params }: ListingPageProps) => {
     )
   }
   if (!listing || !brokerage) return <></>
-  const calenderLink = `https://link.myagenthq.com/widget/booking/47IzUUa70aauUUFLHFuU?address=${listing.UnparsedAddress}`
+  const calenderLink = `https://link.myagenthq.com/widget/form/grTIHe1MkbqjTjwEvirn?address=${listing.UnparsedAddress}`
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
