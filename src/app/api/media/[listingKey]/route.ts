@@ -4,10 +4,9 @@ import { prisma } from '@/lib/prisma'
 const MLS_GRID_BASE_URL = 'https://api.mlsgrid.com/v2'
 const hasBlobStorage = !!process.env.BLOB_READ_WRITE_TOKEN
 
-// Rate limiter: max 1 MLS Grid API call every 2 seconds per warm instance.
-// Combined with coalescing + cache, one call serves ALL images for a listing.
-let lastApiCallTime = 0
-const MIN_API_INTERVAL_MS = 750
+// Global rate limit interval: only 1 MLS Grid API call per 1.5s across ALL
+// Vercel instances. Enforced via atomic DB UPDATE on SyncState.lastMediaApiCall.
+const GLOBAL_RATE_LIMIT_MS = 1500
 
 // In-memory cache: after fetching fresh media for a listing, cache for 60s
 // so concurrent/subsequent requests for other image indices reuse the result.
@@ -45,10 +44,28 @@ async function getMediaFromDB(listingKey: string): Promise<MLSGridMedia[]> {
   return media
 }
 
-// Fetch fresh media URLs from MLS Grid API with coalescing + caching + queuing.
+// Attempt to claim a global rate-limit slot via atomic DB UPDATE.
+// Returns true if this instance is allowed to make an MLS Grid API call.
+async function claimGlobalRateSlot(): Promise<boolean> {
+  try {
+    const result = await prisma.$executeRaw`
+      UPDATE "SyncState"
+      SET "lastMediaApiCall" = NOW(), "updatedAt" = NOW()
+      WHERE id = 'mls-grid-sync'
+        AND ("lastMediaApiCall" IS NULL
+             OR "lastMediaApiCall" < NOW() - INTERVAL '1500 milliseconds')
+    `
+    return result > 0
+  } catch (e) {
+    console.error('Global rate limit check failed:', e)
+    return false
+  }
+}
+
+// Fetch fresh media URLs from MLS Grid API with coalescing + caching + global rate limiting.
 // 1) Check in-memory cache (60s TTL) — serves all indices for a listing from one API call
 // 2) Coalesce concurrent requests — 30 gallery images = 1 API call, not 30
-// 3) Queue behind rate limiter — waits up to 20s instead of immediately returning placeholder
+// 3) Claim global rate-limit slot via DB — ensures ≤1 API call per 1.5s across ALL instances
 async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[] | null> {
   // 1. Check in-memory cache first (populated by a previous request for this listing)
   const cached = freshMediaCache.get(listingKey)
@@ -60,14 +77,12 @@ async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[] | nul
   const inFlight = inFlightRequests.get(listingKey)
   if (inFlight) return inFlight
 
-  // 3. Wait for rate limiter (queue instead of returning placeholder immediately).
-  //    While waiting, re-check cache in case another request cached this listing's media.
-  const MAX_WAIT_MS = 20_000
-  const waitStart = Date.now()
-  while (Date.now() - lastApiCallTime < MIN_API_INTERVAL_MS) {
-    if (Date.now() - waitStart > MAX_WAIT_MS) return null // Timed out
-
-    // Re-check cache while waiting — another request may have fetched this listing
+  // 3. Try to claim a global rate-limit slot. Retry a few times with backoff.
+  //    While waiting, re-check cache in case another instance/request fulfilled it.
+  const MAX_ATTEMPTS = 8
+  let claimed = false
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    // Re-check cache — another request (possibly from another instance) may have refreshed it
     const rechecked = freshMediaCache.get(listingKey)
     if (rechecked && Date.now() - rechecked.timestamp < FRESH_CACHE_TTL_MS) {
       return rechecked.media
@@ -77,9 +92,13 @@ async function fetchFreshMedia(listingKey: string): Promise<MLSGridMedia[] | nul
     const reInFlight = inFlightRequests.get(listingKey)
     if (reInFlight) return reInFlight
 
-    await new Promise(r => setTimeout(r, 100))
+    claimed = await claimGlobalRateSlot()
+    if (claimed) break
+
+    // Wait before retrying (increasing backoff: 500ms, 1000ms, 1500ms, ...)
+    await new Promise(r => setTimeout(r, GLOBAL_RATE_LIMIT_MS * (attempt + 1) / MAX_ATTEMPTS))
   }
-  lastApiCallTime = Date.now()
+  if (!claimed) return null // Could not claim a slot after retries
 
   const promise = (async (): Promise<MLSGridMedia[] | null> => {
     try {
