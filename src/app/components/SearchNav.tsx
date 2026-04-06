@@ -23,7 +23,7 @@ const SearchNav = () => {
           </Link>
 
           {/* Navigation Links */}
-          <div className='hidden md:flex items-center gap-8'>
+          <div className='hidden lg:flex items-center gap-8'>
             <Link
               href='/search'
               className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
@@ -56,6 +56,14 @@ const SearchNav = () => {
                 New Construction
             </Link>
             <Link
+              href='/mortgage-calculator'
+              className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
+                isActive('/mortgage-calculator') ? 'text-primary' : ''
+              }`}
+            >
+              Calculator
+            </Link>
+            <Link
               href='/about'
               className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
                 isActive('/about') ? 'text-primary' : ''
@@ -68,7 +76,7 @@ const SearchNav = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className='md:hidden text-black'
+            className='lg:hidden text-black'
           >
             <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               {mobileMenuOpen ? (
@@ -82,7 +90,7 @@ const SearchNav = () => {
 
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className='md:hidden mt-4 pb-4'>
+          <div className='lg:hidden mt-4 pb-4'>
             <div className='flex flex-col gap-4'>
               <Link
                 href='/search'
@@ -120,6 +128,15 @@ const SearchNav = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 New Construction
+              </Link>
+              <Link
+                href='/mortgage-calculator'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
+                  isActive('/mortgage-calculator') ? 'text-primary' : ''
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Calculator
               </Link>
               <Link
                 href='/about'
