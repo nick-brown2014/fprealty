@@ -8,11 +8,12 @@ interface AuthModalProps {
   onClose: () => void
   initialEmail?: string
   initialEmailOptIn?: boolean
+  initialSignUp?: boolean
 
 }
 
-const AuthModal = ({ isOpen, onClose, initialEmail, initialEmailOptIn }: AuthModalProps) => {
-  const [isSignUp, setIsSignUp] = useState(initialEmailOptIn || false)
+const AuthModal = ({ isOpen, onClose, initialEmail, initialEmailOptIn, initialSignUp }: AuthModalProps) => {
+  const [isSignUp, setIsSignUp] = useState(initialSignUp || initialEmailOptIn || false)
   const [email, setEmail] = useState(initialEmail || '')
   const [password, setPassword] = useState('')
   const [firstName, setFirstName] = useState('')
@@ -87,6 +88,13 @@ const AuthModal = ({ isOpen, onClose, initialEmail, initialEmailOptIn }: AuthMod
     setPhoneError('')
     return true
   }
+
+  // Sync sign-up state when modal opens
+  useEffect(() => {
+    if (isOpen && initialSignUp !== undefined) {
+      setIsSignUp(initialSignUp)
+    }
+  }, [isOpen, initialSignUp])
 
   // Clear form when changing between Sign In and Sign Up
   useEffect(() => {
@@ -203,7 +211,7 @@ const AuthModal = ({ isOpen, onClose, initialEmail, initialEmailOptIn }: AuthMod
 
   return (
     <div
-      className='fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center'
+      className='fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center'
       onClick={onClose}
     >
       <div

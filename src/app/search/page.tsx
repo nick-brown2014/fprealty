@@ -63,10 +63,14 @@ const SavedSearchBoundsHandler = ({ bounds, onBoundsApplied }: { bounds: google.
   return null
 }
 
+const SIGNUP_PROMPT_THRESHOLD = 3
+
 const Search = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, signOut, saveSearch, saveSearchState, favorites, savedSearches } = useAuth()
+  const interactionCount = useRef(0)
+  const [signupPromptShown, setSignupPromptShown] = useState(false)
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('location') || '')
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [pendingMapBounds, setPendingMapBounds] = useState<google.maps.LatLngBounds | null>(null)
@@ -103,6 +107,17 @@ const Search = () => {
   const [initialSavedSearchParam] = useState(() => searchParams.get('saved'))
   const [hasLoadedSavedSearch, setHasLoadedSavedSearch] = useState(false)
   const [isLoadingSavedSearch, setIsLoadingSavedSearch] = useState(() => !!searchParams.get('saved') || !!searchParams.get('location'))
+
+  const trackInteraction = useCallback(() => {
+    if (user || signupPromptShown) return
+    if (typeof window !== 'undefined' && sessionStorage.getItem('signup-prompt-dismissed')) return
+    interactionCount.current += 1
+    if (interactionCount.current >= SIGNUP_PROMPT_THRESHOLD) {
+      setAuthModalOpen(true)
+      setSignupPromptShown(true)
+      if (typeof window !== 'undefined') sessionStorage.setItem('signup-prompt-dismissed', 'true')
+    }
+  }, [user, signupPromptShown])
 
   // Handle location URL parameter on mount
   useEffect(() => {
@@ -315,7 +330,8 @@ const Search = () => {
       setMapBounds(pendingMapBounds)
       setShowSearchAreaButton(false)
     }
-  }, [pendingMapBounds])
+    trackInteraction()
+  }, [pendingMapBounds, trackInteraction])
 
   const handleSelectSearch = useCallback((search: SavedSearch) => {
     // Clear viewing favorites mode
@@ -438,13 +454,14 @@ const Search = () => {
                   setMapBounds(null)
                 }
                 setShowSearchAreaButton(false)
+                trackInteraction()
               }}
             />
             <div className='flex gap-2 flex-wrap md:flex-nowrap items-center'>
               {/* Price Filter Dropdown */}
               <div className='relative' ref={priceDropdownRef}>
                 <button
-                  onClick={() => setPriceDropdownOpen(!priceDropdownOpen)}
+                  onClick={() => { setPriceDropdownOpen(!priceDropdownOpen); if (!priceDropdownOpen) trackInteraction() }}
                   className='cursor-pointer px-4 py-2 border border-gray-300 rounded-md hover:opacity-70 bg-primary text-slate-50 transition font-semibold whitespace-nowrap'
                 >
                   Price
@@ -482,7 +499,7 @@ const Search = () => {
               {/* Beds Filter Dropdown */}
               <div className='relative' ref={bedsDropdownRef}>
                 <button
-                  onClick={() => setBedsDropdownOpen(!bedsDropdownOpen)}
+                  onClick={() => { setBedsDropdownOpen(!bedsDropdownOpen); if (!bedsDropdownOpen) trackInteraction() }}
                   className='cursor-pointer px-4 py-2 border border-gray-300 rounded-md hover:opacity-70 bg-primary text-slate-50 transition font-semibold whitespace-nowrap'
                 >
                   Beds
@@ -527,7 +544,7 @@ const Search = () => {
               {/* Baths Filter Dropdown */}
               <div className='relative' ref={bathsDropdownRef}>
                 <button
-                  onClick={() => setBathsDropdownOpen(!bathsDropdownOpen)}
+                  onClick={() => { setBathsDropdownOpen(!bathsDropdownOpen); if (!bathsDropdownOpen) trackInteraction() }}
                   className='cursor-pointer px-4 py-2 border border-gray-300 rounded-md hover:opacity-70 bg-primary text-slate-50 transition font-semibold whitespace-nowrap'
                 >
                   Baths
@@ -571,7 +588,7 @@ const Search = () => {
               {/* Property Types Filter Dropdown */}
               <div className='relative' ref={propertyTypesDropdownRef}>
                 <button
-                  onClick={() => setPropertyTypesDropdownOpen(!propertyTypesDropdownOpen)}
+                  onClick={() => { setPropertyTypesDropdownOpen(!propertyTypesDropdownOpen); if (!propertyTypesDropdownOpen) trackInteraction() }}
                   className='cursor-pointer px-4 py-2 border border-gray-300 rounded-md hover:opacity-70 bg-primary text-slate-50 transition font-semibold whitespace-nowrap'
                 >
                   <span className='hidden sm:inline'>Property Types</span>
@@ -780,7 +797,7 @@ const Search = () => {
             ) : listings.length === 0 ? (
               <p>No results found</p>
             ) : (<>
-              {listings.map((listing) => <ListingTile key={listing.ListingKey} listing={listing} /> )}
+              {listings.map((listing) => <ListingTile key={listing.ListingKey} listing={listing} onInteraction={trackInteraction} /> )}
             </>)}
             </div>
           </div>
@@ -793,7 +810,7 @@ const Search = () => {
         </div>
       </APIProvider>
 
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} initialSignUp={signupPromptShown} />
       <SavedSearchesModal
         isOpen={savedSearchesModalOpen}
         onClose={() => setSavedSearchesModalOpen(false)}

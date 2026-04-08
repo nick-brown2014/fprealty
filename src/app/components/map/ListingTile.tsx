@@ -1,7 +1,7 @@
 import { Listing } from "@/app/hooks/useMapDisplay"
 import FavoriteButton from "../FavoriteButton"
 
-const ListingTile = ({ listing }: { listing: Listing }) => {
+const ListingTile = ({ listing, onInteraction }: { listing: Listing; onInteraction?: () => void }) => {
   const getPhotoUrl = () => {
     if (listing.Media && listing.Media.length > 0) {
       return listing.Media[0].MediaURL
@@ -29,6 +29,7 @@ const ListingTile = ({ listing }: { listing: Listing }) => {
   }
 
   const handleClick = () => {
+    onInteraction?.()
     window.open(`/listing/${listing.ListingKey}`, '_blank')
   }
 
