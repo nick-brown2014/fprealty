@@ -301,7 +301,9 @@ async function precachePrimaryImages(
     }
 
     try {
-      const response = await fetch(mediaUrl)
+      const response = await fetch(mediaUrl, {
+        headers: { 'User-Agent': process.env.MLS_GRID_ACCESS_TOKEN || '' },
+      })
       if (!response.ok) { failed++; continue }
 
       const buffer = await response.arrayBuffer()

@@ -174,7 +174,9 @@ async function downloadAndCacheImage(mediaUrl: string, blobPath: string): Promis
   try {
     const { put } = await import('@vercel/blob')
 
-    const imageResponse = await fetch(mediaUrl)
+    const imageResponse = await fetch(mediaUrl, {
+      headers: { 'User-Agent': process.env.MLS_GRID_ACCESS_TOKEN || '' },
+    })
     if (!imageResponse.ok) return null
 
     const imageBuffer = await imageResponse.arrayBuffer()
@@ -194,7 +196,9 @@ async function downloadAndCacheImage(mediaUrl: string, blobPath: string): Promis
 
 // Stream image directly from a signed URL
 async function streamImage(mediaUrl: string): Promise<Response> {
-  const imageResponse = await fetch(mediaUrl)
+  const imageResponse = await fetch(mediaUrl, {
+    headers: { 'User-Agent': process.env.MLS_GRID_ACCESS_TOKEN || '' },
+  })
   if (!imageResponse.ok) {
     throw new Error(`Failed to download image: ${imageResponse.status}`)
   }
