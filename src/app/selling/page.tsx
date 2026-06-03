@@ -132,8 +132,8 @@ const SectionLabel = ({ children, className = "" }: { children: React.ReactNode;
 const SellingPage = () => {
   return (
     <div className='w-full font-body bg-[#F8F6F2] text-black'>
-      <Nav />
-      <div className='max-w-[960px] mx-auto'>
+      <Nav alwaysSolid />
+      <div className='max-w-[960px] mx-auto pt-20'>
         {/* HERO */}
         <section className='relative overflow-hidden min-h-[560px] flex flex-col bg-black'>
           <div
@@ -340,26 +340,6 @@ const SellingPage = () => {
             </p>
           </div>
           <SellingWizard />
-        </section>
-
-        {/* FINAL CTA */}
-        <section className='bg-primary px-7 py-16 lg:px-16 lg:py-20 text-center'>
-          <SectionLabel className='justify-center text-white/70 [&>span]:bg-white/50'>Ready to Sell?</SectionLabel>
-          <h2 className='font-serif text-3xl lg:text-[46px] font-bold text-white leading-[1.1] mb-4'>
-            Find Out What Your Home Is Worth — Today.
-          </h2>
-          <p className='text-base lg:text-[17px] text-white/[0.78] font-light leading-relaxed max-w-[480px] mx-auto mb-11'>
-            No fluff. No bait-and-switch valuations. Just a real number from a real agent who knows your street.
-          </p>
-          <a
-            href='tel:9705108414'
-            className='bg-white text-primary font-condensed font-extrabold text-base tracking-[0.14em] uppercase px-13 py-5 rounded-sm inline-block transition-opacity hover:opacity-90'
-          >
-            Get My Free Home Value
-          </a>
-          <span className='block text-[13px] text-white/65 tracking-[0.1em] mt-4.5 font-medium'>
-            Or call directly: (970) 510-8414 &nbsp;·&nbsp; www.nocorealtor.com
-          </span>
         </section>
       </div>
       <Footer />

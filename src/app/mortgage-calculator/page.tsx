@@ -164,43 +164,49 @@ const MortgageCalculatorPage = () => {
   }
 
   return (
-    <div className='w-full h-full flex-col'>
-      <Nav />
-      <div className='pb-10 items-center flex-col flex'>
+    <div className='w-full font-body bg-[#F8F6F2] text-black'>
+      <Nav alwaysSolid />
+      <div className='pt-20 pb-16 items-center flex-col flex'>
         {/* Hero Section */}
-        <div className='items-center w-full flex-col bg-gray-900 min-h-48 lg:min-h-[280px] justify-center flex pt-24 pb-12'>
-          <h1 className='font-bold text-center tracking-tight text-3xl sm:text-5xl lg:text-7xl text-white'>
-            Mortgage Calculator
-          </h1>
-          <h2 className='mt-4 font-bold tracking-tight text-lg lg:text-2xl text-gray-300 text-center px-4'>
-            Estimate your monthly mortgage payment
-          </h2>
+        <div className='w-full bg-black relative overflow-hidden'>
+          <div className='max-w-7xl mx-auto px-7 lg:px-16 pt-14 pb-12 lg:pt-20 lg:pb-16'>
+            <div className='font-condensed font-bold text-[13px] tracking-[0.2em] uppercase text-primary mb-5 flex items-center gap-3'>
+              <span className='block w-7 h-0.5 bg-primary' />
+              Fort Collins &amp; Northern Colorado
+            </div>
+            <h1 className='font-serif text-4xl lg:text-[58px] leading-[1.04] text-white font-bold max-w-[640px] mb-5'>
+              Mortgage <em className='italic text-[#90A4AE]'>Calculator</em>
+            </h1>
+            <p className='text-base lg:text-[17px] leading-relaxed text-white/70 max-w-[520px] font-light'>
+              Estimate your monthly mortgage payment, including taxes, insurance, PMI, and HOA — and see how the numbers break down over the life of the loan.
+            </p>
+          </div>
         </div>
 
         <div className='max-w-7xl w-full mt-10 px-4 lg:px-6'>
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
             {/* Left Column: Inputs */}
             <div className='lg:col-span-2 space-y-6'>
-              <div className='bg-white rounded-lg shadow-md p-6'>
-                <h2 className='text-2xl font-bold text-gray-900 mb-6'>Loan Details</h2>
+              <div className='bg-white rounded border border-black/10 p-6'>
+                <h2 className='font-serif text-2xl lg:text-[28px] font-bold text-black mb-6'>Loan Details</h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                   {/* Home Value */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>Home Price</label>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>Home Price</label>
                     <div className='relative'>
                       <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-500'>$</span>
                       <input
                         type='number'
                         value={homeValue}
                         onChange={(e) => handleHomeValueChange(Number(e.target.value))}
-                        className='w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none'
+                        className='w-full pl-9 pr-3 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none'
                       />
                     </div>
                   </div>
 
                   {/* Down Payment */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>Down Payment</label>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>Down Payment</label>
                     <div className='flex gap-2'>
                       <div className='relative flex-1'>
                         <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-500'>$</span>
@@ -208,7 +214,7 @@ const MortgageCalculatorPage = () => {
                           type='number'
                           value={downPaymentAmount}
                           onChange={(e) => handleDownPaymentAmountChange(Number(e.target.value))}
-                          className='w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none'
+                          className='w-full pl-9 pr-3 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none'
                         />
                       </div>
                       <div className='relative w-24'>
@@ -216,7 +222,7 @@ const MortgageCalculatorPage = () => {
                           type='number'
                           value={downPaymentPercent}
                           onChange={(e) => handleDownPaymentPercentChange(Number(e.target.value))}
-                          className='w-full pl-3 pr-9 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none'
+                          className='w-full pl-3 pr-9 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none'
                         />
                         <span className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500'>%</span>
                       </div>
@@ -225,22 +231,22 @@ const MortgageCalculatorPage = () => {
 
                   {/* Loan Amount (computed) */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>Loan Amount</label>
-                    <div className='w-full px-3 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-gray-800 font-medium'>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>Loan Amount</label>
+                    <div className='w-full px-3 py-2.5 bg-black/[0.04] border border-black/10 rounded-sm text-black font-medium'>
                       {formatCurrencyWhole(loanAmount)}
                     </div>
                   </div>
 
                   {/* Interest Rate */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>Interest Rate</label>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>Interest Rate</label>
                     <div className='relative'>
                       <input
                         type='number'
                         step='0.125'
                         value={interestRate}
                         onChange={(e) => setInterestRate(Number(e.target.value))}
-                        className='w-full pl-3 pr-9 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none'
+                        className='w-full pl-3 pr-9 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none'
                       />
                       <span className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500'>%</span>
                     </div>
@@ -248,11 +254,11 @@ const MortgageCalculatorPage = () => {
 
                   {/* Loan Term */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>Loan Term</label>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>Loan Term</label>
                     <select
                       value={loanTerm}
                       onChange={(e) => setLoanTerm(Number(e.target.value))}
-                      className='w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white'
+                      className='w-full px-3 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white font-body'
                     >
                       <option value={30}>30 Years</option>
                       <option value={20}>20 Years</option>
@@ -263,35 +269,35 @@ const MortgageCalculatorPage = () => {
 
                   {/* Property Tax */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>Annual Property Tax</label>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>Annual Property Tax</label>
                     <div className='relative'>
                       <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-500'>$</span>
                       <input
                         type='number'
                         value={propertyTax}
                         onChange={(e) => setPropertyTax(Number(e.target.value))}
-                        className='w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none'
+                        className='w-full pl-9 pr-3 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none'
                       />
                     </div>
                   </div>
 
                   {/* Home Insurance */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>Annual Home Insurance</label>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>Annual Home Insurance</label>
                     <div className='relative'>
                       <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-500'>$</span>
                       <input
                         type='number'
                         value={homeInsurance}
                         onChange={(e) => setHomeInsurance(Number(e.target.value))}
-                        className='w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none'
+                        className='w-full pl-9 pr-3 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none'
                       />
                     </div>
                   </div>
 
                   {/* PMI */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>
                       PMI
                       {downPaymentPercent >= 20 && (
                         <span className='text-xs font-normal text-green-600 ml-2'>Not required (20%+ down)</span>
@@ -304,7 +310,7 @@ const MortgageCalculatorPage = () => {
                         value={pmi}
                         onChange={(e) => setPmi(Number(e.target.value))}
                         disabled={downPaymentPercent >= 20}
-                        className='w-full pl-3 pr-9 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none disabled:bg-gray-100 disabled:text-gray-400'
+                        className='w-full pl-3 pr-9 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none disabled:bg-gray-100 disabled:text-gray-400'
                       />
                       <span className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500'>%</span>
                     </div>
@@ -312,14 +318,14 @@ const MortgageCalculatorPage = () => {
 
                   {/* Monthly HOA */}
                   <div>
-                    <label className='block text-sm font-semibold text-gray-700 mb-1'>Monthly HOA</label>
+                    <label className='block font-condensed text-[12px] font-bold uppercase tracking-[0.14em] text-black/65 mb-2'>Monthly HOA</label>
                     <div className='relative'>
                       <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-500'>$</span>
                       <input
                         type='number'
                         value={monthlyHoa}
                         onChange={(e) => setMonthlyHoa(Number(e.target.value))}
-                        className='w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none'
+                        className='w-full pl-9 pr-3 py-2.5 border border-black/15 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none'
                       />
                     </div>
                   </div>
@@ -330,9 +336,12 @@ const MortgageCalculatorPage = () => {
             {/* Right Column: Results */}
             <div className='space-y-6'>
               {/* Monthly Payment */}
-              <div className='bg-white rounded-lg shadow-md p-6'>
-                <h2 className='text-xl font-bold text-gray-900 mb-2'>Monthly Payment</h2>
-                <p className='text-4xl font-bold text-primary mb-4'>
+              <div className='bg-white rounded border border-black/10 p-6'>
+                <div className='font-condensed text-xs font-bold tracking-[0.22em] uppercase text-primary mb-2 flex items-center gap-2.5'>
+                  <span className='block w-5 h-0.5 bg-current' />
+                  Monthly Payment
+                </div>
+                <p className='font-serif text-4xl lg:text-[44px] font-bold text-black mb-5 leading-none'>
                   {formatCurrency(calculation.totalMonthly)}
                 </p>
                 <div className='space-y-3'>
@@ -389,14 +398,14 @@ const MortgageCalculatorPage = () => {
               </div>
 
               {/* Pie Chart */}
-              <div className='bg-white rounded-lg shadow-md p-6'>
-                <h2 className='text-xl font-bold text-gray-900 mb-4'>Payment Breakdown</h2>
+              <div className='bg-white rounded border border-black/10 p-6'>
+                <h2 className='font-serif text-xl lg:text-[22px] font-bold text-black mb-4'>Payment Breakdown</h2>
                 {renderPieChart()}
               </div>
 
               {/* Loan Summary */}
-              <div className='bg-white rounded-lg shadow-md p-6'>
-                <h2 className='text-xl font-bold text-gray-900 mb-4'>Loan Summary</h2>
+              <div className='bg-white rounded border border-black/10 p-6'>
+                <h2 className='font-serif text-xl lg:text-[22px] font-bold text-black mb-4'>Loan Summary</h2>
                 <div className='space-y-3'>
                   <div className='flex justify-between py-2 border-b border-gray-200'>
                     <span className='text-gray-600'>Loan Amount</span>
@@ -419,7 +428,7 @@ const MortgageCalculatorPage = () => {
           <div className='mt-8'>
             <button
               onClick={() => setShowAmortization(!showAmortization)}
-              className='cursor-pointer bg-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow font-semibold text-gray-900 border border-gray-200 flex items-center gap-2'
+              className='cursor-pointer bg-white px-7 py-4 rounded-sm border border-black/15 hover:border-primary/40 transition-colors font-condensed font-bold uppercase tracking-[0.14em] text-[13px] text-black flex items-center gap-2'
             >
               <span>{showAmortization ? 'Hide' : 'Show'} Amortization Schedule</span>
               <svg
@@ -433,7 +442,7 @@ const MortgageCalculatorPage = () => {
             </button>
 
             {showAmortization && (
-              <div className='bg-white rounded-lg shadow-md mt-4 overflow-hidden'>
+              <div className='bg-white rounded border border-black/10 mt-4 overflow-hidden'>
                 <div className='overflow-x-auto'>
                   <table className='w-full text-sm'>
                     <thead>

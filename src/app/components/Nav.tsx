@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-const Nav = () => {
+const Nav = ({ alwaysSolid = false }: { alwaysSolid?: boolean }) => {
   const pathname = usePathname()
   const [navVisible, setNavVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
-  const [isScrolled, setIsScrolled] = useState(false)
+  const [scrolledPastTop, setScrolledPastTop] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const isScrolled = alwaysSolid || scrolledPastTop
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/')
 
@@ -28,7 +30,7 @@ const Nav = () => {
       }
 
       // Check if scrolled past top
-      setIsScrolled(currentScrollY > 50)
+      setScrolledPastTop(currentScrollY > 50)
 
       setLastScrollY(currentScrollY)
     }
@@ -42,7 +44,7 @@ const Nav = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`font-body fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         navVisible ? 'translate-y-0' : '-translate-y-full'
       } ${isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'}`}
     >

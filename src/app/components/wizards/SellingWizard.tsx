@@ -62,20 +62,20 @@ const SellingWizard = () => {
   }
 
   const renderTimeframes = () => (
-    <div className='w-full flex flex-col gap-12 items-center'>
-      <h1 className='font-semibold tracking-tight text-3xl lg:text-5xl'>When do you need to sell?</h1>
-      <div className='w-full flex flex-col lg:flex-row gap-12 items-center flex-wrap justify-center relative px-12'>
+    <div className='w-full flex flex-col gap-10 items-center'>
+      <h3 className='font-serif font-bold tracking-tight text-2xl lg:text-[34px] leading-[1.15] text-center text-black'>When do you need to sell?</h3>
+      <div className='w-full flex flex-row gap-3.5 items-stretch flex-wrap justify-center relative px-2'>
         <NextArrow handleClick={() => setFrameNum(1)} />
         {timeframes.map(option => {
           const isSelected = option.value === sellingWizardForm.timeframe
           return (
             <div
               key={option.value}
-              className={`transition duration-500 w-[200px] h-[200px] border-2 border-black items-center justify-center rounded-xl flex flex-col gap-4 ${isSelected ? 'cursor-default text-white bg-black' : 'cursor-pointer hover:opacity-50'}`}
+              className={`transition-all duration-300 w-[150px] h-[150px] border rounded-sm flex flex-col gap-3 items-center justify-center ${isSelected ? 'cursor-default text-white bg-primary border-primary' : 'cursor-pointer bg-white border-black/15 hover:border-primary hover:bg-primary/[0.04]'}`}
               onClick={() => updateTimeframe(option.value)}
             >
-              <img src={`${isSelected ? '/timeframe-white.png' : '/timeframe.png'}`} height={50} width={50} />
-              <p className='font-bold tracking-tight text-xl'>{option.label}</p>
+              <img src={`${isSelected ? '/timeframe-white.png' : '/timeframe.png'}`} height={42} width={42} />
+              <p className='font-condensed font-bold tracking-[0.06em] uppercase text-[15px] text-center px-2'>{option.label}</p>
             </div>
           )
         })}
@@ -84,20 +84,20 @@ const SellingWizard = () => {
   )
 
   const renderWorths = () => (
-    <div className='w-full flex flex-col gap-12 items-center'>
-      <h1 className='font-semibold tracking-tight text-2xl lg:text-4xl text-center'>What do you think your property is worth?</h1>
-      <div className='w-full flex flex-col lg:flex-row gap-12 items-center flex-wrap justify-center relative'>
+    <div className='w-full flex flex-col gap-10 items-center'>
+      <h3 className='font-serif font-bold tracking-tight text-2xl lg:text-[34px] leading-[1.15] text-center text-black'>What do you think your property is worth?</h3>
+      <div className='w-full flex flex-row gap-3.5 items-stretch flex-wrap justify-center relative px-2'>
         <PrevArrow handleClick={() => setFrameNum(0)} />
         {worths.map(option => {
           const isSelected = option.value === sellingWizardForm.worth
           return (
             <div
               key={option.value}
-              className={`transition duration-500 w-[200px] h-[200px] border-2 border-black items-center justify-center rounded-xl flex flex-col gap-4 ${isSelected ? 'cursor-default text-white bg-black' : 'cursor-pointer hover:opacity-50'}`}
+              className={`transition-all duration-300 w-[150px] h-[150px] border rounded-sm flex flex-col gap-3 items-center justify-center ${isSelected ? 'cursor-default text-white bg-primary border-primary' : 'cursor-pointer bg-white border-black/15 hover:border-primary hover:bg-primary/[0.04]'}`}
               onClick={() => updateWorth(option.value)}
             >
-              <img src={`${isSelected ? '/budget-white.png' : '/budget.png'}`} height={50} width={50} />
-              <p className='font-bold tracking-tight text-xl'>{option.label}</p>
+              <img src={`${isSelected ? '/budget-white.png' : '/budget.png'}`} height={42} width={42} />
+              <p className='font-condensed font-bold tracking-[0.06em] uppercase text-[15px] text-center px-2'>{option.label}</p>
             </div>
           )
         })}
@@ -105,12 +105,11 @@ const SellingWizard = () => {
     </div>
   )
 
-    const renderContact = () => {
+  const renderContact = () => {
     if (!widgetURL) return <></>
     return (
       <div className='w-[100vw] max-w-[1200px] flex flex-col justify-center items-center'>
-        <h2 className='font-bold tracking-tight text-2xl lg:text-4xl text-center'>Thanks! Let&#39;s book a meeting</h2>
-
+        <h3 className='font-serif font-bold tracking-tight text-2xl lg:text-[34px] leading-[1.15] text-center text-black mb-6'>Thanks! Let&#39;s book a meeting.</h3>
         <iframe src={widgetURL} width='98%' height={1000} />
       </div>
     )
@@ -124,39 +123,49 @@ const SellingWizard = () => {
     if (frameNum < 1) setFrameNum(frameNum + 1)
   }
 
+  const StepLabel = ({ index, label, hasCheck }: { index: number; label: string; hasCheck: boolean }) => {
+    const active = frameNum === index
+    return (
+      <div
+        onClick={() => handleChangeFrame(index)}
+        className={`flex items-center gap-2 ${active ? 'cursor-default' : 'cursor-pointer'}`}
+      >
+        <span className={`font-condensed text-[11px] font-black tracking-[0.18em] uppercase ${active ? 'text-primary' : 'text-black/40 hover:text-black'}`}>
+          {label}
+        </span>
+        {hasCheck && <img src='/check-primary.png' height={11} width={11} />}
+      </div>
+    )
+  }
+
   if (frameNum === 2) return renderContact()
   return (
-    <div className='w-full shadow-2xl p-4 lg:p-8 flex flex-col items-center min-h-96 w-[90vw] lg:w-[1000px] bg-white'>
-      <div className='flex items-center justify-center w-full mb-8'>
-        <img src='/chevron-left.png' onClick={handlePrev} className={`${frameNum === 0 ? 'opacity-50' : 'cursor-pointer'} mr-4 h-8 w-8 hidden md:block`} />
-        <p onClick={() => handleChangeFrame(0)} className={`ml-2 mr-1 lg:ml-6 font-semibold tracking-tight ${frameNum === 0 ? 'text-primary cursor-default' : 'cursor-pointer'}`}>TIMEFRAME</p>
-        {sellingWizardForm.timeframe && <img src='/check-primary.png' height={12} width={12} />}
-        <p onClick={() => handleChangeFrame(1)} className={`ml-2 mr-1 lg:ml-6 font-semibold tracking-tight ${frameNum === 1 ? 'text-primary cursor-default' : 'cursor-pointer'}`}>VALUE</p>
-        {sellingWizardForm.worth && <img src='/check-primary.png' height={12} width={12} />}
-        <img src='/chevron-right.png' onClick={handleNext} className={`${frameNum === 1 ? 'opacity-50' : 'cursor-pointer'} ml-4 h-8 w-8 hidden md:block`} />
+    <div className='w-full bg-white border border-black/10 p-6 lg:p-10 flex flex-col items-center min-h-96 w-[90vw] lg:w-[860px] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.18)]'>
+      {/* Stepper */}
+      <div className='hidden md:flex items-center justify-center w-full mb-10 gap-5'>
+        <img src='/chevron-left.png' onClick={handlePrev} className={`${frameNum === 0 ? 'opacity-30 cursor-default' : 'cursor-pointer hover:opacity-70'} h-5 w-5 transition-opacity`} />
+        <StepLabel index={0} label='Timeframe' hasCheck={!!sellingWizardForm.timeframe} />
+        <span className='block w-8 h-px bg-black/20' />
+        <StepLabel index={1} label='Value' hasCheck={!!sellingWizardForm.worth} />
+        <img src='/chevron-right.png' onClick={handleNext} className={`${frameNum === 1 ? 'opacity-30 cursor-default' : 'cursor-pointer hover:opacity-70'} h-5 w-5 transition-opacity`} />
       </div>
       <div className='md:hidden flex items-center justify-between w-full mb-8'>
-        <div onClick={handlePrev} className={`${frameNum === 0 ? 'opacity-50' : 'cursor-pointer'} flex items-center`}>
-          <img src='/chevron-left.png' className='mr-2 h-6 w-6' />
-          <p>Previous</p>
+        <div onClick={handlePrev} className={`${frameNum === 0 ? 'opacity-30' : 'cursor-pointer'} flex items-center gap-1.5`}>
+          <img src='/chevron-left.png' className='h-5 w-5' />
+          <p className='font-condensed text-[11px] font-black tracking-[0.16em] uppercase'>Prev</p>
         </div>
-        <div onClick={handleNext} className={`${frameNum === 2 ? 'opacity-50' : 'cursor-pointer'} flex items-center`}>
-          <p>Next</p>
-          <img src='/chevron-right.png' className='ml-2 h-6 w-6' />
+        <div className='flex items-center gap-3'>
+          <StepLabel index={0} label='Time' hasCheck={!!sellingWizardForm.timeframe} />
+          <span className='block w-4 h-px bg-black/20' />
+          <StepLabel index={1} label='Value' hasCheck={!!sellingWizardForm.worth} />
+        </div>
+        <div onClick={handleNext} className={`${frameNum === 1 ? 'opacity-30' : 'cursor-pointer'} flex items-center gap-1.5`}>
+          <p className='font-condensed text-[11px] font-black tracking-[0.16em] uppercase'>Next</p>
+          <img src='/chevron-right.png' className='h-5 w-5' />
         </div>
       </div>
       { frameNum === 0 && renderTimeframes() }
       { frameNum === 1 && renderWorths() }
-      <div className='md:hidden flex items-center justify-between w-full my-8'>
-        <div onClick={handlePrev} className={`${frameNum === 0 ? 'opacity-50' : 'cursor-pointer'} flex items-center`}>
-          <img src='/chevron-left.png' className='mr-2 h-6 w-6' />
-          <p>Previous</p>
-        </div>
-        <div onClick={handleNext} className={`${frameNum === 3 ? 'opacity-50' : 'cursor-pointer'} flex items-center`}>
-          <p>Next</p>
-          <img src='/chevron-right.png' className='ml-2 h-6 w-6' />
-        </div>
-      </div>
     </div>
   )
 }
