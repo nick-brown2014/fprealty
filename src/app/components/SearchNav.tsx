@@ -11,7 +11,7 @@ const SearchNav = () => {
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/')
 
   return (
-    <nav className='fixed top-0 left-0 right-0 z-50 bg-white shadow-lg'>
+    <nav className='font-body fixed top-0 left-0 right-0 z-50 bg-white shadow-lg'>
       <div className='max-w-7xl mx-auto px-6 py-4'>
         <div className='flex justify-between items-center'>
           {/* Logo */}
@@ -26,24 +26,24 @@ const SearchNav = () => {
           <div className='hidden lg:flex items-center gap-8'>
             <Link
               href='/search'
-              className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                isActive('/search') ? 'text-primary' : ''
+              className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                isActive('/search') ? 'text-primary' : 'text-black'
               }`}
             >
               Search
             </Link>
             <Link
               href='/buying'
-              className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                isActive('/buying') ? 'text-primary' : ''
+              className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                isActive('/buying') ? 'text-primary' : 'text-black'
               }`}
             >
               Buy
             </Link>
             <Link
               href='/selling'
-              className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                isActive('/selling') ? 'text-primary' : ''
+              className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                isActive('/selling') ? 'text-primary' : 'text-black'
               }`}
             >
               Sell
@@ -57,16 +57,16 @@ const SearchNav = () => {
             </Link>
             <Link
               href='/mortgage-calculator'
-              className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                isActive('/mortgage-calculator') ? 'text-primary' : ''
+              className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                isActive('/mortgage-calculator') ? 'text-primary' : 'text-black'
               }`}
             >
               Calculator
             </Link>
             <Link
               href='/about'
-              className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                isActive('/about') ? 'text-primary' : ''
+              className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                isActive('/about') ? 'text-primary' : 'text-black'
               }`}
             >
               About
@@ -94,8 +94,8 @@ const SearchNav = () => {
             <div className='flex flex-col gap-4'>
               <Link
                 href='/search'
-                className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                  isActive('/search') ? 'text-primary' : ''
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isActive('/search') ? 'text-primary' : 'text-black'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -103,8 +103,8 @@ const SearchNav = () => {
               </Link>
               <Link
                 href='/buying'
-                className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                  isActive('/buying') ? 'text-primary' : ''
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isActive('/buying') ? 'text-primary' : 'text-black'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -112,8 +112,8 @@ const SearchNav = () => {
               </Link>
               <Link
                 href='/selling'
-                className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                  isActive('/selling') ? 'text-primary' : ''
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isActive('/selling') ? 'text-primary' : 'text-black'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -122,8 +122,8 @@ const SearchNav = () => {
               <Link
                 target='_blank'
                 href='https://www.showingnew.com/nocorealtor'
-                className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                  isActive('/selling') ? 'text-primary' : ''
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isActive('/selling') ? 'text-primary' : 'text-black'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -131,8 +131,8 @@ const SearchNav = () => {
               </Link>
               <Link
                 href='/mortgage-calculator'
-                className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                  isActive('/mortgage-calculator') ? 'text-primary' : ''
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isActive('/mortgage-calculator') ? 'text-primary' : 'text-black'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -140,8 +140,8 @@ const SearchNav = () => {
               </Link>
               <Link
                 href='/about'
-                className={`hover:text-primary transition uppercase tracking-wide text-sm text-black ${
-                  isActive('/about') ? 'text-primary' : ''
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isActive('/about') ? 'text-primary' : 'text-black'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Libre_Baskerville, Barlow, Barlow_Condensed } from "next/font/google";
 import { CookiesProvider } from 'next-client-cookies/server';
 import { Providers } from './providers';
 import Script from "next/script";
@@ -12,6 +12,25 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const libreBaskerville = Libre_Baskerville({
+  variable: "--font-libre-baskerville",
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+});
+
+const barlow = Barlow({
+  variable: "--font-barlow",
+  weight: ["300", "400", "500"],
+  subsets: ["latin"],
+});
+
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
+  weight: ["400", "600", "700", "900"],
   subsets: ["latin"],
 });
 
@@ -50,7 +69,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${libreBaskerville.variable} ${barlow.variable} ${barlowCondensed.variable} antialiased`}>
         <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=AW-668025904"

@@ -14,6 +14,9 @@
   --font-mono: var(--font-geist-mono);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
+  --font-serif: var(--font-libre-baskerville);
+  --font-condensed: var(--font-barlow-condensed);
+  --font-body: var(--font-barlow);
 }
 
 body {
