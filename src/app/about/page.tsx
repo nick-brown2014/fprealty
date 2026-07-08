@@ -31,7 +31,7 @@ const values = [
 
 const stats = [
   { num: "30+", label: "Years in Fort Collins" },
-  { num: "$10M+", label: "Annual Sales (2024)" },
+  { num: "$50M+", label: "Annual Sales (2024)" },
   { num: "100s", label: "Families Served" },
   { num: "1", label: "Family Business" },
 ];
@@ -142,7 +142,7 @@ const About = () => {
                 Fred moved to Fort Collins in 1992 and earned a Chemical Engineering degree from Colorado State University. He spent two decades as an environmental and process engineer — including 8 years at New Belgium Brewing — before taking the leap into real estate full-time in 2013. Early on, he carved out a niche in Red Feather Lakes and Livermore, then expanded into Fort Collins by applying an &ldquo;engineering approach&rdquo; that turned every transaction into a clear, step-by-step process.
               </p>
               <p className='text-[15px] lg:text-base leading-[1.78] text-white/70 font-light mb-5'>
-                In 2019 he opened Porter Real Estate, and in 2023 he brought on his daughter Isabella — making it a true family-run business. With over 30 years in Fort Collins and $10M+ in 2024 sales, Fred has helped hundreds of families buy and sell across Northern Colorado.
+                In 2019 he opened Porter Real Estate, and in 2023 he brought on his daughter Isabella — making it a true family-run business. With over 30 years in Fort Collins and $50M+ in 2024 sales, Fred has helped hundreds of families buy and sell across Northern Colorado.
               </p>
               <p className='text-[15px] lg:text-base leading-[1.78] text-white/70 font-light'>
                 Outside the office, Fred skis Cameron Pass, rides Blue Sky to the Devil&#39;s Backbone, volunteers as a roller derby skating official, and trains at CrossFit DNR. He especially loves introducing newcomers to everything that makes NoCo home.
