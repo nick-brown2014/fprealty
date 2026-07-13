@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 const stats = [
-  { num: '$10M+', label: 'In homes sold (2024)' },
+  { num: '$50M+', label: 'In homes sold (2024)' },
   { num: '100s', label: 'Of NoCo families helped' },
   { num: '30+ yrs', label: 'Living in Fort Collins' },
   { num: '★★★★★', label: '5-star rated by clients' },
@@ -88,7 +88,7 @@ const SectionLabel = ({ children, className = '' }: { children: React.ReactNode;
 const HomeValuationPage = () => (
   <div className='w-full font-body bg-[#F8F6F2] text-black'>
     <Nav alwaysSolid />
-    <div className='max-w-[960px] mx-auto pt-20'>
+    <div className='max-w-[1280px] mx-auto pt-20 pb-10'>
       <section className='relative overflow-hidden bg-black'>
         <div
           className='absolute inset-0 bg-cover bg-center bg-no-repeat'
@@ -107,7 +107,7 @@ const HomeValuationPage = () => (
             </p>
             <div className='flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-white/75'>
               <span className='text-[#F5B301] tracking-[0.12em]'>★★★★★</span><b className='text-white'>5-star rated</b>
-              <span className='text-white/40'>•</span><b className='text-white'>$10M+</b> in homes sold
+              <span className='text-white/40'>•</span><b className='text-white'>$50M+</b> in homes sold
               <span className='text-white/40'>•</span><b className='text-white'>Family-run</b> since 2019
             </div>
             <div className='flex items-center gap-3 mt-7 bg-white/10 border border-white/20 px-3.5 py-2.5 rounded-full w-fit max-w-full'>
@@ -158,7 +158,7 @@ const HomeValuationPage = () => (
           <p className='text-base leading-relaxed text-[#555] font-light mb-4'>Fred spent two decades as an engineer before taking a leap into real estate in 2013. He brings that same engineer&apos;s mindset to selling homes — a clear, systematic, step-by-step process that takes the stress out of selling and gets his clients the best possible price.</p>
           <p className='text-base leading-relaxed text-[#555] font-light'>Thirty-plus years in Fort Collins means Fred knows these neighborhoods inside out — the schools, the trails, the market. And because Porter Real Estate is family-run, every client gets personal, honest attention a big-box brokerage simply can&apos;t match.</p>
           <div className='flex flex-wrap gap-2 mt-5'>
-            {['Engineer-turned-realtor', 'Family-run brokerage', '$10M+ sold in 2024', 'Hundreds of homes sold'].map((chip) => (
+            {['Engineer-turned-realtor', 'Family-run brokerage', '$50M+ sold in 2024', 'Hundreds of homes sold'].map((chip) => (
               <span key={chip} className='bg-[#F8F6F2] border border-black/10 rounded-full px-3.5 py-1.5 text-xs font-semibold text-primary'>{chip}</span>
             ))}
           </div>
@@ -169,17 +169,12 @@ const HomeValuationPage = () => (
         <SectionLabel>Simple from start to finish</SectionLabel>
         <h2 className='font-serif text-3xl lg:text-[40px] leading-[1.12] font-bold mb-4 text-white'>How your free valuation works</h2>
         <p className='text-base leading-relaxed text-white/[0.62] max-w-[600px] font-light mb-9'>A straightforward way to understand your home&apos;s value, with a local expert in your corner.</p>
-        <div className='flex flex-col'>
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-5'>
           {steps.map((step, i) => (
-            <div key={step.title} className={`grid grid-cols-[56px_1fr] gap-6 items-start py-7 ${i < steps.length - 1 ? 'border-b border-white/10' : ''}`}>
-              <div className='flex flex-col items-center'>
-                <div className='w-12 h-12 rounded-full bg-primary flex items-center justify-center font-condensed text-xl font-black text-white shrink-0'>{i + 1}</div>
-                {i < steps.length - 1 && <div className='w-0.5 flex-1 bg-white/10 min-h-[24px] mt-1' />}
-              </div>
-              <div className='pt-2'>
-                <div className='font-condensed text-[22px] font-bold uppercase tracking-[0.04em] text-white mb-2'>{step.title}</div>
-                <p className='text-sm leading-[1.68] text-white/60 font-light max-w-[560px]'>{step.text}</p>
-              </div>
+            <div key={step.title} className='bg-white/[0.04] border border-white/10 rounded-lg p-7 lg:p-8'>
+              <div className='w-12 h-12 rounded-full bg-primary flex items-center justify-center font-condensed text-xl font-black text-white shrink-0 mb-4'>{i + 1}</div>
+              <div className='font-condensed text-[22px] font-bold uppercase tracking-[0.04em] text-white mb-2'>{step.title}</div>
+              <p className='text-sm leading-[1.68] text-white/60 font-light'>{step.text}</p>
             </div>
           ))}
         </div>

@@ -124,7 +124,7 @@ const BuyingPage = () => {
   return (
     <div className='w-full font-body bg-[#F8F6F2] text-black'>
       <Nav alwaysSolid />
-      <div className='max-w-[960px] mx-auto pt-20'>
+      <div className='max-w-[1280px] mx-auto pt-20 pb-10'>
         {/* HERO */}
         <section className='relative overflow-hidden min-h-[560px] flex flex-col bg-black'>
           <div
@@ -229,32 +229,29 @@ const BuyingPage = () => {
           <p className='text-base leading-relaxed text-white/60 max-w-[600px] font-light mb-10'>
             Here&#39;s exactly what working with Fred looks like — every step, every conversation, every safeguard.
           </p>
-          <div className='mt-8'>
+          <div className='mt-8 grid grid-cols-1 lg:grid-cols-2 gap-5'>
             {processSteps.map((step, i) => (
               <div
                 key={step.title}
-                className={`grid grid-cols-[56px_1fr] gap-6 items-start py-8 ${i < processSteps.length - 1 ? 'border-b border-white/10' : ''}`}
+                className='bg-white/[0.04] border border-white/10 rounded-lg p-7 lg:p-8'
               >
-                <div className='flex flex-col items-center'>
+                <div className='flex items-center gap-4 mb-4'>
                   <div className='w-12 h-12 rounded-full bg-primary flex items-center justify-center font-condensed text-xl font-black text-white shrink-0'>
                     {i + 1}
                   </div>
-                  {i < processSteps.length - 1 && <div className='w-0.5 flex-1 bg-white/10 min-h-[24px] mt-1' />}
+                  <div className='text-[11px] font-semibold tracking-[0.16em] uppercase text-[#90A4AE]'>{step.time}</div>
                 </div>
-                <div className='pt-2.5'>
-                  <div className='text-[11px] font-semibold tracking-[0.16em] uppercase text-[#90A4AE] mb-2'>{step.time}</div>
-                  <div className='font-condensed text-[22px] font-bold uppercase tracking-[0.04em] text-white mb-2.5'>{step.title}</div>
-                  <p className='text-sm leading-[1.68] text-white/60 font-light max-w-[560px]'>{step.desc}</p>
-                  <div className='mt-3.5 flex gap-2 flex-wrap'>
-                    {step.chips.map((chip) => (
-                      <span
-                        key={chip}
-                        className='text-[11px] font-medium tracking-[0.08em] uppercase bg-primary/20 text-[#F48882] px-3 py-[5px] rounded-sm border border-primary/30'
-                      >
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
+                <div className='font-condensed text-[22px] font-bold uppercase tracking-[0.04em] text-white mb-2.5'>{step.title}</div>
+                <p className='text-sm leading-[1.68] text-white/60 font-light'>{step.desc}</p>
+                <div className='mt-3.5 flex gap-2 flex-wrap'>
+                  {step.chips.map((chip) => (
+                    <span
+                      key={chip}
+                      className='text-[11px] font-medium tracking-[0.08em] uppercase bg-primary/20 text-[#F48882] px-3 py-[5px] rounded-sm border border-primary/30'
+                    >
+                      {chip}
+                    </span>
+                  ))}
                 </div>
               </div>
             ))}
