@@ -1,8 +1,6 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
-import NextArrow from '@/app/components/wizards/NextArrow'
-import PrevArrow from '@/app/components/wizards/PrevArrow'
 
 declare global {
   interface Window {
@@ -171,8 +169,7 @@ const HomeValuationForm = () => {
       </div>
 
       {step === 0 && (
-        <div className='relative'>
-          <NextArrow handleClick={handleNext} />
+        <div>
           <p className='mb-2 font-condensed text-xs font-bold uppercase tracking-[0.18em] text-primary'>Step 1 · Your property</p>
           <h3 className='font-serif text-2xl font-bold tracking-tight text-black md:text-3xl'>Where is your home?</h3>
           <p className='mt-2 mb-7 font-body text-sm leading-relaxed text-black/60'>Start with the address and we&#39;ll prepare a valuation for your property.</p>
@@ -182,9 +179,7 @@ const HomeValuationForm = () => {
       )}
 
       {step === 1 && (
-        <div className='relative'>
-          <PrevArrow handleClick={handlePrevious} />
-          <NextArrow handleClick={handleNext} />
+        <div>
           <p className='mb-2 font-condensed text-xs font-bold uppercase tracking-[0.18em] text-primary'>Step 2 · Property details</p>
           <h3 className='font-serif text-2xl font-bold tracking-tight text-black md:text-3xl'>Tell us about your home</h3>
           <div className='mt-6 grid gap-5 sm:grid-cols-2'>
@@ -212,9 +207,7 @@ const HomeValuationForm = () => {
       )}
 
       {step === 2 && (
-        <div className='relative'>
-          <PrevArrow handleClick={handlePrevious} />
-          <NextArrow handleClick={handleNext} />
+        <div>
           <p className='mb-2 font-condensed text-xs font-bold uppercase tracking-[0.18em] text-primary'>Step 3 · Your timing</p>
           <h3 className='font-serif text-2xl font-bold tracking-tight text-black md:text-3xl'>When are you thinking about selling?</h3>
           <div className='mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3'>
@@ -229,7 +222,6 @@ const HomeValuationForm = () => {
 
       {step === 3 && (
         <div>
-          <PrevArrow handleClick={handlePrevious} />
           <p className='mb-2 font-condensed text-xs font-bold uppercase tracking-[0.18em] text-primary'>Step 4 · Your details</p>
           <h3 className='font-serif text-2xl font-bold tracking-tight text-black md:text-3xl'>Where should we send your report?</h3>
           <div className='mt-6 grid gap-5 sm:grid-cols-2'>
