@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const GHL_CONTACTS_URL = 'https://services.leadconnectorhq.com/contacts/'
+const GHL_CONTACTS_URL = 'https://services.leadconnectorhq.com/contacts/upsert'
 const GHL_LOCATION_ID = 'zGwqa9Oyk55imvfPlRzO'
 
 const customFieldIds = {
