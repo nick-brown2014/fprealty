@@ -97,9 +97,9 @@ const HomeValuationForm = () => {
   }
 
   const trackSubmission = () => {
-    if (typeof window.gtag === 'function' && process.env.NEXT_PUBLIC_GADS_HV_LABEL) {
+    if (typeof window.gtag === 'function') {
       window.gtag('event', 'conversion', {
-        send_to: `AW-668025904/${process.env.NEXT_PUBLIC_GADS_HV_LABEL}`,
+        send_to: 'AW-668025904/DuIpCJCS1PQCELCIxb4C',
       })
     }
     window.dataLayer = window.dataLayer || []
