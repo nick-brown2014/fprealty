@@ -80,14 +80,22 @@ const Nav = ({ alwaysSolid = false }: { alwaysSolid?: boolean }) => {
                 Buy
               </Link>
               
-              <Link
-                href='/selling'
-                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                  isActive('/selling') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
-                }`}
-              >
-                Sell
-              </Link>
+              <div className='relative group'>
+                <button
+                  type='button'
+                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                    isActive('/selling') || isActive('/home-valuation') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                  }`}
+                >
+                  Sell
+                </button>
+                <div className='absolute left-1/2 top-full hidden -translate-x-1/2 pt-3 group-hover:block group-focus-within:block'>
+                  <div className='w-48 rounded bg-white p-2 shadow-lg'>
+                    <Link href='/selling' className='block px-3 py-2 text-sm text-black hover:bg-black/5 hover:text-primary'>Sell Your Home</Link>
+                    <Link href='/home-valuation' className='block px-3 py-2 text-sm text-black hover:bg-black/5 hover:text-primary'>Home Valuation</Link>
+                  </div>
+                </div>
+              </div>
               <Link
                 target='_blank'
                 href='https://www.showingnew.com/nocorealtor'
@@ -151,15 +159,27 @@ const Nav = ({ alwaysSolid = false }: { alwaysSolid?: boolean }) => {
                 >
                   Buy
                 </Link>
-                <Link
-                  href='/selling'
-                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
-                    isActive('/selling') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Sell
-                </Link>
+                <div className={`uppercase tracking-wide text-sm ${
+                  isActive('/selling') || isActive('/home-valuation') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                }`}>
+                  <div>Sell</div>
+                  <div className='flex flex-col gap-3 pl-4 pt-3 normal-case tracking-normal'>
+                    <Link
+                      href='/selling'
+                      className={`hover:text-primary transition text-sm ${isActive('/selling') ? 'text-primary' : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sell Your Home
+                    </Link>
+                    <Link
+                      href='/home-valuation'
+                      className={`hover:text-primary transition text-sm ${isActive('/home-valuation') ? 'text-primary' : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Home Valuation
+                    </Link>
+                  </div>
+                </div>
                 <Link
                   target='_blank'
                   href='https://www.showingnew.com/nocorealtor '

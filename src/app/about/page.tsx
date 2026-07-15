@@ -47,7 +47,7 @@ const About = () => {
   return (
     <div className='w-full font-body bg-[#F8F6F2] text-black'>
       <Nav alwaysSolid />
-      <div className='max-w-[960px] mx-auto pt-20'>
+      <div className='max-w-[1280px] mx-auto pt-20 pb-10'>
         {/* HERO */}
         <section className='relative overflow-hidden min-h-[520px] flex flex-col bg-black'>
           <div
