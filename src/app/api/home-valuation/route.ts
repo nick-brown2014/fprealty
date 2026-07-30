@@ -4,10 +4,11 @@ const GHL_CONTACTS_URL = 'https://services.leadconnectorhq.com/contacts/upsert'
 const GHL_LOCATION_ID = 'zGwqa9Oyk55imvfPlRzO'
 
 const customFieldIds = {
-  bedrooms: '4e9uLPFbCEdW8YCIgEov',
-  bathrooms: 'VRisEKE735etjYpmrBb1',
-  squareFootage: 'ro4ZdHyzrA5rn4gb1n9T',
-  timeframe: 'gdLmp9l2O93D7ylXDZXx',
+  propertyType: 'Ry5AU3Bu5Gq0YxarhG6n',
+  bedrooms: 'IGwt0MNpY2oZQkhjnsl8',
+  bathrooms: 'EII81ew4FTUhQUdFPkS9',
+  squareFootage: 'ui8Z4OvlMraeFLxhefeR',
+  timeframe: 'VRisEKE735etjYpmrBb1',
 } as const
 
 type HomeValuationInput = {
@@ -100,10 +101,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const tags = [
-      'home-valuation-lead',
-      `Property type: ${input.propertyType || 'Not specified'}`,
-    ]
+    const tags = ['home-valuation-lead']
 
     const payload: GhlContactPayload = {
       locationId: GHL_LOCATION_ID,
@@ -115,11 +113,14 @@ export async function POST(request: NextRequest) {
       source: 'Home Valuation Form',
       tags,
       customFields: [
-        { id: customFieldIds.bedrooms, value: input.bedrooms },
-        { id: customFieldIds.bathrooms, value: input.bathrooms },
-        { id: customFieldIds.squareFootage, value: input.squareFootage },
-        { id: customFieldIds.timeframe, value: input.timeframe },
-      ],
+        [customFieldIds.propertyType, input.propertyType],
+        [customFieldIds.bedrooms, input.bedrooms],
+        [customFieldIds.bathrooms, input.bathrooms],
+        [customFieldIds.squareFootage, input.squareFootage],
+        [customFieldIds.timeframe, input.timeframe],
+      ]
+        .filter(([, value]) => value)
+        .map(([id, value]) => ({ id, value })),
     }
 
     const response = await fetch(GHL_CONTACTS_URL, {
