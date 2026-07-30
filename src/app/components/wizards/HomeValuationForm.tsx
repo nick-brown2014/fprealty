@@ -42,8 +42,10 @@ const initialForm: HomeValuationData = {
   consent: false,
 }
 
-const timeframes = ['ASAP', 'Within 3 months', '3–6 months', '6–12 months', '12+ months', 'Just curious']
+const timeframes = ['ASAP', 'Within 3 Months', '3-6 Months', '6-12 Months', '12+ Months', 'Just curious']
 const propertyTypes = ['Single-family house', 'Townhome', 'Condo', 'Multi-family property', 'Other']
+const bedroomOptions = ['1', '2', '3', '4', '5', 'More than 5']
+const bathroomOptions = ['1', '2', '3', '4', 'More than 4']
 const inputClasses = 'w-full border border-black/15 bg-white px-4 py-3.5 font-body text-base outline-none transition-colors placeholder:text-black/35 focus:border-primary'
 const labelClasses = 'mb-2 block font-condensed text-xs font-bold uppercase tracking-[0.16em] text-black/70'
 
@@ -192,11 +194,17 @@ const HomeValuationForm = () => {
             </div>
             <div>
               <label className={labelClasses} htmlFor='bedrooms'>Bedrooms</label>
-              <input id='bedrooms' type='number' min='0' value={form.bedrooms} onChange={event => updateField('bedrooms', event.target.value)} className={inputClasses} placeholder='3' />
+              <select id='bedrooms' value={form.bedrooms} onChange={event => updateField('bedrooms', event.target.value)} className={inputClasses}>
+                <option value=''>Select bedrooms</option>
+                {bedroomOptions.map(option => <option key={option} value={option}>{option}</option>)}
+              </select>
             </div>
             <div>
               <label className={labelClasses} htmlFor='bathrooms'>Bathrooms</label>
-              <input id='bathrooms' type='number' min='0' step='0.5' value={form.bathrooms} onChange={event => updateField('bathrooms', event.target.value)} className={inputClasses} placeholder='2' />
+              <select id='bathrooms' value={form.bathrooms} onChange={event => updateField('bathrooms', event.target.value)} className={inputClasses}>
+                <option value=''>Select bathrooms</option>
+                {bathroomOptions.map(option => <option key={option} value={option}>{option}</option>)}
+              </select>
             </div>
             <div className='sm:col-span-2'>
               <label className={labelClasses} htmlFor='square-footage'>Square footage</label>
