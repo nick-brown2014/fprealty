@@ -103,6 +103,8 @@ const Search = () => {
   const [savedSearchBounds, setSavedSearchBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [isApplyingSavedSearch, setIsApplyingSavedSearch] = useState(false)
   const [isApplyingFavorites, setIsApplyingFavorites] = useState(false)
+  const [viewportBounds, setViewportBounds] = useState<google.maps.LatLngBounds | null>(null)
+  const [fitListingsStage, setFitListingsStage] = useState<'idle' | 'waiting' | 'armed'>('idle')
   const [initialLocationParam] = useState(() => searchParams.get('location'))
   const [initialSavedSearchParam] = useState(() => searchParams.get('saved'))
   const [hasLoadedSavedSearch, setHasLoadedSavedSearch] = useState(false)
@@ -310,12 +312,17 @@ const Search = () => {
   const handleMapIdle = useCallback((map: google.maps.Map) => {
     const bounds = map.getBounds()
     if (bounds) {
+      setViewportBounds(bounds)
       if (!mapInitialized) {
         // First idle event - just mark as initialized, don't show button
         setMapInitialized(true)
-      } else if (!isApplyingSavedSearch && !isApplyingFavorites) {
+      } else if (isApplyingSavedSearch || isApplyingFavorites) {
+        // This idle was triggered by our own fitBounds call - clear the flags
+        // now that the map has settled, so the button isn't shown
+        setIsApplyingSavedSearch(false)
+        setIsApplyingFavorites(false)
+      } else {
         // Subsequent idle events - user has interacted with map
-        // Don't show button if we're applying a saved search or favorites
         setPendingMapBounds(bounds)
         setShowSearchAreaButton(true)
       }
@@ -355,7 +362,7 @@ const Search = () => {
     setShowSearchAreaButton(false)
     setPendingMapBounds(null)
 
-    // Handle map bounds if present
+    // Handle map bounds if present, otherwise fit the map to the results once loaded
     if (search.bounds) {
       setIsApplyingSavedSearch(true)
       const bounds = new google.maps.LatLngBounds(
@@ -364,11 +371,25 @@ const Search = () => {
       )
       setMapBounds(bounds)
       setSavedSearchBounds(bounds)
+      setFitListingsStage('idle')
     } else {
       setMapBounds(null)
       setSavedSearchBounds(null)
+      setFitListingsStage('waiting')
     }
   }, [])
+
+  // Advance the fit-to-listings fallback: wait for the new fetch to start, then fit once it finishes
+  useEffect(() => {
+    if (fitListingsStage === 'waiting' && loading) {
+      setFitListingsStage('armed')
+      setIsApplyingSavedSearch(true)
+    } else if (fitListingsStage === 'armed' && !loading && listings.length === 0) {
+      // Nothing to fit to - stand down
+      setFitListingsStage('idle')
+      setIsApplyingSavedSearch(false)
+    }
+  }, [fitListingsStage, loading, listings.length])
 
   // Handle saved search URL parameter on mount
   useEffect(() => {
@@ -699,7 +720,7 @@ const Search = () => {
           {user && (
             <div className='flex justify-between pt-2 w-[90vw] max-w-[1200px]'>
               <button
-                  onClick={() => searchFilters && saveSearch(searchFilters)}
+                  onClick={() => searchFilters && saveSearch({ ...searchFilters, mapBounds: searchFilters.mapBounds ?? viewportBounds })}
                   disabled={saveSearchState !== 'idle' || !searchFilters}
                   className='text-primary text-sm hover:underline cursor-pointer font-semibold disabled:opacity-50'
                 >
@@ -764,18 +785,15 @@ const Search = () => {
                 <MapEventHandler onIdle={handleMapIdle} />
                 <MapBoundsHandler
                   listings={listings}
-                  shouldFit={shouldFitFavorites}
+                  shouldFit={shouldFitFavorites || (fitListingsStage === 'armed' && !loading)}
                   onBoundsApplied={() => {
-                    setIsApplyingFavorites(false)
                     setShouldFitFavorites(false)
+                    setFitListingsStage('idle')
                   }}
                 />
                 <SavedSearchBoundsHandler
                   bounds={savedSearchBounds}
-                  onBoundsApplied={() => {
-                    setIsApplyingSavedSearch(false)
-                    setSavedSearchBounds(null)
-                  }}
+                  onBoundsApplied={() => setSavedSearchBounds(null)}
                 />
                 {listings.map((listing) => (
                   <ListingMarker key={listing.ListingKey} listing={listing} />
