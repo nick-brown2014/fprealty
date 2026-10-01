@@ -113,6 +113,14 @@ const Nav = ({ alwaysSolid = false }: { alwaysSolid?: boolean }) => {
                 Calculator
               </Link>
               <Link
+                href='/blog'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isActive('/blog') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                }`}
+              >
+                Blog
+              </Link>
+              <Link
                 href='/about'
                 className={`hover:text-primary transition uppercase tracking-wide text-sm ${
                   isActive('/about') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
@@ -198,6 +206,15 @@ const Nav = ({ alwaysSolid = false }: { alwaysSolid?: boolean }) => {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Calculator
+                </Link>
+                <Link
+                  href='/blog'
+                  className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                    isActive('/blog') ? 'text-primary' : isScrolled ? 'text-black' : 'text-white'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Blog
                 </Link>
                 <Link
                   href='/about'
