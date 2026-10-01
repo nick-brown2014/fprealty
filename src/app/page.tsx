@@ -23,16 +23,16 @@ type WebinarProps = {
 const webinars: WebinarProps[] = [
   {
     title: 'First Time Home Buyer Webinar',
-    date: new Date(2026, 8, 17, 19, 0),
+    date: new Date(2026, 9, 16, 19, 0),
     description: 'Thinking about buying your first home in Northern Colorado? This free webinar walks you through it step by step: what you can afford, down payment assistance options, getting pre-approved, writing a strong offer and what happens between contract and closing. Bring your questions.',
-    image: '/webinar-first-time-buyer.jpg',
+    image: '/webinar-first-time-buyer.webp',
     signUpUrl: 'https://nocohomebuyerwebinar.com/landing-page',
   },
   {
     title: 'Downsizing Made Simple',
     date: new Date(2026, 9, 7, 19, 0),
     description: 'Kids moved out, or just ready for less house and more life? This free webinar covers timing the sale of your current home with your next purchase, pricing and prepping to sell, low-maintenance options like ranch and patio homes, and how to make the move less stressful.',
-    image: '/webinar-downsizing.jpg',
+    image: '/webinar-downsizing.webp',
     signUpUrl: 'https://downsize.yourhomeclass.com/register',
   },
 ]

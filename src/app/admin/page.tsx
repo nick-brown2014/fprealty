@@ -321,6 +321,12 @@ const AdminPage = () => {
           <h1 className='text-3xl font-bold text-gray-900'>Admin Dashboard</h1>
           <div className='flex gap-4'>
             <button
+              onClick={() => router.push('/admin/posts')}
+              className='cursor-pointer bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition'
+            >
+              Manage Blog Posts
+            </button>
+            <button
               onClick={openCreateModal}
               className='cursor-pointer bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition'
             >
