@@ -72,6 +72,14 @@ const SearchNav = () => {
               Calculator
             </Link>
             <Link
+              href='/blog'
+              className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                isActive('/blog') ? 'text-primary' : 'text-black'
+              }`}
+            >
+              Blog
+            </Link>
+            <Link
               href='/about'
               className={`hover:text-primary transition uppercase tracking-wide text-sm ${
                 isActive('/about') ? 'text-primary' : 'text-black'
@@ -157,6 +165,15 @@ const SearchNav = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Calculator
+              </Link>
+              <Link
+                href='/blog'
+                className={`hover:text-primary transition uppercase tracking-wide text-sm ${
+                  isActive('/blog') ? 'text-primary' : 'text-black'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
               </Link>
               <Link
                 href='/about'
