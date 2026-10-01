@@ -11,6 +11,49 @@ type ReviewProps = {
   date: string,
 }
 
+type WebinarProps = {
+  title: string,
+  date: Date,
+  description: string,
+  image: string,
+  signUpUrl: string,
+}
+
+// Dates are local (America/Denver) — update these when new sessions are scheduled.
+const webinars: WebinarProps[] = [
+  {
+    title: 'First Time Home Buyer Webinar',
+    date: new Date(2026, 9, 16, 19, 0),
+    description: 'Thinking about buying your first home in Northern Colorado? This free webinar walks you through it step by step: what you can afford, down payment assistance options, getting pre-approved, writing a strong offer and what happens between contract and closing. Bring your questions.',
+    image: '/webinar-first-time-buyer.webp',
+    signUpUrl: 'https://nocohomebuyerwebinar.com/landing-page',
+  },
+  {
+    title: 'Downsizing Made Simple',
+    date: new Date(2026, 9, 7, 19, 0),
+    description: 'Kids moved out, or just ready for less house and more life? This free webinar covers timing the sale of your current home with your next purchase, pricing and prepping to sell, low-maintenance options like ranch and patio homes, and how to make the move less stressful.',
+    image: '/webinar-downsizing.webp',
+    signUpUrl: 'https://downsize.yourhomeclass.com/register',
+  },
+]
+
+const ordinal = (day: number) => {
+  if (day > 3 && day < 21) return 'th'
+  switch (day % 10) {
+    case 1: return 'st'
+    case 2: return 'nd'
+    case 3: return 'rd'
+    default: return 'th'
+  }
+}
+
+const formatWebinarDate = (date: Date) => {
+  const weekday = date.toLocaleDateString('en-US', { weekday: 'long' })
+  const month = date.toLocaleDateString('en-US', { month: 'long' })
+  const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  return `${weekday}, ${month} ${date.getDate()}${ordinal(date.getDate())} @ ${time}`
+}
+
 const reviews: ReviewProps[] = [
   {
     review: "If you are looking for a realtor who will go above and beyond your expectations, then you are looking for Porter Real Estate. Fred commuted over multiple weekends, looking at dozens of potential homes. Rather than pushing us into a sale, he used his decades of experience as a realtor and civil engineer to point out flaws that we had missed. When we did decide on a place, he got it for us for well under the original asking price as well! As a first time home owner, his commitment to ensuring that we found the perfect place was an invaluable comfort. We will never use another realtor, and neither should you.",
@@ -311,6 +354,45 @@ export default function NewHome() {
             <iframe width='300' height='200' src='https://www.youtube.com/embed/VYysxfzgMx0?si=ySI3GUTlvBeLOieG' title='YouTube video player' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerPolicy='strict-origin-when-cross-origin' allowFullScreen></iframe>
             <iframe width='300' height='200' src='https://www.youtube.com/embed/N2g1gFCXq1g?si=5Olg6ebPQNLKE14c' title='YouTube video player' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerPolicy='strict-origin-when-cross-origin' allowFullScreen></iframe>
             <iframe width='300' height='200' src='https://www.youtube.com/embed/_gYoP3U2hFE?si=eF12D5W9AmOxsdI8' title='YouTube video player' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' referrerPolicy='strict-origin-when-cross-origin' allowFullScreen></iframe>
+          </div>
+
+          {/* Webinars */}
+          <div className='mt-16 w-full px-4 max-w-[900px] grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-8'>
+            {webinars.map((webinar) => {
+              const isPast = webinar.date.getTime() < Date.now()
+              const canSignUp = !isPast && webinar.signUpUrl
+              return (
+                <div key={webinar.title} className='flex flex-col items-center text-center'>
+                  <div className='w-full aspect-square bg-gray-200 overflow-hidden'>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={webinar.image} alt={webinar.title} loading='lazy' className='w-full h-full object-cover' />
+                  </div>
+                  <h3 className='mt-12 text-2xl lg:text-3xl font-bold tracking-wide px-6'>{webinar.title}</h3>
+                  <p className='mt-6 text-2xl lg:text-3xl font-bold tracking-wide px-6'>{formatWebinarDate(webinar.date)}</p>
+                  <p className='mt-6 text-sm font-bold tracking-wide uppercase self-start px-6'>Live Online · Free</p>
+                  <p className='mt-4 tracking-wide text-left text-lg px-6'>{webinar.description}</p>
+                  <div className='flex-1' />
+                  {canSignUp ? (
+                    <a
+                      href={webinar.signUpUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='mt-10 inline-block bg-primary text-white text-lg font-bold px-12 py-3.5 rounded-lg hover:bg-[#8B0A0C] transition-colors'
+                    >
+                      Reserve your spot
+                    </a>
+                  ) : (
+                    <button
+                      type='button'
+                      disabled
+                      className='mt-10 inline-block bg-gray-300 text-gray-600 text-lg font-bold px-12 py-3.5 rounded-lg cursor-not-allowed'
+                    >
+                      {isPast ? 'Registration closed' : 'Coming soon'}
+                    </button>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
         <Footer />
