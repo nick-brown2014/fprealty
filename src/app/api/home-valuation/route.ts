@@ -13,6 +13,7 @@ type HomeValuationInput = {
   lastName: string
   phone: string
   email: string
+  estimatedValue: string
   consent: boolean
 }
 
@@ -38,6 +39,7 @@ const parseInput = (value: unknown): HomeValuationInput | null => {
     lastName: stringValue(value.lastName),
     phone: stringValue(value.phone),
     email: stringValue(value.email),
+    estimatedValue: stringValue(value.estimatedValue),
     consent: value.consent === true,
   }
 
@@ -78,6 +80,7 @@ export async function POST(request: NextRequest) {
       bathrooms: input.bathrooms,
       squareFootage: input.squareFootage,
       timeframe: input.timeframe,
+      estimatedValue: input.estimatedValue,
       consent: input.consent,
       source: 'Home Valuation Form',
       tag: 'home-valuation-lead',

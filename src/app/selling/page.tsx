@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
-import SellingWizard from "@/app/components/wizards/SellingWizard";
+import HomeValuationForm from "@/app/components/wizards/HomeValuationForm";
 
 export const metadata: Metadata = {
   title: "Sell Your NoCo Home | Fred Porter | Porter Real Estate",
@@ -103,14 +103,14 @@ const stats = [
 ];
 
 const photos = [
-  { src: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=700&q=80", alt: "Fort Collins home", tall: true },
-  { src: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=80", alt: "NoCo home", tall: false },
-  { src: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80", alt: "Colorado home", tall: false },
+  { src: "/Position%201.jpg", alt: "Fort Collins home", tall: true },
+  { src: "/Position%202.jpg", alt: "NoCo home", tall: false },
+  { src: "/Position%203.jpg", alt: "Colorado home", tall: false },
 ];
 
 const photosWide = [
-  { src: "https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&q=80", alt: "Rural NoCo property" },
-  { src: "https://images.unsplash.com/photo-1549517045-bc93de075e53?w=600&q=80", alt: "Colorado mountain home" },
+  { src: "/Position%204.jpg", alt: "Rural NoCo property" },
+  { src: "/Position%205.jpg", alt: "Colorado mountain home" },
 ];
 
 const neighborhoods = [
@@ -336,7 +336,13 @@ const SellingPage = () => {
               Share a few quick details and schedule a no-pressure consultation with Fred — directly. No bait-and-switch valuations, just a real number from a real agent who knows your street.
             </p>
           </div>
-          <SellingWizard />
+          <div className='w-full max-w-[600px] lg:max-w-[880px] bg-[#F8F6F2] p-4 lg:p-8'>
+            <div className='mb-4'>
+              <div className='font-condensed text-lg font-bold uppercase tracking-[0.06em]'>Get your free home value</div>
+              <p className='text-sm text-black/60 mt-1'>A few details is all it takes to get started.</p>
+            </div>
+            <HomeValuationForm />
+          </div>
         </section>
       </div>
       <Footer />

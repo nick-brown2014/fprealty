@@ -20,6 +20,7 @@ type HomeValuationData = {
   lastName: string
   phone: string
   email: string
+  estimatedValue: string
   consent: boolean
 }
 
@@ -39,6 +40,7 @@ const initialForm: HomeValuationData = {
   lastName: '',
   phone: '',
   email: '',
+  estimatedValue: '',
   consent: false,
 }
 
@@ -48,6 +50,7 @@ const bedroomOptions = ['1', '2', '3', '4', '5', 'More than 5']
 const bathroomOptions = ['1', '2', '3', '4', 'More than 4']
 const inputClasses = 'w-full border border-black/15 bg-white px-4 py-3.5 font-body text-base outline-none transition-colors placeholder:text-black/35 focus:border-primary'
 const labelClasses = 'mb-2 block font-condensed text-xs font-bold uppercase tracking-[0.16em] text-black/70'
+const lastStep = 4
 
 const HomeValuationForm = () => {
   const [form, setForm] = useState<HomeValuationData>(initialForm)
@@ -75,7 +78,7 @@ const HomeValuationForm = () => {
       return false
     }
     if (
-      step === 3 &&
+      step === lastStep &&
       (!form.firstName.trim() ||
         !form.lastName.trim() ||
         form.phone.replace(/\D/g, '').length < 7 ||
@@ -90,7 +93,7 @@ const HomeValuationForm = () => {
   }
 
   const handleNext = () => {
-    if (validateStep()) setStep(current => Math.min(current + 1, 3))
+    if (validateStep()) setStep(current => Math.min(current + 1, lastStep))
   }
 
   const handlePrevious = () => {
@@ -110,6 +113,10 @@ const HomeValuationForm = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (step < lastStep) {
+      handleNext()
+      return
+    }
     if (!validateStep()) return
 
     setSubmitting(true)
@@ -136,7 +143,7 @@ const HomeValuationForm = () => {
       <span className={`flex h-6 w-6 items-center justify-center rounded-full border font-condensed text-xs font-bold ${index < step ? 'border-primary bg-primary text-white' : index === step ? 'border-primary' : 'border-current'}`}>
         {index < step ? '✓' : index + 1}
       </span>
-      <span className='font-condensed text-[11px] font-bold uppercase tracking-[0.13em]'>{label}</span>
+      <span className='hidden font-condensed text-[11px] font-bold uppercase tracking-[0.13em] @2xl:inline'>{label}</span>
     </div>
   )
 
@@ -154,20 +161,22 @@ const HomeValuationForm = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='w-full bg-white p-6 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.18)] md:p-10'>
+    <form onSubmit={handleSubmit} className='@container w-full bg-white p-6 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.18)] md:p-10 lg:min-w-[595px]'>
       <div className='mb-8 hidden items-center justify-center gap-4 md:flex'>
         <StepLabel index={0} label='Address' />
-        <span className='h-px w-8 bg-black/15' />
+        <span className='h-px w-5 bg-black/15 @2xl:w-8' />
         <StepLabel index={1} label='Property' />
-        <span className='h-px w-8 bg-black/15' />
+        <span className='h-px w-5 bg-black/15 @2xl:w-8' />
         <StepLabel index={2} label='Timing' />
-        <span className='h-px w-8 bg-black/15' />
-        <StepLabel index={3} label='Contact' />
+        <span className='h-px w-5 bg-black/15 @2xl:w-8' />
+        <StepLabel index={3} label='Estimate' />
+        <span className='h-px w-5 bg-black/15 @2xl:w-8' />
+        <StepLabel index={4} label='Contact' />
       </div>
       <div className='mb-7 flex items-center justify-between md:hidden'>
         <button type='button' onClick={handlePrevious} disabled={step === 0} className='flex items-center gap-1 font-condensed text-xs font-bold uppercase tracking-[0.12em] disabled:opacity-30'>← Prev</button>
-        <span className='font-condensed text-xs font-bold uppercase tracking-[0.15em] text-primary'>Step {step + 1} of 4</span>
-        <button type='button' onClick={handleNext} disabled={step === 3} className='flex items-center gap-1 font-condensed text-xs font-bold uppercase tracking-[0.12em] disabled:opacity-30'>Next →</button>
+        <span className='font-condensed text-xs font-bold uppercase tracking-[0.15em] text-primary'>Step {step + 1} of {lastStep + 1}</span>
+        <button type='button' onClick={handleNext} disabled={step === lastStep} className='flex items-center gap-1 font-condensed text-xs font-bold uppercase tracking-[0.12em] disabled:opacity-30'>Next →</button>
       </div>
 
       {step === 0 && (
@@ -230,7 +239,17 @@ const HomeValuationForm = () => {
 
       {step === 3 && (
         <div>
-          <p className='mb-2 font-condensed text-xs font-bold uppercase tracking-[0.18em] text-primary'>Step 4 · Your details</p>
+          <p className='mb-2 font-condensed text-xs font-bold uppercase tracking-[0.18em] text-primary'>Step 4 · Your estimate</p>
+          <h3 className='font-serif text-2xl font-bold tracking-tight text-black md:text-3xl'>What do you feel your home is worth in today&#39;s market?</h3>
+          <p className='mt-2 mb-7 font-body text-sm leading-relaxed text-black/60'>Optional — a ballpark is fine. It helps Fred understand your expectations before preparing your report.</p>
+          <label className={labelClasses} htmlFor='estimated-value'>Your estimate</label>
+          <input id='estimated-value' value={form.estimatedValue} onChange={event => updateField('estimatedValue', event.target.value)} className={inputClasses} placeholder='$650,000' inputMode='numeric' />
+        </div>
+      )}
+
+      {step === 4 && (
+        <div>
+          <p className='mb-2 font-condensed text-xs font-bold uppercase tracking-[0.18em] text-primary'>Step 5 · Your details</p>
           <h3 className='font-serif text-2xl font-bold tracking-tight text-black md:text-3xl'>Where should we send your report?</h3>
           <div className='mt-6 grid gap-5 sm:grid-cols-2'>
             <div>
@@ -260,7 +279,7 @@ const HomeValuationForm = () => {
       {error && <p className='mt-6 border-l-2 border-primary bg-primary/[0.05] px-4 py-3 text-sm text-primary' role='alert'>{error}</p>}
       <div className='mt-8 flex items-center justify-between gap-4 border-t border-black/10 pt-6'>
         <button type='button' onClick={handlePrevious} disabled={step === 0} className='font-condensed text-xs font-bold uppercase tracking-[0.16em] text-black/65 transition-colors hover:text-primary disabled:invisible'>← Back</button>
-        {step < 3 ? (
+        {step < lastStep ? (
           <button type='button' onClick={handleNext} className='bg-primary px-7 py-3.5 font-condensed text-sm font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-primary/90'>Continue →</button>
         ) : (
           <button type='submit' disabled={submitting} className='bg-primary px-7 py-3.5 font-condensed text-sm font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-primary/90 disabled:cursor-wait disabled:opacity-60'>{submitting ? 'Sending…' : 'Get My Free Home Value'}</button>

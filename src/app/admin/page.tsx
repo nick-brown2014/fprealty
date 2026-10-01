@@ -15,6 +15,22 @@ interface AdminUser {
   createdAt: string
 }
 
+interface UserFavorite {
+  id: string
+  listingKey: string
+  favoritedAt: string
+  listing: {
+    address: string | null
+    city: string | null
+    listPrice: number | null
+    mlsStatus: string | null
+    bedroomsTotal: number | null
+    bathroomsTotalInteger: number | null
+    livingArea: number | null
+    photoUrl: string | null
+  } | null
+}
+
 interface UserFormData {
   email: string
   firstName: string
@@ -50,6 +66,10 @@ const AdminPage = () => {
   const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null)
   const [deleteConfirmName, setDeleteConfirmName] = useState('')
   const [deleteError, setDeleteError] = useState('')
+  const [detailUser, setDetailUser] = useState<AdminUser | null>(null)
+  const [detailFavorites, setDetailFavorites] = useState<UserFavorite[]>([])
+  const [detailFavoritesLoading, setDetailFavoritesLoading] = useState(false)
+  const [detailFavoritesError, setDetailFavoritesError] = useState('')
 
   useEffect(() => {
     if (status === 'loading') return
@@ -103,7 +123,35 @@ const AdminPage = () => {
     setShowModal(true)
   }
 
+  const openDetailModal = async (user: AdminUser) => {
+    setDetailUser(user)
+    setDetailFavorites([])
+    setDetailFavoritesError('')
+    setDetailFavoritesLoading(true)
+
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}/favorites`)
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to load favorites')
+      }
+      const data = await response.json()
+      setDetailFavorites(data.favorites)
+    } catch (err) {
+      setDetailFavoritesError(err instanceof Error ? err.message : 'Failed to load favorites')
+    } finally {
+      setDetailFavoritesLoading(false)
+    }
+  }
+
+  const closeDetailModal = () => {
+    setDetailUser(null)
+    setDetailFavorites([])
+    setDetailFavoritesError('')
+  }
+
   const openEditModal = (user: AdminUser) => {
+    closeDetailModal()
     setModalMode('edit')
     setSelectedUser(user)
     setFormData({
@@ -168,6 +216,7 @@ const AdminPage = () => {
   }
 
   const openDeleteModal = (user: AdminUser) => {
+    closeDetailModal()
     setUserToDelete(user)
     setDeleteConfirmName('')
     setDeleteError('')
@@ -315,14 +364,11 @@ const AdminPage = () => {
                   <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                     Joined
                   </th>
-                  <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className='bg-white divide-y divide-gray-200'>
                 {users.map((user) => (
-                  <tr key={user.id} className='hover:bg-gray-50'>
+                  <tr key={user.id} className='hover:bg-gray-50 cursor-pointer' onClick={() => openDetailModal(user)}>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div className='text-sm font-medium text-gray-900'>
                         {user.firstName} {user.lastName}
@@ -353,27 +399,6 @@ const AdminPage = () => {
                     <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-600'>
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
-                      <button
-                        onClick={() => handleImpersonate(user)}
-                        className='cursor-pointer text-purple-600 hover:text-purple-900 mr-4'
-                        title='Log in as this user'
-                      >
-                        Log In as User
-                      </button>
-                      <button
-                        onClick={() => openEditModal(user)}
-                        className='cursor-pointer text-blue-600 hover:text-blue-900 mr-4'
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => openDeleteModal(user)}
-                        className='cursor-pointer text-red-600 hover:text-red-900'
-                      >
-                        Delete
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -382,17 +407,138 @@ const AdminPage = () => {
         </div>
       </div>
 
+      {/* User Detail Modal */}
+      {detailUser && (
+        <div className='fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4'>
+          <div className='bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] p-6 relative flex flex-col'>
+            <button
+              type='button'
+              onClick={closeDetailModal}
+              className='absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer'
+              aria-label='Close modal'
+            >
+              <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+              </svg>
+            </button>
+            <h2 className='text-2xl font-bold text-gray-900 pr-8'>
+              {detailUser.firstName} {detailUser.lastName}
+            </h2>
+            <div className='mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600'>
+              <span>{detailUser.email}</span>
+              <span className='text-gray-300'>•</span>
+              <span>{detailUser.phoneNumber}</span>
+              <span className='text-gray-300'>•</span>
+              <span>Joined {new Date(detailUser.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className='mt-3 flex flex-wrap gap-2'>
+              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                detailUser.emailOptIn ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              }`}>
+                Email Opt-In: {detailUser.emailOptIn ? 'Yes' : 'No'}
+              </span>
+              {detailUser.isAdmin && (
+                <span className='px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800'>
+                  Admin
+                </span>
+              )}
+            </div>
+
+            <div className='mt-5 flex flex-wrap gap-3 border-b border-gray-200 pb-5'>
+              <button
+                onClick={() => handleImpersonate(detailUser)}
+                className='cursor-pointer px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700'
+                title='Log in as this user'
+              >
+                Log In as User
+              </button>
+              <button
+                onClick={() => openEditModal(detailUser)}
+                className='cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700'
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => openDeleteModal(detailUser)}
+                className='cursor-pointer px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50'
+              >
+                Delete
+              </button>
+            </div>
+
+            <h3 className='mt-5 text-lg font-semibold text-gray-800'>
+              Favorited Properties{!detailFavoritesLoading && ` (${detailFavorites.length})`}
+            </h3>
+            <div className='mt-3 overflow-y-auto flex-1 min-h-0'>
+              {detailFavoritesLoading ? (
+                <p className='text-sm text-gray-500'>Loading favorites...</p>
+              ) : detailFavoritesError ? (
+                <div className='p-3 bg-red-100 border border-red-400 text-red-700 rounded'>{detailFavoritesError}</div>
+              ) : detailFavorites.length === 0 ? (
+                <p className='text-sm text-gray-500'>This user hasn&apos;t favorited any properties yet.</p>
+              ) : (
+                <ul className='divide-y divide-gray-200'>
+                  {detailFavorites.map((favorite) => (
+                    <li key={favorite.id}>
+                      <a
+                        href={`/listing/${favorite.listingKey}`}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='flex items-center gap-4 py-3 hover:bg-gray-50 rounded-md px-2 -mx-2'
+                      >
+                        <div className='w-20 h-16 flex-shrink-0 bg-gray-200 rounded overflow-hidden'>
+                          {favorite.listing?.photoUrl && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={favorite.listing.photoUrl} alt='' className='w-full h-full object-cover' loading='lazy' />
+                          )}
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          {favorite.listing ? (
+                            <>
+                              <div className='text-sm font-medium text-gray-900 truncate'>
+                                {favorite.listing.address || 'Address unavailable'}{favorite.listing.city ? `, ${favorite.listing.city}` : ''}
+                              </div>
+                              <div className='text-sm text-gray-600'>
+                                {favorite.listing.listPrice !== null && new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(favorite.listing.listPrice)}
+                                {favorite.listing.bedroomsTotal !== null && ` · ${favorite.listing.bedroomsTotal} bd`}
+                                {favorite.listing.bathroomsTotalInteger !== null && ` · ${favorite.listing.bathroomsTotalInteger} ba`}
+                                {favorite.listing.livingArea ? ` · ${favorite.listing.livingArea.toLocaleString()} sqft` : ''}
+                              </div>
+                            </>
+                          ) : (
+                            <div className='text-sm text-gray-500'>Listing {favorite.listingKey} is no longer available</div>
+                          )}
+                          <div className='text-xs text-gray-400 mt-0.5'>
+                            {favorite.listing?.mlsStatus && <span className='mr-2'>{favorite.listing.mlsStatus}</span>}
+                            Favorited {new Date(favorite.favoritedAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Create/Edit User Modal */}
       {showModal && (
-        <div
-          className='fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4'
-          onClick={closeModal}
-        >
-          <div
-            className='bg-white rounded-lg shadow-xl max-w-md w-full p-6'
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className='text-2xl font-bold text-gray-900 mb-4'>
+        <div className='fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4'>
+          <div className='bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative'>
+            <button
+              type='button'
+              onClick={closeModal}
+              className='absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer'
+              aria-label='Close modal'
+              disabled={formLoading}
+            >
+              <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+              </svg>
+            </button>
+            <h2 className='text-2xl font-bold text-gray-900 mb-4 pr-8'>
               {modalMode === 'create' ? 'Create New User' : 'Edit User'}
             </h2>
 
@@ -521,7 +667,7 @@ const AdminPage = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && userToDelete && (
         <div
-          className='fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4'
+          className='fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4'
           onClick={closeDeleteModal}
         >
           <div
