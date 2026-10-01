@@ -265,6 +265,21 @@ model Listing {
   @@index([listingContractDate])
 }
 
+model BlogPost {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  content     String?
+  categories  String[] @default([])
+  heroImage   String?
+  publishedAt DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([publishedAt])
+}
+
 model SyncState {
   id                        String    @id @default("mls-grid-sync")
   lastSyncTimestamp         DateTime?
