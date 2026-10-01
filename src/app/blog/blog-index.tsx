@@ -40,7 +40,7 @@ export default async function BlogIndex({
     prisma.blogPost.findMany({ select: { categories: true } }),
   ])
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  if (page < 1 || page > totalPages || posts.length === 0) notFound()
+  if (page < 1 || page > totalPages || (page > 1 && posts.length === 0)) notFound()
 
   const counts = new Map<string, number>()
   for (const post of allCategories) {
@@ -71,6 +71,9 @@ export default async function BlogIndex({
                     All posts ({allCategories.length})
                   </Link>
                 </li>
+                {categories.length === 0 && (
+                  <li className='px-3 py-2 text-sm text-gray-500'>Categories coming soon</li>
+                )}
                 {categories.map(([slug, count]) => (
                   <li key={slug}>
                     <Link
@@ -114,6 +117,26 @@ export default async function BlogIndex({
                 </>
               )}
             </div>
+
+            {posts.length === 0 && (
+              <div className='bg-white rounded-lg shadow-md p-10 lg:p-14 text-center'>
+                <p className='font-condensed text-xs font-bold tracking-[0.22em] uppercase text-primary mb-3'>
+                  Work in progress
+                </p>
+                <h2 className='font-serif text-3xl mb-4'>
+                  {category ? `No posts in ${categoryName(category)} yet` : 'Our first posts are on the way'}
+                </h2>
+                <p className='text-lg text-gray-600 max-w-xl mx-auto'>
+                  We&apos;re busy writing market updates, buying and selling guides, and local
+                  insights for Northern Colorado. Come check back soon!
+                </p>
+                {category && (
+                  <Link className='inline-block mt-6 text-primary font-semibold hover:underline' href='/blog'>
+                    View all posts
+                  </Link>
+                )}
+              </div>
+            )}
 
             <div className='flex flex-col gap-6'>
               {posts.map((post) => (
