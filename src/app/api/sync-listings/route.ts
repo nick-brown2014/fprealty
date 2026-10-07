@@ -70,6 +70,7 @@ interface MLSGridProperty {
   WaterfrontYN?: boolean
   FireplaceYN?: boolean
   SeniorCommunityYN?: boolean
+  SpecialListingConditions?: string[]
   HorseYN?: boolean
   GarageYN?: boolean
   AttachedGarageYN?: boolean
@@ -197,7 +198,7 @@ function transformPropertyToListing(property: MLSGridProperty) {
     spaYN: property.SpaYN ?? null,
     waterfrontYN: property.WaterfrontYN ?? null,
     fireplaceYN: property.FireplaceYN ?? null,
-    seniorCommunityYN: property.SeniorCommunityYN ?? null,
+    seniorCommunityYN: property.SeniorCommunityYN ?? property.SpecialListingConditions?.includes('Senior Community') ?? null,
     horseYN: property.HorseYN ?? null,
     garageYN: property.GarageYN ?? null,
     attachedGarageYN: property.AttachedGarageYN ?? null,
