@@ -8,6 +8,8 @@ const MLS_GRID_BASE_URL = 'https://api.mlsgrid.com/v2'
 const ORIGINATING_SYSTEM = 'ires'
 const BATCH_SIZE = 200
 const MAX_RECORDS_PER_INVOCATION = 2000
+// Incremental runs once a day and must drain the whole backlog, so bound by time rather than record count.
+const INCREMENTAL_FETCH_BUDGET_MS = 230_000
 
 interface MLSGridMedia {
   MediaKey: string
@@ -410,7 +412,11 @@ export async function GET(request: NextRequest) {
     const newListingKeys: string[] = []
     const imagesToCache: Array<{ listingKey: string; mediaUrl: string }> = []
 
-    while (url && totalProcessed < MAX_RECORDS_PER_INVOCATION) {
+    const canContinue = () => isFullSync
+      ? totalProcessed < MAX_RECORDS_PER_INVOCATION
+      : Date.now() - syncStartTime < INCREMENTAL_FETCH_BUDGET_MS
+
+    while (url && canContinue()) {
       console.log(`Fetching batch from: ${url}`)
 
       const data = await fetchFromMLSGrid(url)
@@ -493,7 +499,7 @@ export async function GET(request: NextRequest) {
 
       const nextLink = data['@odata.nextLink']
       
-      if (nextLink && totalProcessed < MAX_RECORDS_PER_INVOCATION) {
+      if (nextLink && canContinue()) {
         url = nextLink
         await new Promise(resolve => setTimeout(resolve, 100))
       } else {
@@ -587,7 +593,7 @@ export async function GET(request: NextRequest) {
         }
       })
 
-      console.log(`Incremental sync complete: ${totalProcessed} processed, ${totalUpserted} upserted, ${totalDeleted} deleted`)
+      console.log(`Incremental sync complete: ${totalProcessed} processed, ${totalUpserted} upserted, ${totalDeleted} deleted${hasMoreData ? ' (time budget reached, backlog remains)' : ''}`)
 
       // Pre-cache primary images with remaining time (leave 30s for alerts)
       const elapsedInc = Date.now() - syncStartTime
@@ -610,6 +616,7 @@ export async function GET(request: NextRequest) {
         imagesCached: cacheResultInc,
         alertsResult,
         totalListings,
+        hasMoreData,
         lastSyncTimestamp: latestTimestamp?.toISOString()
       })
     }
