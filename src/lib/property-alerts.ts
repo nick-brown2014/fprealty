@@ -7,6 +7,9 @@ import { isMediaCached } from '@/lib/media'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://nocorealtor.com'
 
+// Never email a user more than once per day, even if the sync runs several times.
+const ALERT_EMAIL_MIN_INTERVAL_MS = 24 * 60 * 60 * 1000
+
 interface EmailProperty {
   id: string
   address: string
@@ -58,9 +61,11 @@ export async function processPropertyAlerts(
 
   const resend = new Resend(process.env.RESEND_API_KEY)
 
+  const emailedSince = new Date(Date.now() - ALERT_EMAIL_MIN_INTERVAL_MS)
   const optedInUsers = await prisma.user.findMany({
     where: {
       emailOptIn: true,
+      OR: [{ lastAlertEmailAt: null }, { lastAlertEmailAt: { lt: emailedSince } }],
       ...(options?.testMode && { email: 'nick.brown2014@gmail.com' })
     },
     include: {
@@ -135,6 +140,7 @@ export async function processPropertyAlerts(
       } else {
         console.log(`Email sent to ${user.email} with ${totalProperties} new properties from ${searchResults.length} saved searches`)
         emailsSent++
+        await prisma.user.update({ where: { id: user.id }, data: { lastAlertEmailAt: new Date() } })
       }
     } catch (err) {
       console.error(`Error processing user ${user.email}:`, err)

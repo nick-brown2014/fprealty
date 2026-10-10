@@ -19,6 +19,7 @@ model User {
   isAdmin                Boolean        @default(false)
   resetToken             String?        @unique
   resetTokenExpiry       DateTime?
+  lastAlertEmailAt       DateTime?
   createdAt              DateTime       @default(now())
   updatedAt              DateTime       @updatedAt
   favorites              Favorite[]
