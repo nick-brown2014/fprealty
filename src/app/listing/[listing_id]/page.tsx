@@ -277,6 +277,12 @@ const ListingPage = ({ params }: ListingPageProps) => {
                       <span className='font-medium text-gray-900'>{listing.SubdivisionName}</span>
                     </div>
                   )}
+                  {listing.SeniorCommunityYN && (
+                    <div className='flex justify-between py-2 border-b border-gray-200'>
+                      <span className='text-gray-600'>Senior Community</span>
+                      <span className='font-medium text-gray-900'>Yes (55+)</span>
+                    </div>
+                  )}
                   {listing.ParcelNumber && (
                     <div className='flex justify-between py-2 border-b border-gray-200'>
                       <span className='text-gray-600'>Parcel Number</span>
