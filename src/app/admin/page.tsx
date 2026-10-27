@@ -327,6 +327,12 @@ const AdminPage = () => {
               Manage Blog Posts
             </button>
             <button
+              onClick={() => router.push('/admin/webinars')}
+              className='cursor-pointer bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition'
+            >
+              Manage Webinars
+            </button>
+            <button
               onClick={openCreateModal}
               className='cursor-pointer bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition'
             >

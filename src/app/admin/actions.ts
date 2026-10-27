@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import sanitizeHtml from 'sanitize-html'
 import { requireAdmin } from '@/lib/admin'
 import { prisma } from '@/lib/prisma'
+import { fromDenverInputValue } from '@/lib/webinars'
 
 export type FormState = { error?: string; message?: string }
 
@@ -23,13 +24,14 @@ function slugify(value: string) {
 }
 
 const POST_IMAGE_STORAGE_DIR = 'blog'
-const POST_IMAGE_EXTENSIONS: Record<string, string> = {
+const WEBINAR_IMAGE_STORAGE_DIR = 'webinars'
+const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/jpeg': '.jpg',
   'image/png': '.png',
   'image/webp': '.webp',
   'image/gif': '.gif',
 }
-const MAX_POST_IMAGE_SIZE_BYTES = 8 * 1024 * 1024
+const MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024
 
 function sanitizePostContent(html: string) {
   return sanitizeHtml(html, {
@@ -41,13 +43,15 @@ function sanitizePostContent(html: string) {
   }).trim()
 }
 
-export async function uploadPostImage(formData: FormData): Promise<{ url: string } | { error: string }> {
+type UploadResult = { url: string } | { error: string }
+
+async function uploadImage(formData: FormData, storageDir: string): Promise<UploadResult> {
   await requireAdmin()
   const file = formData.get('image')
   if (!(file instanceof File) || file.size === 0) return { error: 'Choose an image to upload.' }
-  const extension = POST_IMAGE_EXTENSIONS[file.type]
+  const extension = IMAGE_EXTENSIONS[file.type]
   if (!extension) return { error: 'Image must be a JPEG, PNG, WebP, or GIF.' }
-  if (file.size > MAX_POST_IMAGE_SIZE_BYTES) {
+  if (file.size > MAX_IMAGE_SIZE_BYTES) {
     return { error: 'Image must be 8 MB or smaller.' }
   }
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
@@ -56,7 +60,7 @@ export async function uploadPostImage(formData: FormData): Promise<{ url: string
   const base = slugify(path.basename(file.name, path.extname(file.name))) || 'image'
   const filename = `${base}-${randomBytes(4).toString('hex')}${extension}`
   try {
-    const blob = await put(`${POST_IMAGE_STORAGE_DIR}/${filename}`, Buffer.from(await file.arrayBuffer()), {
+    const blob = await put(`${storageDir}/${filename}`, Buffer.from(await file.arrayBuffer()), {
       access: 'public',
       contentType: file.type,
       addRandomSuffix: false,
@@ -65,6 +69,14 @@ export async function uploadPostImage(formData: FormData): Promise<{ url: string
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'The image could not be saved.' }
   }
+}
+
+export async function uploadPostImage(formData: FormData): Promise<UploadResult> {
+  return uploadImage(formData, POST_IMAGE_STORAGE_DIR)
+}
+
+export async function uploadWebinarImage(formData: FormData): Promise<UploadResult> {
+  return uploadImage(formData, WEBINAR_IMAGE_STORAGE_DIR)
 }
 
 function revalidateBlog(slug?: string) {
@@ -123,4 +135,59 @@ export async function deletePost(formData: FormData) {
   const post = await prisma.blogPost.delete({ where: { id } })
   revalidateBlog(post.slug)
   redirect('/admin/posts')
+}
+
+function revalidateWebinars() {
+  revalidatePath('/')
+  revalidatePath('/admin/webinars')
+}
+
+function isHttpUrl(value: string) {
+  try {
+    return ['http:', 'https:'].includes(new URL(value).protocol)
+  } catch {
+    return false
+  }
+}
+
+export async function saveWebinar(_prevState: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin()
+
+  const id = text(formData, 'id')
+  const title = text(formData, 'title')
+  const description = text(formData, 'description')
+  const image = text(formData, 'image')
+  const signUpUrl = text(formData, 'signUpUrl')
+  const startsAt = fromDenverInputValue(text(formData, 'startsAt'))
+
+  if (!title) return { error: 'Title is required.' }
+  if (!description) return { error: 'Description is required.' }
+  if (!startsAt) return { error: 'Date and time are required.' }
+  if (signUpUrl && !isHttpUrl(signUpUrl)) return { error: 'Sign-up URL must start with http:// or https://.' }
+
+  const data = {
+    title,
+    description,
+    image: image || null,
+    signUpUrl: signUpUrl || null,
+    startsAt,
+  }
+
+  if (id) {
+    await prisma.webinar.update({ where: { id }, data })
+  } else {
+    await prisma.webinar.create({ data })
+  }
+
+  revalidateWebinars()
+  redirect('/admin/webinars')
+}
+
+export async function deleteWebinar(formData: FormData) {
+  await requireAdmin()
+  const id = text(formData, 'id')
+  if (!id) return
+  await prisma.webinar.delete({ where: { id } })
+  revalidateWebinars()
+  redirect('/admin/webinars')
 }

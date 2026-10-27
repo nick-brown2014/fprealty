@@ -281,6 +281,19 @@ model BlogPost {
   @@index([publishedAt])
 }
 
+model Webinar {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  image       String?
+  signUpUrl   String?
+  startsAt    DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([startsAt])
+}
+
 model SyncState {
   id                        String    @id @default("mls-grid-sync")
   lastSyncTimestamp         DateTime?
