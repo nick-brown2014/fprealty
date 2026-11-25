@@ -124,8 +124,8 @@ export async function GET(request: NextRequest) {
     const listingKeyIn = params.get('ListingKey.in')
     if (listingKeyIn) where.listingKey = { in: listingKeyIn.split(',') }
 
-    const listingId = params.get('ListingId')
-    if (listingId) where.listingId = listingId
+    const listingId = params.get('ListingId')?.trim().toUpperCase()
+    if (listingId) where.listingId = /^\d+$/.test(listingId) ? `IRE${listingId}` : listingId
 
     if (params.get('NewConstructionYN') === 'true') where.newConstructionYN = true
 
